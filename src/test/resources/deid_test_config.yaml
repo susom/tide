@@ -1,0 +1,146 @@
+name: note_deid_20180831
+deid_jobs:
+  - job_name: stanford_deid_v1_strict
+    version: v1.5
+    text_field: fullnote
+    text_id_field: note_id
+    analytic: true
+    date_jitter: local
+    date_jitter_range: 30
+    date_jitter_seed_field: pat_id
+    googleDlpEnabled: true
+    googleDlpInfoTypes:
+      - item_name: age
+        fields: AGE
+      - item_name: date
+        fields: DATE
+      - item_name: phi_date
+        fields: DATE_OF_BIRTH
+      - item_name: payment_id
+        fields: CREDIT_CARD_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE
+      - item_name: public_id
+        fields: US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT
+      - item_name: patient_ssn
+        fields: US_SOCIAL_SECURITY_NUMBER
+      - item_name: other_id
+        fields: US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER
+      - item_name: other_email
+        fields: EMAIL_ADDRESS
+      - item_name: other_name
+        fields: PERSON_NAME
+      - item_name: other_phone
+        fields: PHONE_NUMBER
+      - item_name: care_provider_id
+        fields: US_HEALTHCARE_NPI,US_DEA_NUMBER
+      - item_name: other_address
+        fields: LOCATION
+      - item_name: internet_locator
+        fields: IP_ADDRESS,MAC_ADDRESS,URL
+
+#    ALL_BASIC,FEMALE_NAME,FIRST_NAME,LAST_NAME,MALE_NAME,
+
+    spec:
+
+      - item_name: phi_date
+        action: jitter_date
+        action_param: gf2jKlYrX6
+        fields: ''
+
+      - item_name: age
+        action: remove_age
+        fields: ''
+
+      - item_name: mrn
+        action: remove_mrn
+        fields: ''
+
+      - item_name: patient_mrn
+        action: replace_strictly_with
+        action_param: mrn
+        fields:  PAT_MRN_ID
+
+      - item_name: other_id
+        action: replace_strictly_with
+        action_param: id
+        fields:  pat_id, birth_wrist_band, epic_pat_id, PRIM_CVG_ID, PRIM_EPP_ID, EMPLOYER_ID
+
+      - item_name: patient_ssn
+        action: replace_with
+        action_param: ssn
+        fields:  ssn
+
+      - item_name: public_id
+        action: replace_strictly_with
+        action_param: public_id
+        fields:  medicare_num, medicaid_num
+
+      - item_name: family_id
+        action: replace_strictly_with
+        action_param: family_id
+        fields:  mother_pat_id, father_pat_id
+
+      - item_name: patient_name
+        action: replace_strictly_with
+        action_param: patient_name
+        fields:  pat_name, PAT_LAST_NAME, PAT_FIRST_NAME, PAT_MIDDLE_NAME, PROXY_NAME
+
+      - item_name: care_provider_name
+        action: replace_with
+        action_param: care_provider
+        fields: EMP_NAME, PROV_NAME
+
+      - item_name: other_name
+        action: replace_with
+        action_param: name
+        fields: GUARDIAN_NAME
+
+      - item_name: patient_address
+        action: replace_with
+        action_param: patient_address
+        fields:  add_line_1, add_line_2, city, exact, tmp_addr_line_1, tmp_addr_line_2, tmp_city,tmp_zip,
+
+      - item_name: other_address
+        action: replace_with
+        action_param: address
+        fields:
+
+      - item_name: patient_phone
+        action: replace_strictly_with
+        action_param: patient_phone
+        fields:  home_phone, work_phone, tmp_home_phone, PROXY_PHONE,
+
+      - item_name: other_phone
+        action: replace_with
+        action_param: phone
+        fields:
+
+      - item_name: patient_email
+        action: replace_strictly_with
+        action_param: patient_email
+        fields:  email_address
+
+      - item_name: other_email
+        action: replace_strictly_with
+        action_param: email
+        fields:
+
+
+      - item_name: mergency_contact
+        action: replace_strictly_with
+        action_param: emergency_contact
+        fields: father_name, mother_name
+
+      - item_name: mergency_contact_address
+        action: replace_with
+        action_param: emergency_contact_address
+        fields: father_addr_ln_1, father_addr_ln_2, father_city, father_zip, mother_addr_ln_1, mother_addr_ln_2, mother_city, mother_zip
+
+      - item_name: mergency_contact_phone
+        action: replace_strictly_with
+        action_param: mergency_contact_phone
+        fields: father_cell_phone, mother_cell_phone
+
+      - item_name: accession_num
+        action: replace_minimumlengthword_with
+        action_param: accession_number 5
+        fields: accession_num
