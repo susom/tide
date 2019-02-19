@@ -1,7 +1,24 @@
+/*
+ * Copyright 2019 The Board of Trustees of The Leland Stanford Junior University.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ */
+
 package com.github.susom.starr.deid;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,35 +34,35 @@ import java.util.Map;
 
 
 /**
- * Deid task specification
+ * Deid task specification.
  * @author wenchengl
  */
 
-@JsonDeserialize(using = SpecDeserializer.class)
+@JsonDeserialize(using = DeidSpec.SpecDeserializer.class)
 public class DeidSpec implements Serializable {
-  String item_name;
+  String itemName;
   Action action;
-  String[] action_param;
-  Map<String,String> action_param_map;
+  String[] actionParam;
+  Map<String,String> actionParamMap;
   String[] fields;
 
 
   public static final class DeidSpecBuilder {
-    String item_name;
+    String itemName;
     Action action;
-    String[] action_param;
-    Map<String,String> action_param_map;
+    String[] actionParam;
+    Map<String,String> actionParamMap;
     String[] fields;
 
     private DeidSpecBuilder() {
     }
 
-    public static DeidSpecBuilder aDeidSpec() {
+    public static DeidSpecBuilder getDeidSpecBuilder() {
       return new DeidSpecBuilder();
     }
 
-    public DeidSpecBuilder withItem_name(String item_name) {
-      this.item_name = item_name;
+    public DeidSpecBuilder withItemName(String itemName) {
+      this.itemName = itemName;
       return this;
     }
 
@@ -54,13 +71,13 @@ public class DeidSpec implements Serializable {
       return this;
     }
 
-    public DeidSpecBuilder withAction_param(String[] action_param) {
-      this.action_param = action_param;
+    public DeidSpecBuilder withActionParam(String[] actionParam) {
+      this.actionParam = actionParam;
       return this;
     }
 
-    public DeidSpecBuilder withAction_param_map(Map<String,String> action_param_map) {
-      this.action_param_map = action_param_map;
+    public DeidSpecBuilder withActionParamMap(Map<String,String> actionParamMap) {
+      this.actionParamMap = actionParamMap;
       return this;
     }
 
@@ -70,87 +87,102 @@ public class DeidSpec implements Serializable {
       return this;
     }
 
+    /**
+     * build DeidSpec object.
+     * @return DeidSpec
+     */
     public DeidSpec build() {
       DeidSpec deidSpec = new DeidSpec();
-      deidSpec.action_param = this.action_param;
+      deidSpec.actionParam = this.actionParam;
       deidSpec.fields = this.fields;
-      deidSpec.item_name = this.item_name;
-      deidSpec.action_param_map = this.action_param_map;
+      deidSpec.itemName = this.itemName;
+      deidSpec.actionParamMap = this.actionParamMap;
       deidSpec.action = this.action;
       return deidSpec;
     }
   }
-}
 
-
-enum DateJitterMode{
-  local,
-  stanford_health_api
-}
-
-enum Action{
-  general, // general pattern matching deid with GeneralAnonymizer
-  surrogate_name, //surrogate name using NameSurrogate
-  surrogate_address, //surrogate address using LocationSurrogate
-  jitter_date, //DateAnonymizer
-  jitter_birth_date, //DateAnonymizer
-  remove_age, //AgeAnonymizer
-  remove_mrn, //MrnAnonymizer
-  replace_minimumlengthword_with,  //ActualNameAnonymizer for words with minimum word length of 5
-  replace_with,  //ActualNameAnonymizer for word longer than 2 characters, and not in common vocabulary
-  replace_strictly_with, ////ActualNameAnonymizer applied strictly regardless word length, and if in common vocabulary
-  remove,
-  keep  //nothing or NoopAnonymizer
-}
-
-class SpecDeserializer extends StdDeserializer<DeidSpec> {
-  private static ObjectMapper mapper = new ObjectMapper();
-  static {
-    mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+  enum DateJitterMode {
+    local,
+    stanford_health_api
   }
 
-  public SpecDeserializer(){
-    this(null);
+  enum Action {
+    general, // general pattern matching deid with GeneralAnonymizer
+    surrogate_name, //surrogate name using NameSurrogate
+    surrogate_address, //surrogate address using LocationSurrogate
+    jitter_date, //DateAnonymizer
+    jitter_birth_date, //DateAnonymizer
+    remove_age, //AgeAnonymizer
+    remove_mrn, //MrnAnonymizer
+
+    /* ActualNameAnonymizer for words with minimum word length of 5 */
+    replace_minimumlengthword_with,
+
+    /* ActualNameAnonymizer for word longer than 2 characters, and not in common vocabulary */
+    replace_with,
+
+    /*ActualNameAnonymizer applied strictly regardless word length, and if in common vocabulary */
+    replace_strictly_with,
+
+    remove,
+
+    /* nothing or NoopAnonymizer */
+    keep
   }
 
+  static class SpecDeserializer extends StdDeserializer<DeidSpec> {
+    private static ObjectMapper mapper = new ObjectMapper();
 
-  public SpecDeserializer(Class<?> c){
-    super(c);
-  }
-
-  @Override
-  public DeidSpec deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-    JsonNode node = p.getCodec().readTree(p);
-
-    DeidSpec spec = new DeidSpec();
-    DeidSpec.DeidSpecBuilder builder = DeidSpec.DeidSpecBuilder.aDeidSpec();
-    builder.withItem_name(node.get("item_name").asText());
-
-    if(node.get("action")!=null) {
-      builder.withAction(Action.valueOf(node.get("action").asText()));
+    static {
+      mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
 
-    if(node.get("action_param")!=null) {
-      builder.withAction_param(node.get("action_param").asText().split(" "));
+    public SpecDeserializer() {
+      this(null);
     }
 
-    //{"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-    if(node.get("action_param_map")!=null) {
-      JsonNode paramNode = node.get("action_param_map");
-      Map<String,String> m = new HashMap<>();
-      Iterator it = paramNode.fieldNames();
-      while (it.hasNext()){
-        String k = (String)it.next();
-        m.put(k, paramNode.get(k).asText());
+
+    public SpecDeserializer(Class<?> c) {
+      super(c);
+    }
+
+    @Override
+    public DeidSpec deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+      JsonNode node = p.getCodec().readTree(p);
+
+      DeidSpec spec = new DeidSpec();
+      DeidSpecBuilder builder = DeidSpecBuilder.getDeidSpecBuilder();
+      builder.withItemName(node.get("itemName").asText());
+
+      if (node.get("action") != null) {
+        builder.withAction(Action.valueOf(node.get("action").asText()));
       }
 
-      builder.withAction_param_map(m);
-    }
+      if (node.get("actionParam") != null) {
+        builder.withActionParam(node.get("actionParam").asText().split(" "));
+      }
 
-    if(node.get("fields")!=null) {
-      builder.withFields(node.get("fields").asText().split(","));
-    }
+      //{"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
+      if (node.get("actionParamMap") != null) {
+        JsonNode paramNode = node.get("actionParamMap");
+        Map<String,String> m = new HashMap<>();
+        Iterator it = paramNode.fieldNames();
+        while (it.hasNext()) {
+          String k = (String)it.next();
+          m.put(k, paramNode.get(k).asText());
+        }
 
-    return builder.build();
+        builder.withActionParamMap(m);
+      }
+
+      if (node.get("fields") != null) {
+        builder.withFields(node.get("fields").asText().split(","));
+      }
+
+      return builder.build();
+    }
   }
 }
+
+

@@ -16,35 +16,14 @@
  *
  */
 
-package com.github.susom.starr.deid;
+package com.github.susom.starr.deid.anonymizers;
 
-import java.io.Serializable;
+import edu.stanford.irt.core.facade.AnonymizedItem;
+import edu.stanford.irt.core.facade.Anonymizer;
+import java.util.List;
 
-/**
- * handling job configuration.
- * @author wenchengl
- */
+public interface AnonymizerProcessor extends Anonymizer {
 
-public class DeidJobs implements Serializable {
-  DeidJob[] deidJobs;
-  String name;
+  String scrub(String orginalText, String processedText, List<AnonymizedItem> findings);
 
-
-  public DeidJob[] getDeidJobs() {
-    return deidJobs;
-  }
-
-  public void setDeidJobs(DeidJob[] deidJobs) {
-    this.deidJobs = deidJobs;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 }
-
-

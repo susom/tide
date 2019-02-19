@@ -1,0 +1,64 @@
+name: note_deid_20180831
+deidJobs:
+  - jobName: stanford_deid_v1_strict
+    version: v1.5
+    analytic: true
+    dateJitter: local
+    dateJitterRange: 30
+    dateJitterSeedField: pat_id
+    googleDlpEnabled: false
+    nerEnabled: true
+    googleDlpInfoTypes:
+      - itemName: age
+        fields: AGE
+      - itemName: date
+        fields: DATE
+      - itemName: phi_date
+        fields: DATE_OF_BIRTH
+      - itemName: payment_id
+        fields: CREDIT_CARD_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE
+      - itemName: public_id
+        fields: US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT
+      - itemName: patient_ssn
+        fields: US_SOCIAL_SECURITY_NUMBER
+      - itemName: other_id
+        fields: US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER,MEDICARE_NUMBER,UNKNOWN_IDENTIFIER
+      - itemName: other_email
+        fields: EMAIL_ADDRESS
+      - itemName: other_name
+        fields: PERSON_NAME
+      - itemName: other_phone
+        fields: PHONE_NUMBER
+      - itemName: care_provider_id
+        fields: US_HEALTHCARE_NPI,US_DEA_NUMBER
+      - itemName: other_address
+        fields: LOCATION
+      - itemName: internet_locator
+        fields: IP_ADDRESS,MAC_ADDRESS,URL
+
+    spec:
+      - itemName: phi_date
+        action: jitter_date
+        actionParam: gf2jKlYrX6
+        fields: ''
+
+      - itemName: age
+        action: remove_age
+        fields: ''
+
+      - itemName: mrn
+        action: remove_mrn
+        fields: ''
+
+      - itemName: general
+        action: general
+        actionParam:
+        fields:
+
+      - itemName: general_name
+        action: surrogate_name
+        fields: ''
+
+      - itemName: other_address
+        action: surrogate_address
+        fields:  ''

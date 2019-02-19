@@ -18,33 +18,9 @@
 
 package com.github.susom.starr.deid;
 
-import java.io.Serializable;
-
-/**
- * handling job configuration.
- * @author wenchengl
- */
-
-public class DeidJobs implements Serializable {
-  DeidJob[] deidJobs;
-  String name;
-
-
-  public DeidJob[] getDeidJobs() {
-    return deidJobs;
-  }
-
-  public void setDeidJobs(DeidJob[] deidJobs) {
-    this.deidJobs = deidJobs;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
+enum ResourceType {
+  gcp_bq,
+  gcp_gcs,
+  db_sql,
+  local
 }
-
-
