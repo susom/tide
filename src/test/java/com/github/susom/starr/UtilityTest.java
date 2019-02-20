@@ -38,24 +38,34 @@ public class UtilityTest {
       seedString = "PAT" + i;
       result = Utility.jitterHash(seedString, salt, 30);
       log.info("jitter:" + result);
-      assertNotEquals(result,0);
+      assertFalse(result == 0 || result > 30 || result < -30);
     }
   }
 
 
   @Test
   public void getGaussianRandomPositionInRange() {
-    int count = 0;
-    for (int j = 0; j < 100000000; j++) {
+    int testTotal = 100000000;
+    int count95 = 0;
+    int count10 = 0;
+    for (int j = 0; j < testTotal; j++) {
       int pos = Utility.getGaussianRandomPositionInRange(100, 4);
       if (pos > 95) {
-        count ++;
-        log.info(String.format("range:%s pos:%s", 100, pos));
+        count95 ++;
+        //log.info(String.format("range:%s pos:%s", 100, pos));
+      } else if (pos < 10){
+        count10 ++;
+        //log.info(String.format("range:%s pos:%s", 100, pos));
       }
 
     }
+    log.info(String.format("total occurrence for 10 percent above : %s, which is about %s %%", count10,
+      (double)count10 / (double)testTotal * 100));
+    log.info(String.format("total occurrence for 95 percent above : %s, which is about %s %%", count95,
+          (double)count95 / (double)testTotal * 100));
 
-    log.info(String.format("total count : %s", count / 100000000.0));
+    int countOthers = testTotal - count10 - count95;
+    assertTrue(count10 > countOthers && countOthers > count95);
   }
 
 
