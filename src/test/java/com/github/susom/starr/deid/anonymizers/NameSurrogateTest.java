@@ -28,20 +28,23 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 public class NameSurrogateTest {
 
   String[] lastNames = new String[]{"Smith","Johnson","Williams","Jones","Brown","Davis","Miller","Wilson","Moor","Taylor","Anderson","Thomas","Jackson"};
 
 
-  String[] names = new String[]{"Jose","Posada","Arras","ФЭЭЭЭЭ","诚诚诚","Joe","Chris","Posada","Mary","Ed","Emma","Christopher","O'BRIEN"};
+  String[] names = new String[]{"Jose","Posada","Arras","ФЭЭЭЭЭ","诚诚诚","Joe","Chris","Posada","Mary","Emma","Christopher","O'BRIEN"};
   NameDictionay[] dic = new NameDictionay[]{NameDictionay.Firstname,NameDictionay.Lastname,NameDictionay.Lastname,NameDictionay.Lastname,NameDictionay.Lastname,NameDictionay.Firstname,NameDictionay.Firstname,NameDictionay.Lastname,NameDictionay.Firstname,NameDictionay.Firstname,NameDictionay.Firstname,NameDictionay.Firstname,NameDictionay.Firstname};
   String type = "name";
 
   private static final Logger log = LoggerFactory.getLogger(NameSurrogateTest.class);
   @Test
   public void scrub() throws IOException, SQLException {
-    String text = "\t Posada,\tJose,\tMary,\t Joe,\t Emma,\t Chris,\t Christopher,\t ФЭЭЭЭЭ,\t Ed,\t 诚诚诚,\t Hector Sausage-Hausen, O'BRIEN and Mathias d'Arras visited hospital on 11/6/2018. O'BRIEN is the key person";
+    String text = "\t Posada,\tJose,\tMary,\t Joe,\t Emma,\t Chris,\t Christopher,\t ФЭЭЭЭЭ,\t 诚诚诚,\t Hector Sausage-Hausen, O'BRIEN and Mathias d'Arras visited hospital on 11/6/2018. O'BRIEN is the key person";
     List<AnonymizedItem > items = new ArrayList<>();
 
     NameSurrogate ns = new NameSurrogate(names, "phi-name", dic);
@@ -51,6 +54,11 @@ public class NameSurrogateTest {
 //    items.forEach(i->{log.info(i.getWord());});
     log.info("scrub input:"+text);
     log.info("scrub output:"+result);
+
+    for (String name : names) {
+      assertFalse(result.contains(name));
+    }
+
   }
 
   @Test
@@ -60,6 +68,7 @@ public class NameSurrogateTest {
     for (String name : names) {
       String out = ns.getFirstNameSurrogate(name);
       log.info("first name Surrogate input: "+ name+" => output:"+out);
+      assertNotEquals("firstname should be surrogated", name, out);
     }
 
   }
@@ -71,6 +80,7 @@ public class NameSurrogateTest {
     for (String name : lastNames) {
       String out = ns.getLastNameSurrogate(name);
       log.info("Last name Surrogate input: "+ name+" => output:"+out);
+      assertNotEquals("lastname should be surrogated", name, out);
     }
   }
 }
