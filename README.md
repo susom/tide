@@ -2,7 +2,7 @@
 DEID
 =========
 
-Identify PHI for patient
+Identify PHI
 ---------
 
 
@@ -30,7 +30,21 @@ Surrogate (name and location)
 
 To customize the configuration, create a new config file, and use the file path as argument value of --deidConfigFile when run the utility.
 
-Deid spec can be grouped into PHI categories.
+Deid spec can be grouped into PHI categories. 
+
+Configure General Regex pattern matching, or find known PHI of the patient associated with the text. 
+
+- general : for Phone/Fax, Email, URL, IP address, SSN
+- surrogate_name : surrogate name using NameSurrogate
+- surrogate_address : surrogate address using LocationSurrogate
+- jitter_date : Date Anonymizer
+- jitter_birth_date : Date Anonymizer
+- remove_age : Age Anonymizer
+- remove_mrn : Mrn Anonymizer
+- replace_minimumlengthword_with : find words with minimum word length
+- replace_with : find word longer than 2 characters, and not in common vocabulary
+- replace_strictly_with : applied strictly regardless word length, and if in common vocabulary
+
 
 ```yaml
 
@@ -57,7 +71,7 @@ deidJobs:
 ```
 
 
-### set up environment
+### Set up environment
 
 Configure Google credential file location
 
