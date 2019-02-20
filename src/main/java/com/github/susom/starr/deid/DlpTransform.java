@@ -214,7 +214,7 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
           break;
         } catch (Exception e) {
-          log.info("Error in processing String: " + e.getMessage());
+          log.info("Error from DLP request", e);
           if (retryCount < 8) {
             double waitFor = Math.pow(2,retryCount);
             log.info("retry after " + waitFor + " seconds");
@@ -234,7 +234,7 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
 
     } catch (Exception e) {
-      log.info("Error in deidentifyWithMask: " + e.getMessage());
+      log.info("Failed to call DLP API ",e);
     } finally {
       if (dlpServiceClient != null) {
         dlpServiceClient.shutdown();
