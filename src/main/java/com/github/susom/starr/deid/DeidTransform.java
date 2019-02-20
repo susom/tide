@@ -310,7 +310,7 @@ public class DeidTransform
                     minimumWordLength = MINIMUM_WORD_LENGTH;
                   }
                 } catch (Exception e) {
-                  e.printStackTrace();
+                  log.warn(e.getMessage(),e);
                   minimumWordLength = MINIMUM_WORD_LENGTH;
                 }
                 matchWholeWord = true;
@@ -542,7 +542,7 @@ public class DeidTransform
 
 
         } catch (IOException e) {
-          e.printStackTrace();
+          log.error(e.getMessage(),e);
         }
 
 

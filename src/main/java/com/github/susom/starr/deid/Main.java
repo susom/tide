@@ -194,7 +194,7 @@ public class Main implements Serializable {
         ByteStreams.copy(readerChannel, writerChannel);
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error(e.getMessage(),e);
     }
 
 

@@ -107,7 +107,7 @@ public class InputTransforms {
         try {
           return mapper.writeValueAsString(simpleNode);
         } catch (JsonProcessingException e) {
-          e.printStackTrace();
+          log.error(e.getMessage(),e);
           return null;
         }
       }
