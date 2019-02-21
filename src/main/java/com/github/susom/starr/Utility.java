@@ -201,7 +201,6 @@ public class Utility {
       }
       log.info("completed loading data from " + classPathResource);
     } catch (NullPointerException e) {
-      log.error("Can not find file at " + classPathResource);
       throw e;
     }
   }
