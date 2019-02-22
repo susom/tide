@@ -18,6 +18,9 @@
 
 package com.github.susom.starr;
 
+import com.github.susom.database.Database;
+import com.github.susom.database.DatabaseProvider;
+import com.github.susom.database.SqlInsert;
 import com.github.susom.starr.deid.DeidTransform.DeidFn;
 
 import java.sql.Connection;
@@ -50,6 +53,8 @@ public class Utility {
   private static final Logger log = LoggerFactory.getLogger(Utility.class);
   private static Random random = new Random(UUID.randomUUID().hashCode());
   private static double biasFactor = Math.exp(-2.0);
+
+  public static final String inProcessDbUrl = "jdbc:hsqldb:mem:data";
 
   /**
    * generate jittered integer value for replacing sensitive data.
@@ -217,72 +222,70 @@ public class Utility {
   public static void loadHsqlTable(Quintet<String, String, String,String,String> tableDef)
                           throws SQLException {
     log.info("loading data into HSQL surrogate db");
-    try {
-      java.sql.Connection hsqlcon = Utility.getHsqlConnection();
-      PreparedStatement ps = hsqlcon.prepareStatement(tableDef.getValue3()); //create table
-      ps.execute();
-      log.info(String.format("created table %s ",tableDef.getValue0()));
 
-      if (tableDef.getValue2() != null && tableDef.getValue2().length() > 0) {
-        Statement statement = hsqlcon.createStatement();
-        statement.execute(String.format("CREATE UNIQUE INDEX index_%s ON %s ( %s  )",
-            tableDef.getValue0(), tableDef.getValue0(), tableDef.getValue2()));
-        statement.close();
-        log.info(String.format("create index for table %s ",tableDef.getValue0()));
-      }
 
-      ps.close();
+    DatabaseProvider.Builder inProcessDbBuilder
+        = DatabaseProvider.fromDriverManager(inProcessDbUrl);
 
-      ps = hsqlcon.prepareStatement("SELECT * FROM " + tableDef.getValue0());
-      ps.execute();
+    inProcessDbBuilder.transact(db -> {
+      db.get().toUpdate(tableDef.getValue3()).update();
+    });
 
-      String[] names =  tableDef.getValue1().split(",");
-      List<String> fields = Arrays.asList(names);
+    if (tableDef.getValue2() != null && tableDef.getValue2().length() > 0) {
+      String query = String.format("CREATE UNIQUE INDEX index_%s ON %s ( %s  )",
+          tableDef.getValue0(), tableDef.getValue0(), tableDef.getValue2());
+      log.info(String.format("create index for table %s ",tableDef.getValue0()));
+      inProcessDbBuilder.transact(db -> {
+        db.get().toUpdate(query).update();
+      });
+    }
 
-      ResultSetMetaData metadata = ps.getMetaData();
 
-      int[] types = new int[names.length];
+    String[] names =  tableDef.getValue1().split(",");
+    List<String> fields = Arrays.asList(names);
+    int[] types = inProcessDbBuilder.transactReturning(dbs -> {
+      return dbs.get().toSelect("SELECT * FROM " + tableDef.getValue0()).query(r -> {
 
-      for (int i = 0; i < names.length; i++) {
-        types[i] = metadata.getColumnType(fields.indexOf(names[i]) + 1);
-        //currently only supports 12, 4
-      }
+        ResultSetMetaData metadata = r.getMetadata();
+        int[] fieldTypes = new int[names.length];
 
-      ps.close();
+        for (int i = 0; i < names.length; i++) {
+          fieldTypes[i] = metadata.getColumnType(fields.indexOf(names[i]) + 1);
+          //currently only supports 12, 4
+        }
+        return fieldTypes;
+      });
+    });
 
-      final PreparedStatement _ps = hsqlcon.prepareStatement(
-          "Insert into " + tableDef.getValue0()
-            + " (" + tableDef.getValue1() + ") values ("
-            + tableDef.getValue1().replaceAll("([^,]+)","?") + ")");
+
+    inProcessDbBuilder.transact(dbs -> {
+
+      String insertQuery = "Insert into " + tableDef.getValue0()
+          + " (" + tableDef.getValue1() + ") values ("
+          + tableDef.getValue1().replaceAll("([^,]+)","?") + ")";
+
+      Database db = dbs.get();
+
+
       Utility.loadFileToMemory(tableDef.getValue4(), values -> {
-        try {
-          for (int i = 0; i < values.length; i++) {
-            int pos = fields.indexOf(names[i]);
-            switch (types[pos]) {
-              case 4:
-                _ps.setInt(pos + 1, Integer.parseInt(values[i]));
-                break;
-              case 12:
-                _ps.setString(pos + 1, values[i]);
-                break;
-              default:
-                log.warn("not supported");
-            }
+        SqlInsert insert = db.toInsert(insertQuery);
+        for (int i = 0; i < values.length; i++) {
+          int pos = fields.indexOf(names[i]);
+          switch (types[pos]) {
+            case 4:
+              insert.argInteger(Integer.parseInt(values[i]));
+              break;
+            case 12:
+              insert.argString(values[i]);
+              break;
+            default:
+              log.warn("not supported");
           }
-          _ps.execute();
-        } catch (SQLException e) {
-          log.error(e.getMessage());
         }
 
+        insert.insert();
       });
-      _ps.close();
-      hsqlcon.close();
-    } catch (org.hsqldb.HsqlException | java.sql.SQLSyntaxErrorException e) {
-      if (e.getMessage().contains("already exists")) {
-        log.info("table exists already");
-      } else {
-        throw e;
-      }
-    }
+    });
+
   }
 }
