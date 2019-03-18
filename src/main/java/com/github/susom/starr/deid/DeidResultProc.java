@@ -20,16 +20,24 @@ package com.github.susom.starr.deid;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Distribution;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeidResultProc extends DoFn<DeidResult,String> {
 
+  private static final Logger log = LoggerFactory.getLogger(DeidResultProc.class);
   public static final String TEXT_ORGINAL = "";
 
   public static final String STATS_DLP = "STATS_DLP_";
@@ -129,4 +137,67 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
 
 
   }
+
+
+  public static String applyChange(List<AnonymizedItemWithReplacement> items, String inputText) {
+
+    //log.info(String.format("input:[%s] output:[%s]", inputText, output));
+    if (items.size() == 0) {
+      return inputText;
+    }
+
+    items.sort((a,b) -> b.getEnd().compareTo(a.getEnd()));
+    StringBuffer sb = new StringBuffer();
+    final AtomicInteger lastEnd = new AtomicInteger(Integer.MAX_VALUE);
+    final AtomicInteger lastStart = new AtomicInteger(Integer.MAX_VALUE);
+    for (int i = 0; i < items.size(); i++) {
+
+      AnonymizedItemWithReplacement item = items.get(i);
+//      System.out.println(String.format("~~~~[%s]=>[%s] at [%s:%s]", item.getWord(), item.getReplacement(), item.getStart(), item.getEnd()));
+
+      if (i == 0) {
+        //first instance
+        sb.insert(0, inputText.substring(item.getEnd()));
+        sb.insert(0, item.getReplacement());
+//        System.out.println("<<<<<" + inputText);
+//        System.out.println(">>>>>" + sb.toString());
+
+        lastEnd.set(item.getEnd());
+        lastStart.set(item.getStart());
+        if (i == items.size()-1) {
+          sb.insert(0, inputText.substring(0, item.getStart()));
+        }
+        continue;
+      }
+
+
+
+      if (item.getEnd() < lastEnd.get() && item.getStart() >= lastEnd.get()) {
+        //inside of last change, do nothing
+      } else if (item.getEnd() < lastEnd.get() && item.getEnd() >= lastStart.get()) {
+        //overlap
+        char[] spaces = new char[lastStart.get()-lastStart.get()];
+        sb.insert(0,spaces);
+        lastStart.set(item.getStart());
+      } else if (item.getEnd() < lastStart.get()) {
+        //outside of last change, copy fully
+        sb.insert(0, inputText.substring(item.getEnd(), lastStart.get()));
+        sb.insert(0, item.getReplacement());
+//        System.out.println("<<<<<" + inputText);
+//        System.out.println(">>>>>" + sb.toString());
+
+        lastEnd.set(item.getEnd());
+        lastStart.set(item.getStart());
+      }
+
+
+
+      if (i == items.size()-1) {
+        sb.insert(0, inputText.substring(0, item.getStart()));
+      }
+    }
+    return sb.toString();
+  }
+
+
 }

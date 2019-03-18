@@ -19,13 +19,10 @@
 package com.github.susom.starr.deid.anonymizers;
 
 import com.github.susom.starr.Utility;
-import edu.stanford.irt.core.facade.AnonymizedItem;
-import edu.stanford.irt.core.facade.Anonymizer;
-import java.util.HashSet;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * process Phone/Fax, Email, URL, IP address, SSN in one generic anonymizer.
@@ -87,38 +84,26 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
       typeUrl,
       typeSsn};
 
-  @Override
-  public String scrub() {
-    return null;
-  }
 
   @Override
-  public String scrub(String text, List<AnonymizedItem> findings) {
-    return null;
-  }
-
-  @Override
-  public String scrub(String orginalText, String processedText, List<AnonymizedItem> findings) {
-
-    String out = processedText;
+  public void find(String text, List<AnonymizedItemWithReplacement> findings) {
 
     for (int i = 0;i < pats.length;i++) {
       Pattern p = pats[i];
       String type = types[i];
-      Matcher matcher = p.matcher(orginalText);
+      Matcher matcher = p.matcher(text);
 
       while (matcher.find()) {
-        String word = orginalText.substring(matcher.start(),matcher.end());
-        out = out.replaceAll(Utility.regexStr(word), String.format("[%s]", type));
+        String word = text.substring(matcher.start(),matcher.end());
+        AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
+            word, matcher.start(), matcher.end(), String.format("[%s]", type),
+            "deid-general", type);
 
-        AnonymizedItem ai = new AnonymizedItem(word, type);
-        ai.setStart(matcher.start());
-        ai.setEnd(matcher.end());
         findings.add(ai);
       }
       //matcher.reset();
     }
 
-    return out;
   }
+
 }

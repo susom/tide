@@ -22,10 +22,6 @@ import com.github.susom.database.DatabaseException;
 import com.github.susom.database.DatabaseProvider;
 import com.github.susom.database.DatabaseProvider.Builder;
 import com.github.susom.starr.Utility;
-import edu.stanford.irt.core.facade.AnonymizedItem;
-import edu.stanford.irt.core.facade.Anonymizer;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,7 +71,7 @@ public class LocationSurrogate implements AnonymizerProcessor {
   private Address[] knownAddr;
   private String anonymizerType;
 
-  private List<AnonymizedItem> knownNameItems;
+  private List<AnonymizedItemWithReplacement> knownNameItems;
   private boolean useGeneralLocationMatcher = false;
 
   public static final List<Quintet<String,String, String, String,String>> hsqlTables
@@ -114,7 +110,7 @@ public class LocationSurrogate implements AnonymizerProcessor {
    * @throws SQLException could fail over getting surrogate replacement
    */
   public LocationSurrogate(Address[] knownAddr, String anonymizerType,
-                           List<AnonymizedItem> knownNameItems, boolean useGeneralLocationMatcher)
+                           List<AnonymizedItemWithReplacement> knownNameItems, boolean useGeneralLocationMatcher)
         throws SQLException {
     this.anonymizerType = anonymizerType;
     this.knownAddr = knownAddr;
@@ -143,92 +139,96 @@ public class LocationSurrogate implements AnonymizerProcessor {
    * @param address known address
    * @return regex pattern string
    */
-  public static String getSimpleLocationRegex(Address address) {
-    String separater = "\\s+";
-    String partSeparater = "|";
-    StringBuffer sb = new StringBuffer();
-    if (address.getStreetNumber() != null && address.getStreetNumber().length() > 0) {
-      sb.append(separater).append(address.getStreetNumber().replaceAll("[^a-zA-Z0-9]","."));
-    }
+  public static String getCityLevelLocationRegex(Address address) {
 
-    if (address.getStreetName() != null && address.getStreetName().length() > 0) {
-      sb.append(separater).append(address.getStreetName().replaceAll("[^a-zA-Z0-9]","."));
-    }
-
-    if (address.getCity() != null && address.getCity().length() > 0) {
-      sb.append(partSeparater).append(separater).append(address.getCity()
-          .replaceAll("[^a-zA-Z0-9]","."));
-    }
-    if (address.getZipCode() != null && address.getZipCode().length() > 0) {
-      sb.append(partSeparater).append(separater).append(address.getZipCode()
-          .replaceAll("[^a-zA-Z0-9]","."));
-    }
-
-    if (sb.indexOf(separater) == 0) {
-      sb.delete(0, separater.length());
-    } else {
+    if ((address.getCity() == null || address.getCity().length() == 0)) {
       return null;
+    }
+
+    String separater = "[\\s.,]+";
+    StringBuffer sb = new StringBuffer();
+
+    sb.append(address.getCity().replaceAll("[^a-zA-Z0-9]","."));
+
+    if (address.getStateCode() != null && address.getStateCode().length() > 0) {
+      sb.append(separater).append("|").append(address.getStateCode()
+          .replaceAll("[^a-zA-Z0-9]","."));
+    }
+    
+    if (address.getZipCode() != null && address.getZipCode().length() > 0) {
+      sb.append(separater).append(address.getZipCode()
+          .replaceAll("[^a-zA-Z0-9]","."));
     }
 
     return sb.toString();
   }
 
-  @Override
-  public String scrub() {
-    return null;
-  }
 
   @Override
-  public String scrub(String text, List<AnonymizedItem> list) {
-    return null;
-  }
+  public void find(String text, List<AnonymizedItemWithReplacement> findings) {
 
-  @Override
-    public String scrub(String orginalText, String processedText, List<AnonymizedItem> findings) {
-
-    String out = processedText;
-
-    HashSet<Integer> posIndex = new HashSet<>();
-    HashSet<String> wordChanged = new HashSet<>();
-
-    StringBuffer sb = new StringBuffer();
     for (int i = 0; knownAddr != null &&  i < knownAddr.length; i++) {
-      // Ignore ones has shorter than 3 character length, only do simple find and replace
-      if ((knownAddr[i] == null) || (knownAddr[i].getStreetNumber() == null)
-          || (knownAddr[i].getStreetName() == null)
-          || (knownAddr[i].getStreetName().trim().length() <= 2)) {
+      Address addr = knownAddr[i];
+      if (addr == null || (
+          (addr.getStreetNumber() == null || addr.getStreetNumber().length() == 0)
+          && (addr.getStreetName() == null || addr.getStreetName().trim().length() < 3)
+              && (addr.getCity() == null || addr.getCity().trim().length() < 3)
+          )) {
+        continue; //ignore address without street and city
+      }
 
-        String patternStr = LocationSurrogate.getSimpleLocationRegex(knownAddr[i]);
-        if (patternStr != null && !wordChanged.contains(patternStr)) {
-          out = out.replaceAll(patternStr,defaultReplacementWord);
-          wordChanged.add(patternStr);
+      if (((addr == null) || (addr.getStreetNumber() == null)
+          || (addr.getStreetName() == null)
+          || (addr.getStreetName().trim().length() <= 2))) {
+
+        //address without street
+        String patternStr = LocationSurrogate.getCityLevelLocationRegex(addr);
+        if (patternStr == null) {
+          continue;
         }
+
+        Matcher locationPatternFromKnownAddress = Pattern.compile(patternStr,Pattern.CASE_INSENSITIVE).matcher(text);
+        while (locationPatternFromKnownAddress.find()) {
+          String format = createFormatString(false, false,
+              (addr.getCity() != null && addr.getCity().trim().length() > 1),
+              (addr.getStateCode() != null && addr.getStateCode().trim().length() > 1),
+              (addr.getZipCode() != null && addr.getZipCode().trim().length() > 1));
+
+          String replacement = getExactLocationSurrogate(format,
+              addr.getStreetName(), addr.stateCode);
+          String word =
+              text.substring(locationPatternFromKnownAddress.start(), locationPatternFromKnownAddress.end());
+          AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
+              word, locationPatternFromKnownAddress.start(), locationPatternFromKnownAddress.end(),
+              replacement, "deid-location-knownaddr", this.anonymizerType);
+
+          findings.add(ai);
+        }
+
         continue;
       }
       //do broader find and replace
-      Matcher r = Pattern.compile("(?i)\\b("
-          + Utility.regexStr(knownAddr[i].getStreetNumber())
+      String regexStr = "(?i)\\b("
+          + Utility.regexStr(addr.getStreetNumber())
           + ")(\\s*)([N|W|S|E]{0,1})\\W{0,5}\\s*("
-          + Utility.regexStr(knownAddr[i].getStreetName())
+          + Utility.regexStr(addr.getStreetName())
           + "|)\\W{0,5}\\s*("
-          + Utility.regexStr(knownAddr[i].getStreetType())
+          + Utility.regexStr(addr.getStreetType())
           + "|)\\W{0,5}\\s*("
-          + Utility.regexStr(knownAddr[i].getAddressLn2())
+          + Utility.regexStr(addr.getAddressLn2())
           + "|)\\W{0,5}\\s*("
-          + Utility.regexStr(knownAddr[i].getCity())
+          + Utility.regexStr(addr.getCity())
           + "|)\\W{0,5}\\s*("
-          + Utility.regexStr(knownAddr[i].getStateCode())
+          + Utility.regexStr(addr.getStateCode())
           + "|\\b)\\W{0,5}("
-          + Utility.regexStr(knownAddr[i].getZipCode())
-          + ")\\W{1,5}\\s*\\d{0,5}",
-          Pattern.CASE_INSENSITIVE).matcher(out);
+          + Utility.regexStr(addr.getZipCode())
+          + ")\\W{1,5}\\s*\\d{0,5}";
+
+      Matcher r = Pattern.compile(regexStr,
+          Pattern.CASE_INSENSITIVE).matcher(text);
 
 
       while (r.find()) {
-
-        if (posIndex.contains(r.start())) {
-          continue;
-        }
 
         boolean hasStreetNum = r.groupCount() >= 1 && r.group(1) != null;
         boolean hasStreet = r.groupCount() >= 2 && r.group(2) != null;
@@ -239,42 +239,24 @@ public class LocationSurrogate implements AnonymizerProcessor {
         String format = createFormatString(hasStreetNum, hasStreet, hasCity,  hasState, hasZip);
 
         String replacement = getExactLocationSurrogate(format,
-                knownAddr[i].getStreetName(), knownAddr[i].stateCode);
-
-        AnonymizedItemWithReplacement ai
-              = new AnonymizedItemWithReplacement(out.substring(r.start(),r.end()),
-                      this.anonymizerType,replacement, "knownAddress");
-
-        posIndex.add(r.start());
-        ai.setStart(r.start());
-        ai.setEnd(r.end());
+            addr.getStreetName(), addr.stateCode);
+        String word = text.substring(r.start(), r.end());
+        AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
+            word,
+            r.start(), r.end(),
+            replacement, "deid-location-knownaddr", this.anonymizerType);
         log.info("found known address:" + ai.getWord() + " at " + r.start() + "-" + r.end());
         findings.add(ai);
-        r.appendReplacement(sb, replacement);
       }
-      r.appendTail(sb);
-      out = sb.toString();
     }
 
     //regex with general address pattern against original text
     if (this.useGeneralLocationMatcher) {
-      Matcher matcher = locationPattern.matcher(orginalText);
+      Matcher matcher = locationPattern.matcher(text);
 
       while (matcher.find()) {
-        if (posIndex.contains(matcher.start())) {
-          //log.info("["+text.substring(matcher.start(),matcher.end())+ "]
-          // already found before, ignoring it.");
-          continue;
-        }
-        posIndex.add(matcher.start());
-        AnonymizedItem ai = new AnonymizedItem(
-            orginalText.substring(matcher.start(),matcher.end()), this.anonymizerType);
 
-        ai.setStart(matcher.start());
-        ai.setEnd(matcher.end());
-        //log.info("found general address:" + ai.getWord()
-        // + " at " + matcher.start() + "-" + matcher.end());
-        findings.add(ai);
+
 
         boolean hasStreetNum = matcher.groupCount() >= 1 &&  matcher.group(1) != null;
         boolean hasStreet = matcher.groupCount() >= 2 && matcher.group(2) != null;
@@ -285,11 +267,13 @@ public class LocationSurrogate implements AnonymizerProcessor {
 
         if (hasStreet) {
           String replacement = getExactLocationSurrogate(format, matcher.group(2),matcher.group(4));
-          try {
-            out = out.replaceAll(Utility.regexStr(ai.getWord()), replacement);
-          } catch (PatternSyntaxException e) {
-            log.error(e.getMessage(),e);
-          }
+          String word = text.substring(matcher.start(), matcher.end());
+          AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
+              word,
+              matcher.start(), matcher.end(),
+              replacement, "deid-location-general", this.anonymizerType);
+
+          findings.add(ai);
         }
       }
     }
@@ -297,29 +281,24 @@ public class LocationSurrogate implements AnonymizerProcessor {
 
     //replace for NLP discovered items
     if (this.knownNameItems != null) {
-      Set<String> uniqueWords = new HashSet();
-      for (AnonymizedItem i : this.knownNameItems) {
+      for (AnonymizedItemWithReplacement i : this.knownNameItems) {
         String word = i.getWord();
         if (!isStateOrCountry(word)) {
+
+          try {
+            String replacement = getLocationSurrogateForNerEntity(word);
+            i.setReplacement(replacement);
+
+          } catch (SQLException e) {
+            log.error(e.getMessage(),e);
+            i.setReplacement(AnonymizerProcessor.REPLACE_WORD);
+          }
           findings.add(i);
-          uniqueWords.add(word);
         }
       }
 
-      for (String word: uniqueWords) {
-        Matcher r = Pattern.compile("\\b("
-            + Utility.regexStr(word)
-            + ")\\b",
-            Pattern.CASE_INSENSITIVE).matcher(out);
-        try {
-          out = r.replaceAll(getLocationSurrogateForNerEntity(word));
-        } catch (SQLException e) {
-          log.error(e.getMessage(),e);
-        }
-      }
     }
 
-    return out;
   }
 
   private static String createFormatString(
@@ -414,11 +393,11 @@ public class LocationSurrogate implements AnonymizerProcessor {
           .argInteger(charParam.getValue1())
           .argInteger(random.nextInt(Math.min(rangeParam, 10)) + 1)
           .queryFirstOrNull(r -> {
-            String streetName = r.getStringOrNull("street_name");
-            String streetType = r.getStringOrNull("street_type");
-            String city = r.getStringOrNull("city");
-            String zip = r.getStringOrNull("zip");
-            String stateCode = r.getStringOrNull("statecode");
+            String streetName = r.getStringOrEmpty("street_name");
+            String streetType = r.getStringOrEmpty("street_type");
+            String city = r.getStringOrEmpty("city");
+            String zip = r.getStringOrEmpty("zip");
+            String stateCode = r.getStringOrEmpty("statecode");
             return format.replaceAll("\\$\\{streetNumber\\}","" + random.nextInt(1000))
               .replaceAll("\\$\\{streetName\\}",StringUtils.capitalize(streetName))
               .replaceAll("\\$\\{streetType\\}",StringUtils.capitalize(streetType))
@@ -428,7 +407,9 @@ public class LocationSurrogate implements AnonymizerProcessor {
           });
       });
 
-      return surrogateLocation;
+      if (surrogateLocation != null) {
+        return surrogateLocation;
+      }
 
     } catch (DatabaseException e) {
       log.error(e.getMessage(), e);

@@ -22,15 +22,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.susom.starr.deid.DeidJob;
 import com.github.susom.starr.deid.DeidJobs;
+import com.github.susom.starr.deid.DeidResultProc;
 import com.github.susom.starr.deid.DeidTransform;
-import com.github.susom.starr.deid.anonymizers.LocationSurrogate;
 import com.github.susom.starr.deid.anonymizers.LocationSurrogate.Address;
-import edu.stanford.irt.core.facade.AnonymizedItem;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -41,11 +41,11 @@ public class LocationSurrogateTest {
   private static final Logger log = LoggerFactory.getLogger(LocationSurrogateTest.class);
 
   String[] textArray = new String[]{
-    "Kate MD, [ 123 Porter Ave, Palo Alto, CA 89093 ] "
-    + "Stanford and Palo Alto "
-    + "Starbucks in SF : 5290 Diamond Heights Blvd, San Francisco, CA 94131 "
-    + "Starbucks at 5290 Diamond Heights, San Francisco "
-    + "LOCATION OF OUTPATIENT CONSULTATION: San Ramon pediatric cardiology office."
+    "Kate MD, [ 123 Porter Ave, Palo Alto, CA 89093 ] ",
+    "Stanford and Palo Alto ",
+    "Starbucks in SF : 5290 Diamond Heights Blvd, San Francisco, CA 94131 ",
+    "Starbucks at 5290 Diamond Heights, San Francisco ",
+    "LOCATION OF OUTPATIENT CONSULTATION: San Ramon pediatric cardiology office."
     + "730 Ezra Rd  San Jose CA  94304-1503 and San Ramon in US"
   };
 
@@ -74,30 +74,34 @@ public class LocationSurrogateTest {
 
     for(String text : textArray){
 
-      List<AnonymizedItem > items = new ArrayList<>();
+      List<AnonymizedItemWithReplacement > items = new ArrayList<>();
 
-      List<AnonymizedItem> foundLocationItems = new ArrayList<>();
-      List<AnonymizedItem> foundNameItems  = new ArrayList<>();
+      List<AnonymizedItemWithReplacement> foundLocationItems = new ArrayList<>();
+      List<AnonymizedItemWithReplacement> foundNameItems  = new ArrayList<>();
 
       DeidTransform.findEntiesWithNer(text, foundNameItems, foundLocationItems);
 
       LocationSurrogate locationSurrogate = new LocationSurrogate(knownAddr, "location",
         foundLocationItems, true);
-      String result = locationSurrogate.scrub(text, "<offset10>" + text, items);
+      locationSurrogate.find(text, items);
+      String result = DeidResultProc.applyChange(items,text);
       System.out.println("INPUT:" + text);
       System.out.println("OUTPUT:" + result);
 
 
-      for (AnonymizedItem item : items) {
-        log.info(String.format("item words:%s type:%s span from:%s to:%s verify word:%s",
-          item.getWord(), item.getType(), item.getStart(), item.getEnd(), text.substring(item.getStart(), item.getEnd())));
+      for (AnonymizedItemWithReplacement item : items) {
+        log.info(String.format("word:[%s] verify:[%s] type:[%s] span[%s:%s] replacement:[%s]",
+          item.getWord(), text.substring(item.getStart(), item.getEnd()), item.getType(), item.getStart(), item.getEnd(), item.getReplacement()));
+
+        Assert.assertTrue(item.getReplacement() != null
+            && !item.getReplacement().equals(item.getWord()));
       }
     }
 
   }
 
   @Test
-  public void getSimpleLocationRegex() {
+  public void getCityLevelLocationRegex() {
     Address[] knownAddr = new Address[]{
         new Address("Porter", "room 2", "123", "Ave", "Palo Alto","89093", "CA"),
         new Address("Diamond Heights", "", "5290", "Blvd", "San Francisco","94131", "CA"),
@@ -105,11 +109,11 @@ public class LocationSurrogateTest {
 
     for(String text : textArray){
       for(Address address : knownAddr){
-        String patternStr= LocationSurrogate.getSimpleLocationRegex(address);
-        System.out.println("patternStr:" + patternStr);
+        String patternStr= LocationSurrogate.getCityLevelLocationRegex(address);
+        System.out.println("CityLevelLocationRegex:" + patternStr);
 
-        System.out.println("SIMPLE REGEX INPUT:" + text);
-        System.out.println("SIMPLE REGEX OUTPUT:" + text.replaceAll(patternStr, "[replaced]"));
+        System.out.println("INPUT:" + text);
+        System.out.println("OUTPUT:" + text.replaceAll(patternStr, "[replaced]"));
 
       }
 

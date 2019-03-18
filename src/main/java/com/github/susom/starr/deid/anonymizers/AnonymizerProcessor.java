@@ -18,12 +18,9 @@
 
 package com.github.susom.starr.deid.anonymizers;
 
-import edu.stanford.irt.core.facade.AnonymizedItem;
-import edu.stanford.irt.core.facade.Anonymizer;
 import java.util.List;
 
-public interface AnonymizerProcessor extends Anonymizer {
-
-  String scrub(String orginalText, String processedText, List<AnonymizedItem> findings);
-
+public interface AnonymizerProcessor {
+  String REPLACE_WORD = "[REMOVED]";
+  void find(String inputText, List<AnonymizedItemWithReplacement> findings);
 }

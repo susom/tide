@@ -20,7 +20,6 @@ package com.github.susom.starr.deid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.io.ByteStreams;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +28,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.Iterator;
+import org.apache.beam.repackaged.beam_runners_google_cloud_dataflow_java.com.google.common.io.ByteStreams;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.FileSystems;
@@ -156,46 +156,46 @@ public class Main implements Serializable {
     PipelineResult pipelineResult = p.run();
     pipelineResult.waitUntilFinish();
 
-    MetricName elementsRead = SourceMetrics.elementsRead().getName();
+    //MetricName elementsRead = SourceMetrics.elementsRead().getName();
 
-    MetricResults metricResults = pipelineResult.metrics();
-    MetricQueryResults mqr = metricResults.queryMetrics(MetricsFilter.builder()
-        .addNameFilter(MetricNameFilter.inNamespace(DeidResultProc.class))
-        .addStep("processResult")
-        .build());
-
-
-    ResourceId reportResourceId = FileSystems
-        .matchNewResource(options.getOutputResource() + "/job_report.txt", false);
+//    MetricResults metricResults = pipelineResult.metrics();
+//    MetricQueryResults mqr = metricResults.queryMetrics(MetricsFilter.builder()
+//        .addNameFilter(MetricNameFilter.inNamespace(DeidResultProc.class))
+//        .addStep("processResult")
+//        .build());
 
 
-    StringBuffer sb = new StringBuffer();
-
-    Iterator<MetricResult<Long>> itC = mqr.getCounters().iterator();
-    while (itC.hasNext()) {
-      MetricResult<Long> m = itC.next();
-      log.info("Counter " + m.getName() + ":" + m.getCommitted());
-      sb.append(("Counter " + m.getName() + ":" + m.getCommitted() + "\n\r"));
-    }
-
-    Iterator<MetricResult<DistributionResult>> itD = mqr.getDistributions().iterator();
-    while (itD.hasNext()) {
-      MetricResult<DistributionResult> r = itD.next();
-      log.info("Distribution " + r.getName() + ":" + r.getCommitted().toString());
-      sb.append(("Distribution " + r.getName() + ":" + r.getCommitted().toString() + "\n\r"));
-    }
-
-
-    try {
-      try (ByteArrayInputStream in = new ByteArrayInputStream(sb.toString().getBytes());
-           ReadableByteChannel readerChannel = Channels.newChannel(in);
-           WritableByteChannel writerChannel
-                = FileSystems.create(reportResourceId, MimeTypes.TEXT)) {
-        ByteStreams.copy(readerChannel, writerChannel);
-      }
-    } catch (IOException e) {
-      log.error(e.getMessage(),e);
-    }
+//    ResourceId reportResourceId = FileSystems
+//        .matchNewResource(options.getOutputResource() + "/job_report.txt", false);
+//
+//
+//    StringBuffer sb = new StringBuffer();
+//
+//    Iterator<MetricResult<Long>> itC = mqr.getCounters().iterator();
+//    while (itC.hasNext()) {
+//      MetricResult<Long> m = itC.next();
+//      log.info("Counter " + m.getName() + ":" + m.getCommitted());
+//      sb.append(("Counter " + m.getName() + ":" + m.getCommitted() + "\n\r"));
+//    }
+//
+//    Iterator<MetricResult<DistributionResult>> itD = mqr.getDistributions().iterator();
+//    while (itD.hasNext()) {
+//      MetricResult<DistributionResult> r = itD.next();
+//      log.info("Distribution " + r.getName() + ":" + r.getCommitted().toString());
+//      sb.append(("Distribution " + r.getName() + ":" + r.getCommitted().toString() + "\n\r"));
+//    }
+//
+//
+//    try {
+//      try (ByteArrayInputStream in = new ByteArrayInputStream(sb.toString().getBytes());
+//           ReadableByteChannel readerChannel = Channels.newChannel(in);
+//           WritableByteChannel writerChannel
+//                = FileSystems.create(reportResourceId, MimeTypes.TEXT)) {
+//        ByteStreams.copy(readerChannel, writerChannel);
+//      }
+//    } catch (IOException e) {
+//      log.error(e.getMessage(),e);
+//    }
 
 
   }

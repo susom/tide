@@ -18,14 +18,26 @@
 
 package com.github.susom.starr.deid.anonymizers;
 
-import edu.stanford.irt.core.facade.AnonymizedItem;
-
-public class AnonymizedItemWithReplacement extends AnonymizedItem {
+public class AnonymizedItemWithReplacement {
+  String word;
+  Integer start;
+  Integer end;
+  String type;
   String replacement;
   String foundBy;
 
   public AnonymizedItemWithReplacement(String word, String anonymizerType) {
-    super(word,anonymizerType);
+    this.word = word;
+    this.type = anonymizerType;
+  }
+
+  public AnonymizedItemWithReplacement(String word, int start, int end, String replacement, String foundBy, String anonymizerType) {
+    this.word = word;
+    this.start = start;
+    this.end = end;
+    this.replacement = replacement;
+    this.foundBy = foundBy;
+    this.type = anonymizerType;
   }
 
   /**
@@ -37,7 +49,8 @@ public class AnonymizedItemWithReplacement extends AnonymizedItem {
    */
   public AnonymizedItemWithReplacement(String word, String anonymizerType,
                                        String replacement, String foundBy) {
-    super(word,anonymizerType);
+    this.word = word;
+    this.type = anonymizerType;
     this.replacement = replacement;
     this.foundBy = foundBy;
   }
@@ -56,5 +69,47 @@ public class AnonymizedItemWithReplacement extends AnonymizedItem {
 
   public void setFoundBy(String foundBy) {
     this.foundBy = foundBy;
+  }
+
+  public String getWord() {
+    return word;
+  }
+
+  public void setWord(String word) {
+    this.word = word;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public Integer getStart() {
+    return start;
+  }
+
+  public void setStart(Integer start) {
+    this.start = start;
+  }
+
+  public Integer getEnd() {
+    return end;
+  }
+
+  public void setEnd(Integer end) {
+    this.end = end;
+  }
+
+
+
+  public static String applyChange(String input) {
+
+
+
+
+    return null;
   }
 }

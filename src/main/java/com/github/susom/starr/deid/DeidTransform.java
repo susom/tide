@@ -22,17 +22,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.susom.starr.Utility;
+import com.github.susom.starr.deid.anonymizers.AgeAnonymizer;
+import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
+import com.github.susom.starr.deid.anonymizers.AnonymizerProcessor;
+import com.github.susom.starr.deid.anonymizers.DateAnonymizer;
 import com.github.susom.starr.deid.anonymizers.GeneralAnonymizer;
 import com.github.susom.starr.deid.anonymizers.LocationSurrogate;
 import com.github.susom.starr.deid.anonymizers.LocationSurrogate.Address;
+import com.github.susom.starr.deid.anonymizers.MrnAnonymizer;
 import com.github.susom.starr.deid.anonymizers.NameSurrogate;
-import com.github.susom.starr.deid.anonymizers.NameSurrogate.NameDictionay;
-import edu.stanford.irt.core.facade.ActualNameAnonymizer;
-import edu.stanford.irt.core.facade.AgeAnonymizer;
-import edu.stanford.irt.core.facade.AnonymizedItem;
-import edu.stanford.irt.core.facade.Anonymizer;
-import edu.stanford.irt.core.facade.DateAnonymizer;
-import edu.stanford.irt.core.facade.MrnAnonymizer;
+import com.github.susom.starr.deid.anonymizers.NameSurrogate.NameType;
+import com.github.susom.starr.deid.anonymizers.TokenArrayAnonymizer;
+
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.CoreEntityMention;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
@@ -41,7 +42,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -136,8 +136,8 @@ public class DeidTransform
    * @param foundLocationItems  store finding for location entities
    */
   public static void findEntiesWithNer(String text,
-                                        List<AnonymizedItem> foundNameItems,
-                                       List<AnonymizedItem> foundLocationItems) {
+                                        List<AnonymizedItemWithReplacement> foundNameItems,
+                                       List<AnonymizedItemWithReplacement> foundLocationItems) {
 
     if (text == null || text.length() == 0) {
       return;
@@ -165,10 +165,11 @@ public class DeidTransform
           if (word.length() == 0) {
             continue;
           }
+          AnonymizedItemWithReplacement item = new AnonymizedItemWithReplacement(
+              em.text(),
+              em.charOffsets().first(), em.charOffsets().second(),
+              null, "deid-person-ner", "ner-" + em.entityType());
 
-          AnonymizedItem item = new AnonymizedItem(em.text(), "ner-" + em.entityType());
-          item.setStart(em.charOffsets().first);
-          item.setEnd(em.charOffsets().second);
           foundNameItems.add(item);
           //log.info("\tdetected entity: \t" + em.text() + "\t" + em.entityType());
         } else if (em.entityType().equals("LOCATION")) {
@@ -176,9 +177,10 @@ public class DeidTransform
           if (word.length() == 0) {
             continue;
           }
-          AnonymizedItem item = new AnonymizedItem(em.text(), "ner-" + em.entityType());
-          item.setStart(em.charOffsets().first);
-          item.setEnd(em.charOffsets().second);
+          AnonymizedItemWithReplacement item = new AnonymizedItemWithReplacement(
+              em.text(),
+              em.charOffsets().first(), em.charOffsets().second(),
+              null, "deid-location-ner", "ner-" + em.entityType());
           foundLocationItems.add(item);
           //log.info("\tdetected entity: \t" + em.text() + "\t" + em.entityType());
         }
@@ -195,14 +197,6 @@ public class DeidTransform
   }
 
   public class DeidFn extends DoFn<String, DeidResult> {
-
-    private final HashMap<String, Anonymizer> cache = new HashMap<>();
-
-    private String getAnonymizerCacheKey(DeidSpec spec) {
-      return spec.itemName + "_"
-        + spec.action + "_"
-        + (spec.actionParam != null ? Arrays.toString(spec.actionParam) : "");
-    }
 
     public DeidFn() {
     }
@@ -243,24 +237,23 @@ public class DeidTransform
           String orginalText = node.has(textFields[textIndex])
               ? node.get(textFields[textIndex]).asText() : null;
 
-          String resultText = null;
 
-          List<AnonymizedItem> items = new ArrayList<>();
+          List<AnonymizedItemWithReplacement> items = new ArrayList<>();
 
-          deidResult.addData(DeidResultProc.TEXT_ORGINAL + textFields[textIndex],orginalText);
+
 
           if (orginalText == null || orginalText.length() == 0) {
             deidResult.addData(DeidResultProc.STATS_CNT_DLP + textFields[textIndex],0);
             deidResult.addData(DeidResultProc.STATS_CNT_DEID + textFields[textIndex],0);
-
             continue;
           }
 
+          orginalText = orginalText.replaceAll("\uFFFD", "\n\r");
 
+          deidResult.addData(DeidResultProc.TEXT_ORGINAL + textFields[textIndex],orginalText);
 
-
-          List<AnonymizedItem> foundNameItems = new ArrayList<>();
-          List<AnonymizedItem> foundLocationItems = new ArrayList<>();
+          List<AnonymizedItemWithReplacement> foundNerNameItems = new ArrayList<>();
+          List<AnonymizedItemWithReplacement> foundNerLocationItems = new ArrayList<>();
 
           final long startTs = new Date().getTime();
           //log.info("start process id:" + Arrays.toString(noteIds));
@@ -269,7 +262,7 @@ public class DeidTransform
           if (job.nerEnabled) {
             //log.info("Start NER");
             try {
-              findEntiesWithNer(orginalText, foundNameItems, foundLocationItems);
+              findEntiesWithNer(orginalText, foundNerNameItems, foundNerLocationItems);
             } catch (Exception e) {
               log.error("NER ERROR for text id: " + Arrays.toString(noteIds),e);
               resetNer();
@@ -281,9 +274,8 @@ public class DeidTransform
           //stage one : Google DLP
           if (dlpTransform != null && orginalText != null) {
             dlpTransform.dlpDeidRequest(orginalText, textFields[textIndex], deidResult);
-
-            resultText = deidResult.getDataAsString(DeidResultProc.TEXT_DLP
-                  + textFields[textIndex]);
+            log.info(String.format("DLP result:[%s]",
+                deidResult.getDataAsString(DeidResultProc.TEXT_DLP + textFields[textIndex])));
           }
 
           //stage two : Stanford DeID
@@ -293,7 +285,7 @@ public class DeidTransform
 
           for (DeidSpec spec : job.getSpec()) {
 
-            Anonymizer anonymizer = null;
+            AnonymizerProcessor anonymizer = null;
             boolean scanCommonWord = false;
             boolean matchWholeWord = false;
             int minimumWordLength = 0;
@@ -343,7 +335,7 @@ public class DeidTransform
                   continue;
                 }
                 String[] wordArray = new String[words.size()];
-                anonymizer = new ActualNameAnonymizer(words.toArray(wordArray),
+                anonymizer = new TokenArrayAnonymizer(words.toArray(wordArray),
                   "[" +  spec.actionParam[0] + "]", spec.itemName);
 
                 break;
@@ -385,7 +377,7 @@ public class DeidTransform
 
                 } else {
                   anonymizer =  new LocationSurrogate(address, "location",
-                    foundLocationItems,  true);
+                    foundNerLocationItems,  true);
 
                 }
 
@@ -395,12 +387,12 @@ public class DeidTransform
                   //{"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
                   String[] nameF = spec.actionParamMap.get("format").split(" |,|-");
                   words = new ArrayList<>();
-                  List<NameDictionay> dict = new ArrayList<>();
+                  List<NameType> nameTypes = new ArrayList<>();
                   for (String field : spec.fields) {
                     if (node.has(field)) {
                       String[] fieldValues = node.get(field).asText().split(" |,|-");
                       int pos = 0;
-                      NameDictionay lastDict = null;
+                      NameType nameType = null;
                       for (String v : fieldValues) {
                         if (v != null && !v.toLowerCase().equals("null")
                             && (!ignoreWords.contains(v.toLowerCase()))
@@ -410,18 +402,18 @@ public class DeidTransform
                             switch (nameF[pos].toUpperCase()) {
                               case "L":
                               case "M":
-                                lastDict = NameDictionay.Lastname;
-                                dict.add(lastDict);
+                                nameType = NameType.Lastname;
+                                nameTypes.add(nameType);
                                 break;
                               case "F":
-                                lastDict = NameDictionay.Firstname;
-                                dict.add(lastDict);
+                                nameType = NameType.Firstname;
+                                nameTypes.add(nameType);
                                 break;
                               default:
-                                dict.add(null);
+                                nameTypes.add(null);
                             }
                           } else {
-                            dict.add(lastDict);
+                            nameTypes.add(nameType);
                           }
                           pos++;
                         }
@@ -432,11 +424,11 @@ public class DeidTransform
                     continue;
                   }
                   wordArray = new String[words.size()];
-                  NameDictionay[] dictionary = new NameDictionay[dict.size()];
+                  NameType[] dictionary = new NameType[nameTypes.size()];
                   NameSurrogate.Builder builder = new NameSurrogate.Builder();
                   builder.withNames(words.toArray(wordArray))
                     .withAnonymizerType(spec.itemName)
-                    .withDic(dict.toArray(dictionary));
+                    .withDic(nameTypes.toArray(dictionary));
 
                   if (spec.actionParamMap.containsKey("f_zip")
                       && spec.actionParamMap.get("f_zip").length() > 0
@@ -466,7 +458,7 @@ public class DeidTransform
                 } else {
                   NameSurrogate.Builder builder = new NameSurrogate.Builder();
                   builder.withAnonymizerType(spec.itemName)
-                    .withKnownNameItems(foundNameItems);
+                    .withKnownNameItems(foundNerNameItems);
 
                   anonymizer = builder.build();
                 }
@@ -475,31 +467,23 @@ public class DeidTransform
                 break;
 
               case remove_mrn:
-                anonymizer = cache.computeIfAbsent(getAnonymizerCacheKey(spec), (k) -> {
-                  return new MrnAnonymizer("[MRN]", spec.itemName);
-                });
+                anonymizer = new MrnAnonymizer("[MRN]", spec.itemName);
                 break;
 
               case remove_age:
-                anonymizer = cache.computeIfAbsent(getAnonymizerCacheKey(spec), (k) -> {
-                  return new AgeAnonymizer("[AGE]", spec.itemName);
-                });
+                anonymizer = new AgeAnonymizer("[AGE]", spec.itemName);
                 break;
               case jitter_date:
-                anonymizer = cache.computeIfAbsent(getAnonymizerCacheKey(spec), (k) -> {
-                  return new DateAnonymizer(
+                anonymizer = new DateAnonymizer(
                     Utility.jitterHash(jitterSeed, spec.actionParam[0],
-                      job.getDateJitterRange()), spec.itemName);
-                });
+                        job.getDateJitterRange()), spec.itemName);
                 break;
               case jitter_birth_date:
                 for (String field : spec.fields) { //take only the first field
                   if (node.has(field)) {
 
                     final Date bday = new Date(node.get(field).asLong());
-                    anonymizer = cache.computeIfAbsent(getAnonymizerCacheKey(spec), (k) -> {
-                      return new DateAnonymizer(bday, spec.itemName);
-                    });
+                    anonymizer = new DateAnonymizer(bday, spec.itemName);
                     break;
                   }
                 }
@@ -515,31 +499,32 @@ public class DeidTransform
 
             long anoymizerStartTs = new Date().getTime();
 
-            orginalText = anonymizer.scrub(orginalText, items);
+            anonymizer.find(orginalText, items);
 
-            long anoymizerTimeTook = (new Date().getTime() - anoymizerStartTs) / 1000;
-
-            if (anoymizerTimeTook > 3) {
-              log.warn("end process id:" + Arrays.toString(noteIds)
-                  + " with " + anonymizer.getClass() + " time:" + anoymizerTimeTook + "s SLOW!");
-            }
+//            double anoymizerTimeTook = (new Date().getTime() - anoymizerStartTs) / 1000.0;
+//
+//            if (anoymizerTimeTook > 0.2) {
+//              log.warn("end process id:" + Arrays.toString(noteIds)
+//                  + " with " + anonymizer.getClass() + " time:" + anoymizerTimeTook
+//                  + "s SLOW!");
+//            }
           }
 
-          long timeTook = (new Date().getTime() - startTs) / 1000;
-          if (timeTook > 5) {
-            log.warn("end process id:" + Arrays.toString(noteIds)
-                + " time:" + timeTook + "s SLOW!");
-          }
+          //double timeTook = (new Date().getTime() - startTs) / 1000.0;
+          //log.warn("time took:" + timeTook + "s");
+//          if (timeTook > 2) {
+//            log.warn("end process id:" + Arrays.toString(noteIds)
+//                + " time:" + timeTook + "s SLOW!");
+//          }
 
           ObjectMapper resultMapper = new ObjectMapper();
           mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
-
+          String resultText = DeidResultProc.applyChange(items, orginalText);
           String stats = items.size() > 0 ? resultMapper.writeValueAsString(items) : "[]";
-          deidResult.addData(DeidResultProc.TEXT_DEID + textFields[textIndex], orginalText);
+          deidResult.addData(DeidResultProc.TEXT_DEID + textFields[textIndex], resultText);
           deidResult.addData(DeidResultProc.STATS_DEID + textFields[textIndex], stats);
           deidResult.addData(DeidResultProc.STATS_CNT_DEID + textFields[textIndex], items.size());
-
 
         } catch (IOException e) {
           log.error(e.getMessage(),e);
@@ -555,5 +540,8 @@ public class DeidTransform
 
     }
   }
+
+
+
 
 }
