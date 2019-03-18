@@ -145,10 +145,21 @@ deidJobs:
         actionParamMap: {"f_address_1":"tmp_addr_line_1","f_address_2":"tmp_addr_line_2", "f_city":"tmp_city", "f_zip":"tmp_zip"}
         fields: ''
 
+
       - itemName: mergency_contact_address
-        action: replace_with
-        actionParam: emergency_contact_address
-        fields: father_addr_ln_1, father_addr_ln_2, father_city, father_zip, mother_addr_ln_1, mother_addr_ln_2, mother_city, mother_zip
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"father_addr_ln_1","f_address_2":"father_addr_ln_2", "f_city":"father_city", "f_zip":"father_zip"}
+        fields: ''
+
+      - itemName: mergency_contact_address
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"mother_addr_ln_1","f_address_2":"mother_addr_ln_2", "f_city":"mother_city", "f_zip":"mother_zip"}
+        fields: ''
+
+#      - itemName: mergency_contact_address
+#        action: replace_with
+#        actionParam: emergency_contact_address
+#        fields: father_addr_ln_1, father_addr_ln_2, father_city, father_zip, mother_addr_ln_1, mother_addr_ln_2, mother_city, mother_zip
 
       - itemName: patient_phone
         action: replace_minimumlengthword_with

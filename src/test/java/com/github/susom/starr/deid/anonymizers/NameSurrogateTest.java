@@ -18,8 +18,9 @@
 
 package com.github.susom.starr.deid.anonymizers;
 
-import com.github.susom.starr.deid.anonymizers.NameSurrogate.NameDictionay;
-import edu.stanford.irt.core.facade.AnonymizedItem;
+import com.github.susom.starr.deid.DeidResultProc;
+import com.github.susom.starr.deid.anonymizers.NameSurrogate.NameType;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import org.junit.Test;
@@ -34,29 +35,33 @@ import static org.junit.Assert.assertNotEquals;
 
 public class NameSurrogateTest {
 
+
+  String[] fullNames = new String[]{"Joe Smith","Mary Johnson","Williams, Arras","Peter Jones","Rice Brown","Davis, Emma","Miller, Christopher","Wilson","Moor","Taylor","Anderson","Thomas","Jackson"};
+
+
   String[] lastNames = new String[]{"Smith","Johnson","Williams","Jones","Brown","Davis","Miller","Wilson","Moor","Taylor","Anderson","Thomas","Jackson"};
 
 
   String[] names = new String[]{"Jose","Posada","Arras","ФЭЭЭЭЭ","诚诚诚","Joe","Chris","Posada","Mary","Emma","Christopher","O'BRIEN"};
-  NameDictionay[] dic = new NameDictionay[]{NameDictionay.Firstname,NameDictionay.Lastname,NameDictionay.Lastname,NameDictionay.Lastname,NameDictionay.Lastname,NameDictionay.Firstname,NameDictionay.Firstname,NameDictionay.Lastname,NameDictionay.Firstname,NameDictionay.Firstname,NameDictionay.Firstname,NameDictionay.Firstname,NameDictionay.Firstname};
+  NameType[] dic = new NameType[]{NameType.Firstname,NameType.Lastname,NameType.Lastname,NameType.Lastname,NameType.Lastname,NameType.Firstname,NameType.Firstname,NameType.Lastname,NameType.Firstname,NameType.Firstname,NameType.Firstname,NameType.Firstname,NameType.Firstname};
   String type = "name";
 
   private static final Logger log = LoggerFactory.getLogger(NameSurrogateTest.class);
   @Test
   public void scrub() throws IOException, SQLException {
     String text = "\t Posada,\tJose,\tMary,\t Joe,\t Emma,\t Chris,\t Christopher,\t ФЭЭЭЭЭ,\t 诚诚诚,\t Hector Sausage-Hausen, O'BRIEN and Mathias d'Arras visited hospital on 11/6/2018. O'BRIEN is the key person";
-    List<AnonymizedItem > items = new ArrayList<>();
+    List<AnonymizedItemWithReplacement > items = new ArrayList<>();
 
     NameSurrogate ns = new NameSurrogate(names, "phi-name", dic);
 
-    String result = ns.scrub(text, items);
-
+    ns.find(text, items);
+    String resultText = DeidResultProc.applyChange(items,text);
 //    items.forEach(i->{log.info(i.getWord());});
-    log.info("scrub input:"+text);
-    log.info("scrub output:"+result);
+    log.info("find input:"+text);
+    log.info("find output:"+resultText);
 
     for (String name : names) {
-      assertFalse(result.contains(name));
+      assertFalse(resultText.contains(name));
     }
 
   }
@@ -82,5 +87,16 @@ public class NameSurrogateTest {
       log.info("Last name Surrogate input: "+ name+" => output:"+out);
       assertNotEquals("lastname should be surrogated", name, out);
     }
+  }
+
+  @Test
+  public void getFullNameSurrogate() throws SQLException {
+    NameSurrogate ns = new NameSurrogate(null, "phi-name", dic);
+    for (String name : fullNames) {
+      String out = ns.getFullNameSurrogate(name);
+      log.info("full name Surrogate input: "+ name+" => output:"+out);
+      assertNotEquals("fullname should be surrogated", name, out);
+    }
+
   }
 }

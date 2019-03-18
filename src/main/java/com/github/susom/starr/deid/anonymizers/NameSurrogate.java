@@ -22,18 +22,13 @@ import com.github.susom.database.DatabaseException;
 import com.github.susom.database.DatabaseProvider;
 import com.github.susom.starr.Utility;
 
-import edu.stanford.irt.core.facade.AnonymizedItem;
-import edu.stanford.irt.core.facade.Anonymizer;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -49,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author wenchengl
  */
 
-public class NameSurrogate implements Anonymizer {
+public class NameSurrogate implements AnonymizerProcessor {
 
   private static final Logger log = LoggerFactory.getLogger(NameSurrogate.class);
   private static final String defaultReplacementWord = "[REMOVED]";
@@ -82,14 +77,14 @@ public class NameSurrogate implements Anonymizer {
   private String[] replacements;
   private String anonymizerType;
 
-  private List<AnonymizedItem> knownNameItems;
+  private List<AnonymizedItemWithReplacement> nlpKnownNameItems;
   private String zipCode;
   private String gender;
   private Date dob;
 
-  private NameDictionay[] dic;
+  private NameType[] nameTypes;
 
-  public enum NameDictionay {
+  public enum NameType {
     Firstname, Lastname
   }
 
@@ -137,13 +132,13 @@ public class NameSurrogate implements Anonymizer {
   /**
    * constructor.
    * @param names array of input names.
-   * @param dictionary is Firstname or Lastname for each element
+   * @param nameTypes is Firstname or Lastname for each element
    */
-  public NameSurrogate(String[] names, String anonymizerType, NameDictionay[] dictionary)
+  public NameSurrogate(String[] names, String anonymizerType, NameType[] nameTypes)
         throws SQLException {
     this.anonymizerType = anonymizerType;
     this.names = names;
-    this.dic = dictionary;
+    this.nameTypes = nameTypes;
 
     synchronized (dbLoaded) {
       if (!dbLoaded.get()) {
@@ -162,16 +157,9 @@ public class NameSurrogate implements Anonymizer {
 
 
   @Override
-  public String scrub() {
-    return null;
-  }
-
-  @Override
-  public String scrub(String text, List<AnonymizedItem> list) {
+  public void find(String text, List<AnonymizedItemWithReplacement> findings) {
 
     getNameSurrogate();
-
-    String out = text;
 
     for (int i = 0; names != null && i < names.length; i++) {
       // Ignore ones has shorter than 3 character length
@@ -179,46 +167,30 @@ public class NameSurrogate implements Anonymizer {
         continue;
       }
       Matcher r = Pattern.compile("\\b(" + Utility.regexStr(names[i]) + ")\\b",
-            Pattern.CASE_INSENSITIVE).matcher(out);
+            Pattern.CASE_INSENSITIVE).matcher(text);
       while (r.find()) {
-        AnonymizedItem ai =
-              new AnonymizedItem(out.substring(r.start(),r.end()), this.anonymizerType);
-        ai.setStart(r.start());
-        ai.setEnd(r.end());
-        //log.debug("found:" + ai.getWord() + " at " + r.start() + "-" + r.end());
-        list.add(ai);
-      }
-      try {
-        out = r.replaceAll(replacements[i]);
+        String word = text.substring(r.start(), r.end());
+        AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
+            word, r.start(), r.end(),
+            replacements[i], "deid-name-knownNames", this.anonymizerType);
 
-      } catch (IllegalStateException | IllegalArgumentException
-            | IndexOutOfBoundsException | NullPointerException e) {
-        log.error(e.getMessage(),e);
+        findings.add(ai);
       }
 
     }
 
     //process provided known name item discovered by NLP
-    if (this.knownNameItems != null) {
-      Set<String> uniqueWords = new HashSet();
-      this.knownNameItems.forEach(i -> {
-        list.add(i);
-        uniqueWords.add(i.getWord());
-      });
+    if (this.nlpKnownNameItems != null) {
 
-      for (String word: uniqueWords) {
-        Matcher r = Pattern.compile("\\b(" + Utility.regexStr(word) + ")\\b",
-              Pattern.CASE_INSENSITIVE).matcher(out);
+      for (AnonymizedItemWithReplacement i : this.nlpKnownNameItems) {
         try {
-          out = r.replaceAll(getLastNameSurrogate(word));
+          i.setReplacement(getFullNameSurrogate(i.getWord()));
         } catch (SQLException e) {
-          log.error(e.getMessage(),e);
+          i.setReplacement(AnonymizerProcessor.REPLACE_WORD);
         }
+        findings.add(i);
       }
     }
-    //session.close();
-
-    return out;
   }
 
 
@@ -230,7 +202,7 @@ public class NameSurrogate implements Anonymizer {
     for (int i = 0; i < names.length; i++) {
       try {
         String repl =
-            dic[i] != null && dic[i] == NameDictionay.Lastname ? getLastNameSurrogate(names[i])
+            nameTypes[i] != null && nameTypes[i] == NameType.Lastname ? getLastNameSurrogate(names[i])
               : getFirstNameSurrogate(names[i]);
         replacements[i] = repl;
       } catch (SQLException e) {
@@ -285,6 +257,17 @@ public class NameSurrogate implements Anonymizer {
     return range;
   }
 
+  String getFullNameSurrogate(String name) throws SQLException {
+    String[] parts = name.split("\\s| ");
+    if (parts.length == 2 && name.contains(",")) {
+      return getLastNameSurrogate(parts[0]) + " " + getFirstNameSurrogate(parts[1]);
+    } else if (parts.length == 2 && !name.contains(",")) {
+      return getFirstNameSurrogate(parts[0]) + " " + getLastNameSurrogate(parts[1]);
+    } else {
+      return getLastNameSurrogate(name);
+    }
+  }
+
   String getLastNameSurrogate(String name) throws SQLException {
 
     org.javatuples.Pair<Integer,Integer> chars = Utility.getRandomChars(name);
@@ -306,7 +289,15 @@ public class NameSurrogate implements Anonymizer {
           .argInteger(Utility.getGaussianRandomPositionInRange(rangeParam, 10))
           .queryFirstOrNull(r -> r.getStringOrNull("name"));
       });
-      return StringUtils.capitalize(surrogateName.toLowerCase());
+
+
+      if (surrogateName != null) {
+        return StringUtils.capitalize(surrogateName.toLowerCase());
+      } else {
+        log.warn(String.format("failed to find match for range:%s for [%s][%s] ",
+            range, chars.getValue0(), chars.getValue1()));
+        return defaultReplacementWord;
+      }
 
     } catch (DatabaseException e) {
       log.error(e.getMessage(), e);
@@ -364,8 +355,8 @@ public class NameSurrogate implements Anonymizer {
     private String zipCode;
     private String gender;
     private Date dob;
-    private NameDictionay[] dic;
-    private List<AnonymizedItem> knownNameItems;
+    private NameType[] dic;
+    private List<AnonymizedItemWithReplacement> knownNameItems;
 
     public Builder() {
     }
@@ -395,12 +386,12 @@ public class NameSurrogate implements Anonymizer {
       return this;
     }
 
-    public Builder withDic(NameDictionay[] dic) {
+    public Builder withDic(NameType[] dic) {
       this.dic = dic;
       return this;
     }
 
-    public Builder withKnownNameItems(List<AnonymizedItem> knownNameItems) {
+    public Builder withKnownNameItems(List<AnonymizedItemWithReplacement> knownNameItems) {
       this.knownNameItems = knownNameItems;
       return this;
     }
@@ -414,11 +405,11 @@ public class NameSurrogate implements Anonymizer {
       NameSurrogate nameSurrogate = new NameSurrogate(names, anonymizerType, null);
       nameSurrogate.zipCode = this.zipCode;
       nameSurrogate.gender = this.gender;
-      nameSurrogate.dic = this.dic;
+      nameSurrogate.nameTypes = this.dic;
       nameSurrogate.dob = this.dob;
-      nameSurrogate.knownNameItems = this.knownNameItems;
-      if (nameSurrogate.knownNameItems == null) {
-        nameSurrogate.knownNameItems = new ArrayList<>();
+      nameSurrogate.nlpKnownNameItems = this.knownNameItems;
+      if (nameSurrogate.nlpKnownNameItems == null) {
+        nameSurrogate.nlpKnownNameItems = new ArrayList<>();
       }
       return nameSurrogate;
     }

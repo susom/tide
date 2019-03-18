@@ -27,21 +27,29 @@
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-runners-direct-java</artifactId>
       <version>2.8.0</version>
+      <!--<scope>provided</scope>-->
     </dependency>
 
 
     <dependency>
       <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
+      <artifactId>beam-sdks-java-io-google-cloud-platform</artifactId>
       <version>2.8.0</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/org.apache.beam/beam-runners-google-cloud-dataflow-java -->
+    <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
+      <version>2.8.0</version>
+      <!--<scope>runtime</scope>-->
+    </dependency>
 
     <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-dlp -->
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-dlp</artifactId>
-      <version>0.71.0-beta</version>
+      <version>0.79.0-beta</version>
       <exclusions>
         <exclusion>
         <groupId>com.google.cloud</groupId>
@@ -104,38 +112,80 @@
     </dependency>
 
 
-    <dependency>
-      <groupId>com.github.susom</groupId>
-      <artifactId>proc-note-deidentifier</artifactId>
-      <version>1.2</version>
-      <type>jar</type>
-      <exclusions>
-        <exclusion>
-          <groupId>com.google.cloud</groupId>
-          <artifactId>google-cloud-bigquery</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>io.vertx</groupId>
-          <artifactId>vertx-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.github.susom</groupId>
-          <artifactId>database</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.opencsv</groupId>
-          <artifactId>opencsv</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.oracle</groupId>
-          <artifactId>ojdbc7</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+    <!--<dependency>-->
+    <!--<groupId>org.apache.beam</groupId>-->
+    <!--<artifactId>beam-runners-google-cloud-dataflow-java</artifactId>-->
+    <!--<version>2.8.0</version>-->
+    <!--<scope>runtime</scope>-->
+    <!--</dependency>-->
+
+    <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-dlp -->
+    <!--<dependency>-->
+      <!--<groupId>com.google.cloud</groupId>-->
+      <!--<artifactId>google-cloud-dlp</artifactId>-->
+      <!--<version>0.71.0-beta</version>-->
+      <!--<exclusions>-->
+        <!--<exclusion>-->
+        <!--<groupId>com.google.cloud</groupId>-->
+        <!--<artifactId>google-cloud-core</artifactId>-->
+        <!--</exclusion>-->
+
+        <!--<exclusion>-->
+        <!--<groupId>com.google.cloud</groupId>-->
+        <!--<artifactId>google-cloud-core-grpc</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>io.grpc</groupId>-->
+        <!--<artifactId>grpc-core</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>io.grpc</groupId>-->
+        <!--<artifactId>grpc-stub</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>io.grpc</groupId>-->
+        <!--<artifactId>grpc-auth</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>com.google.http-client</groupId>-->
+        <!--<artifactId>google-http-client</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>com.fasterxml.jackson.core</groupId>-->
+        <!--<artifactId>jackson-core</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>io.grpc</groupId>-->
+        <!--<artifactId>grpc-netty-shaded</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>io.grpc</groupId>-->
+        <!--<artifactId>grpc-netty</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>io.grpc</groupId>-->
+        <!--<artifactId>grpc-okhttp</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>com.google.protobuf</groupId>-->
+        <!--<artifactId>protobuf-java</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>com.google.api.grpc</groupId>-->
+        <!--<artifactId>proto-google-common-protos</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>com.google.api</groupId>-->
+        <!--<artifactId>gax-grpc</artifactId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+        <!--<groupId>com.google.api</groupId>-->
+        <!--<artifactId>api-common</artifactId>-->
+        <!--</exclusion>-->
+      <!--</exclusions>-->
+    <!--</dependency>-->
+
+
 
     <dependency>
       <groupId>commons-cli</groupId>
@@ -244,8 +294,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
         </configuration>
       </plugin>
 
@@ -299,6 +349,13 @@
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.0.2</version>
         <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>${main.class}</mainClass>
+            </manifest>
+          </archive>
           <!-- To avoid overlapping classes warnings from shade plugin -->
           <forceCreation>true</forceCreation>
         </configuration>

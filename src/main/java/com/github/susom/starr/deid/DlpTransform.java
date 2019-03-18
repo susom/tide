@@ -20,6 +20,8 @@ package com.github.susom.starr.deid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
+import com.github.susom.starr.deid.anonymizers.AnonymizerProcessor;
 import com.google.cloud.dlp.v2.DlpServiceClient;
 import com.google.privacy.dlp.v2.ByteContentItem;
 import com.google.privacy.dlp.v2.CharacterMaskConfig;
@@ -38,7 +40,6 @@ import com.google.privacy.dlp.v2.ProjectName;
 import com.google.privacy.dlp.v2.Range;
 import com.google.privacy.dlp.v2.ReplaceWithInfoTypeConfig;
 import com.google.protobuf.ByteString;
-import edu.stanford.irt.core.facade.AnonymizedItem;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -194,14 +195,14 @@ public class DlpTransform extends PTransform<PCollection<String>,
           //java.util.List<com.google.privacy.dlp.v2.TransformationSummary>
           //summaries = response.getOverview().getTransformationSummariesList();
           //
-          //List<AnonymizedItem> items = new ArrayList<>();
+          //List<AnonymizedItemWithReplacement> items = new ArrayList<>();
           //
           //String result = response.getItem().getValue();
           //deidResult.setTextStage2(result);
           //
           //summaries.stream().forEach(s->{
-          //AnonymizedItem ai =
-          //new AnonymizedItem("", getPhiCategoryByInfoTypeName(s.getInfoType().getName()));
+          //AnonymizedItemWithReplacement ai =
+          //new AnonymizedItemWithReplacement("", getPhiCategoryByInfoTypeName(s.getInfoType().getName()));
           //items.add(ai);
           //});
           //String stats = mapper.writeValueAsString(items);
@@ -285,18 +286,18 @@ public class DlpTransform extends PTransform<PCollection<String>,
     result = response.getResult();
     if (result.getFindingsCount() > 0) {
 
-      List<AnonymizedItem> items = new ArrayList<>();
+      List<AnonymizedItemWithReplacement> items = new ArrayList<>();
       byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
 
       for (Finding finding : result.getFindingsList()) {
         Range r = finding.getLocation().getByteRange();
         byte[] slice = Arrays.copyOfRange(textBytes, (int)r.getStart(), (int)r.getEnd());
 
-        AnonymizedItem ai = new AnonymizedItem(
+        AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
             new String(slice,StandardCharsets.UTF_8),
+            (int)r.getStart(), (int)r.getEnd(), String.format("[%s]", finding.getInfoType().getName()),
+            "google-dlp",
             getPhiCategoryByInfoTypeName(finding.getInfoType().getName()));
-        ai.setStart((int)r.getStart());
-        ai.setEnd((int)r.getEnd());
         items.add(ai);
       }
 
@@ -316,7 +317,7 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
 
   private String flagTextWithDlpFindings(byte[] textBytes,
-                                         List<AnonymizedItem> items)
+                                         List<AnonymizedItemWithReplacement> items)
                               throws UnsupportedEncodingException {
     final ByteBuffer buf = ByteBuffer.wrap(textBytes);
     items.forEach(i -> {

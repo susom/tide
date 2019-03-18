@@ -18,11 +18,11 @@
 
 package com.github.susom.starr.deid.anonymizers;
 
-import com.github.susom.starr.deid.anonymizers.GeneralAnonymizer;
-import edu.stanford.irt.core.facade.AnonymizedItem;
+import com.github.susom.starr.deid.DeidResultProc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class GeneralAnonymizerTest {
   private static final Logger log = LoggerFactory.getLogger(GeneralAnonymizerTest.class);
   String[] textArray = new String[]{
     "https://www.yahoo.com/testpage http://www.yahoo.com/testpage https://yahoo.com/testpage www.yahoo.com/testpage",
-    "my phone is 650-876-9087, (650)356-8890 and 1-650-333-4456 ssn test: 345-76-7834 and 234-89-9909-ssn em : wcl@com.com  TEST URL go.com go.gggg and IP: 126.98.0.1 or FE80:0000:0A00:0FE0:0202:B3FF:FE1E:8329 ."
+    "my phone is 650-876-9087, (650)356-8890 and 1-650-333-4456 ssn testSet: 345-76-7834 and 234-89-9909-ssn em : wcl@com.com  TEST URL go.com go.gggg and IP: 126.98.0.1 or FE80:0000:0A00:0FE0:0202:B3FF:FE1E:8329 ."
   };
 
   int[] phiCount = new int[] {3, 8};
@@ -49,15 +49,16 @@ public class GeneralAnonymizerTest {
     GeneralAnonymizer ga = new GeneralAnonymizer();
 
     IntStream.range(0, textArray.length).forEach(i->{
-      List<AnonymizedItem > items = new ArrayList<>();
-      String result = ga.scrub(textArray[i], "<offset10>" + textArray[i], items);
+      List<AnonymizedItemWithReplacement> items = new ArrayList<>();
+      ga.find(textArray[i], items);
+      String result = DeidResultProc.applyChange(items,textArray[i]);
       log.info("INPUT:" + textArray[i]);
       log.info("OUTPUT:" + result);
 
-      for (AnonymizedItem item : items) {
+      for (AnonymizedItemWithReplacement item : items) {
         String clipFromOriginal = textArray[i].substring(item.getStart(), item.getEnd());
-        log.info(String.format("item words:%s type:%s span from:%s to:%s verify word:%s",
-          item.getWord(), item.getType(), item.getStart(), item.getEnd(), clipFromOriginal));
+//        log.info(String.format("item words:%s type:%s span from:%s to:%s verify word:%s",
+//          item.getWord(), item.getType(), item.getStart(), item.getEnd(), clipFromOriginal));
         assertEquals("span start and end should be based on original, not on processed text with offset", item.getWord(), clipFromOriginal );
       }
 
@@ -66,18 +67,19 @@ public class GeneralAnonymizerTest {
 
 
     for(String text : textArray){
-      List<AnonymizedItem > items = new ArrayList<>();
-      String result = ga.scrub(text, "<offset10>" + text, items);
+      List<AnonymizedItemWithReplacement > items = new ArrayList<>();
+      ga.find(text, items);
+      String result = DeidResultProc.applyChange(items,text);
       log.info("INPUT:" + text);
       log.info("OUTPUT:" + result);
 
 
 
 
-      for (AnonymizedItem item : items) {
-        log.info(String.format("item words:%s type:%s span from:%s to:%s verify word:%s",
-          item.getWord(), item.getType(), item.getStart(), item.getEnd(), text.substring(item.getStart(), item.getEnd())));
-
+      for (AnonymizedItemWithReplacement item : items) {
+//        log.info(String.format("item words:%s type:%s span from:%s to:%s verify word:%s",
+//          item.getWord(), item.getType(), item.getStart(), item.getEnd(), text.substring(item.getStart(), item.getEnd())));
+        Assert.assertNotEquals("text should be replaced", item.getWord(), item.replacement );
       }
     }
 
