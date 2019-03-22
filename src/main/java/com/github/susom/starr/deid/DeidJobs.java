@@ -29,7 +29,6 @@ public class DeidJobs implements Serializable {
   DeidJob[] deidJobs;
   String name;
 
-
   public DeidJob[] getDeidJobs() {
     return deidJobs;
   }
@@ -46,5 +45,3 @@ public class DeidJobs implements Serializable {
     this.name = name;
   }
 }
-
-

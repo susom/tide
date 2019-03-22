@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.api.services.bigquery.model.TableSchema;
+import java.util.Locale;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
@@ -32,7 +33,6 @@ import org.apache.beam.sdk.values.PCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * generalize input format for BigQuery input.
  * TODO use more efficient coder
@@ -42,14 +42,12 @@ import org.slf4j.LoggerFactory;
 
 public class InputTransforms {
 
-
   private static final Logger log = LoggerFactory.getLogger(InputTransforms.class);
 
   private static final SerializableFunction<SchemaAndRecord, String> bigQueryRowToJsonFn =
       new SerializableFunction<SchemaAndRecord, String>() {
 
       ObjectMapper mapper = new ObjectMapper();
-
 
       @Override
       public String apply(SchemaAndRecord schemaAndRecord) {
@@ -61,7 +59,7 @@ public class InputTransforms {
 
           String key = f.getName();
           Object value = gr.get(f.getName());
-          switch (f.getType().toUpperCase()) {
+          switch (f.getType().toUpperCase(Locale.ROOT)) {
 
             case "STRING":
               simpleNode.put(key, value != null ? value.toString() : null);
@@ -113,8 +111,6 @@ public class InputTransforms {
       }
     };
 
-
-
   static class BigQueryRowToJson {
 
     public static PCollection<String>  withBigQueryLink(Pipeline pipeline, String resourceLink) {
@@ -125,8 +121,6 @@ public class InputTransforms {
           .from(resourceLink)); //projectId:dataSet.table
     }
   }
-
-
 
   //static class RowToJson extends DoFn<SchemaAndRecord, String> {
   // final ObjectMapper mapper;
@@ -143,6 +137,4 @@ public class InputTransforms {
   //   context.output(out);
   // }
   //}
-
-
 }

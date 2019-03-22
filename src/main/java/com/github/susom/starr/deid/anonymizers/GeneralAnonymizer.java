@@ -21,6 +21,7 @@ package com.github.susom.starr.deid.anonymizers;
 import com.github.susom.starr.Utility;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,7 +42,6 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
               + phonePatternPart1 + phonePatternPart2 + phonePatternPart3,
         Pattern.CASE_INSENSITIVE);
 
-
   private static final String typeEmail = "general-email";
   private static final Pattern emailPattern =
         Pattern.compile("\\b\\S+@\\S+\\.\\S+\\b",
@@ -61,7 +61,6 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
       urlPatternPart1
         + "[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)",
         Pattern.CASE_INSENSITIVE);
-
 
   private static final String typeSsn = "general-ssn";
   private static final Pattern ssn =
@@ -84,7 +83,6 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
       typeUrl,
       typeSsn};
 
-
   @Override
   public void find(String text, List<AnonymizedItemWithReplacement> findings) {
 
@@ -96,14 +94,12 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
       while (matcher.find()) {
         String word = text.substring(matcher.start(),matcher.end());
         AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
-            word, matcher.start(), matcher.end(), String.format("[%s]", type),
+            word, matcher.start(), matcher.end(), String.format(Locale.ROOT, "[%s]", type),
             "deid-general", type);
 
         findings.add(ai);
       }
       //matcher.reset();
     }
-
   }
-
 }

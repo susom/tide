@@ -65,7 +65,6 @@ public class GeneralAnonymizerTest {
       assertTrue(items.size() == phiCount[i]);
     });
 
-
     for(String text : textArray){
       List<AnonymizedItemWithReplacement > items = new ArrayList<>();
       ga.find(text, items);
@@ -73,16 +72,12 @@ public class GeneralAnonymizerTest {
       log.info("INPUT:" + text);
       log.info("OUTPUT:" + result);
 
-
-
-
       for (AnonymizedItemWithReplacement item : items) {
 //        log.info(String.format("item words:%s type:%s span from:%s to:%s verify word:%s",
 //          item.getWord(), item.getType(), item.getStart(), item.getEnd(), text.substring(item.getStart(), item.getEnd())));
         Assert.assertNotEquals("text should be replaced", item.getWord(), item.replacement );
       }
     }
-
 
   }
 }

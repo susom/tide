@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -37,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.javatuples.Quintet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Name identification and surrogate.
@@ -64,7 +64,6 @@ public class NameSurrogate implements AnonymizerProcessor {
   private static final String findFirstNameBySexI12SeqQuery
       = "select name,sex from us_firstname "
           + "where sex = ? and name_i1 = ? and name_i2 = ? and seq = ? limit 1";
-
 
   private static final String findLastNameRangeByI12Query
       = "select range from us_lastname_range where name_i1 = ? and name_i2 = ?  limit 1";
@@ -110,7 +109,6 @@ public class NameSurrogate implements AnonymizerProcessor {
               + "(name_i1 integer,name_i2 integer, sex varchar(20), range integer)",
         "firstname_g_range.csv"));
 
-
     //lastname with three char index
     //NAME_I1,NAME_I2,NAME_I3,SEQ,NAME,OCCURRENCES: '76,65,70,2048,LAFANS,1'
     hsqlTables.add(Quintet.with(
@@ -152,9 +150,7 @@ public class NameSurrogate implements AnonymizerProcessor {
     }
 
     inProcessDbBuilder = DatabaseProvider.fromDriverManager(inProcessDbUrl);
-
   }
-
 
   @Override
   public void find(String text, List<AnonymizedItemWithReplacement> findings) {
@@ -192,7 +188,6 @@ public class NameSurrogate implements AnonymizerProcessor {
       }
     }
   }
-
 
   private void getNameSurrogate()  {
     if (names == null) {
@@ -237,7 +232,6 @@ public class NameSurrogate implements AnonymizerProcessor {
 
   }
 
-
   int getLastNameRange(int char1, int char2) throws SQLException {
     String key = "LN_" + char1 + "_" + char2;
     if (lnCache.containsKey(key) && lnCache.get(key) != null) {
@@ -272,7 +266,6 @@ public class NameSurrogate implements AnonymizerProcessor {
 
     org.javatuples.Pair<Integer,Integer> chars = Utility.getRandomChars(name);
 
-
     try {
       int range = getLastNameRange(chars.getValue0(),chars.getValue1());
       while (range < minLastNamePopularity) {
@@ -290,11 +283,10 @@ public class NameSurrogate implements AnonymizerProcessor {
           .queryFirstOrNull(r -> r.getStringOrNull("name"));
       });
 
-
       if (surrogateName != null) {
-        return StringUtils.capitalize(surrogateName.toLowerCase());
+        return StringUtils.capitalize(surrogateName.toLowerCase(Locale.ROOT));
       } else {
-        log.warn(String.format("failed to find match for range:%s for [%s][%s] ",
+        log.warn(String.format(Locale.ROOT,"failed to find match for range:%s for [%s][%s] ",
             range, chars.getValue0(), chars.getValue1()));
         return defaultReplacementWord;
       }
@@ -304,9 +296,7 @@ public class NameSurrogate implements AnonymizerProcessor {
     }
 
     return defaultReplacementWord;
-
   }
-
 
   String getFirstNameSurrogate(String name) throws SQLException {
     String out;
@@ -338,15 +328,13 @@ public class NameSurrogate implements AnonymizerProcessor {
     });
 
     if (surrogateFirstName != null) {
-      return StringUtils.capitalize(surrogateFirstName.toLowerCase());
+      return StringUtils.capitalize(surrogateFirstName.toLowerCase(Locale.ROOT));
     } else {
-      log.warn(String.format("failed to find match for range:%s for [%s][%s] ",
+      log.warn(String.format(Locale.ROOT,"failed to find match for range:%s for [%s][%s] ",
           range, chars.getValue0(), chars.getValue1()));
       return defaultReplacementWord;
     }
-
   }
-
 
   public static final class Builder {
 

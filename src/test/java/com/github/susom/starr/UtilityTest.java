@@ -18,6 +18,7 @@
 
 package com.github.susom.starr;
 
+import java.util.Locale;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,9 +60,9 @@ public class UtilityTest {
       }
 
     }
-    log.info(String.format("total occurrence for 10 percent above : %s, which is about %s %%", count10,
+    log.info(String.format(Locale.ROOT,"total occurrence for 10 percent above : %s, which is about %s %%", count10,
       (double)count10 / (double)testTotal * 100));
-    log.info(String.format("total occurrence for 95 percent above : %s, which is about %s %%", count95,
+    log.info(String.format(Locale.ROOT,"total occurrence for 95 percent above : %s, which is about %s %%", count95,
           (double)count95 / (double)testTotal * 100));
 
     int countOthers = testTotal - count10 - count95;

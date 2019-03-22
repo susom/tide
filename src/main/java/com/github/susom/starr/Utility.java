@@ -23,6 +23,8 @@ import com.github.susom.database.DatabaseProvider;
 import com.github.susom.database.SqlInsert;
 import com.github.susom.starr.deid.DeidTransform.DeidFn;
 
+import com.google.common.base.Charsets;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -32,6 +34,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
@@ -39,12 +42,12 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.CharSet;
 import org.javatuples.Pair;
 import org.javatuples.Quintet;
 import org.javatuples.Triplet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 //import static com.google.api.client.googleapis.javanet.GoogleNetHttpTransport.newTrustedTransport;
 
@@ -61,7 +64,7 @@ public class Utility {
    * @param seedString seed
    * @param salt salt
    * @param range jitter range
-   * @return
+   * @return jitterred integer
    */
   public static int jitterHash(String seedString, String salt, int range) {
     if (seedString == null) {
@@ -99,17 +102,16 @@ public class Utility {
   /**
    * return tuple of two random upper case chars that starts differently from provided avoidWord.
    * @param avoidWord word to avoid, usually the surrogate target
-   * @return
+   * @return tuple of two random upper case chars
    */
   public static Pair<Integer,Integer> getRandomChars(String avoidWord) {
     int random1 = 65 + random.nextInt(26);
-    if (avoidWord != null && avoidWord.length() > 0 && random1 == avoidWord.toUpperCase().charAt(0)) {
+    if (avoidWord != null && avoidWord.length() > 0 && random1 == avoidWord.toUpperCase(Locale.ROOT).charAt(0)) {
       random1 = (random1 - 65 + 1) % 26 + 65;
     }
     int random2 = 65 + random.nextInt(26);
     return org.javatuples.Pair.with(random1,random2);
   }
-
 
   /**
    * return position in a given range with probability in skew Gaussian distribution.
@@ -137,7 +139,7 @@ public class Utility {
   /**
    * return three random upper case chars that starts differently from provided avoidWord.
    * @param avoidWord word to avoid
-   * @return
+   * @return eturn three random upper case chars
    */
   public static Triplet<Integer,Integer,Integer> getRandomTripleChars(String avoidWord) {
     int random1 = 65 + random.nextInt(26);
@@ -157,7 +159,7 @@ public class Utility {
   public static void loadFileToMemory(String classPathResource, HashSet<String> hashSet) {
     try (Scanner s =
            new Scanner(
-             DeidFn.class.getClassLoader().getResourceAsStream(classPathResource))) {
+             DeidFn.class.getClassLoader().getResourceAsStream(classPathResource), "UTF-8")) {
       while (s.hasNext()) {
         hashSet.add(s.nextLine());
       }
@@ -176,7 +178,7 @@ public class Utility {
                                       Map<String, String> map, boolean reverse) {
     try (Scanner s =
             new Scanner(
-                DeidFn.class.getClassLoader().getResourceAsStream(classPathResource))) {
+                DeidFn.class.getClassLoader().getResourceAsStream(classPathResource), "UTF-8")) {
       while (s.hasNext()) {
         String[] parts = s.nextLine().split(",");
         if (reverse) {
@@ -198,7 +200,7 @@ public class Utility {
   private static void loadFileToMemory(String classPathResource, Consumer<String[]> handler) {
     try (Scanner s =
             new Scanner(
-              Utility.class.getClassLoader().getResourceAsStream(classPathResource))) {
+              Utility.class.getClassLoader().getResourceAsStream(classPathResource), "UTF-8")) {
       while (s.hasNext()) {
         String[] parts = s.nextLine().split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
         handler.accept(parts);
@@ -222,7 +224,6 @@ public class Utility {
                           throws SQLException {
     log.info("loading data into HSQL surrogate db");
 
-
     DatabaseProvider.Builder inProcessDbBuilder
         = DatabaseProvider.fromDriverManager(inProcessDbUrl);
 
@@ -231,14 +232,13 @@ public class Utility {
     });
 
     if (tableDef.getValue2() != null && tableDef.getValue2().length() > 0) {
-      String query = String.format("CREATE UNIQUE INDEX index_%s ON %s ( %s  )",
+      String query = String.format(Locale.ROOT,"CREATE UNIQUE INDEX index_%s ON %s ( %s  )",
           tableDef.getValue0(), tableDef.getValue0(), tableDef.getValue2());
-      log.info(String.format("create index for table %s ",tableDef.getValue0()));
+      log.info(String.format(Locale.ROOT, "create index for table %s ",tableDef.getValue0()));
       inProcessDbBuilder.transact(db -> {
         db.get().toUpdate(query).update();
       });
     }
-
 
     String[] names =  tableDef.getValue1().split(",");
     List<String> fields = Arrays.asList(names);
@@ -256,7 +256,6 @@ public class Utility {
       });
     });
 
-
     inProcessDbBuilder.transact(dbs -> {
 
       String insertQuery = "Insert into " + tableDef.getValue0()
@@ -265,17 +264,16 @@ public class Utility {
 
       Database db = dbs.get();
 
-
       Utility.loadFileToMemory(tableDef.getValue4(), values -> {
         SqlInsert insert = db.toInsert(insertQuery);
         for (int i = 0; i < values.length; i++) {
           int pos = fields.indexOf(names[i]);
           switch (types[pos]) {
             case 4:
-              insert.argInteger(Integer.parseInt(values[i]));
+              insert = insert.argInteger(Integer.parseInt(values[i]));
               break;
             case 12:
-              insert.argString(values[i]);
+              insert = insert.argString(values[i]);
               break;
             default:
               log.warn("not supported");

@@ -3,12 +3,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
-    <name>Starr Core DeId Pipeline</name>
-    <artifactId>deid</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+  <name>Starr Core DeId Pipeline</name>
+  <artifactId>deid</artifactId>
+  <version>3.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <parent>
     <groupId>com.github.susom</groupId>
-    <version>3.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <artifactId>library-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../library-parent</relativePath>
+  </parent>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,7 +34,6 @@
       <version>2.8.0</version>
       <!--<scope>provided</scope>-->
     </dependency>
-
 
     <dependency>
       <groupId>org.apache.beam</groupId>
@@ -111,7 +115,6 @@
       </exclusions>
     </dependency>
 
-
     <!--<dependency>-->
     <!--<groupId>org.apache.beam</groupId>-->
     <!--<artifactId>beam-runners-google-cloud-dataflow-java</artifactId>-->
@@ -184,8 +187,6 @@
         <!--</exclusion>-->
       <!--</exclusions>-->
     <!--</dependency>-->
-
-
 
     <dependency>
       <groupId>commons-cli</groupId>
@@ -287,7 +288,6 @@
 
   </dependencies>
 
-
   <build>
     <plugins>
       <plugin>
@@ -298,51 +298,6 @@
           <target>${java.version}</target>
         </configuration>
       </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.10</version>
-        <configuration>
-          <outputDirectory>target/parent-files</outputDirectory>
-          <artifactItems>
-            <artifactItem>
-              <groupId>${project.parent.groupId}</groupId>
-              <artifactId>vertx-parent-file</artifactId>
-              <version>${project.parent.version}</version>
-            </artifactItem>
-          </artifactItems>
-          <includeArtifactIds>vertx-parent-files</includeArtifactIds>
-        </configuration>
-        <executions>
-          <execution>
-            <id>unpack-parent-files</id>
-            <goals>
-              <goal>unpack-dependencies</goal>
-            </goals>
-            <phase>generate-resources</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.21.0</version>
-        <configuration>
-          <excludes>
-            <exclude>**/LocationSurrogateTest.java</exclude>
-            <exclude>**/NameSurrogateTest.java</exclude>
-            <exclude>**/DlpTransformTest.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <!-- Run database/system tests matching **/*(Db|Oracle|Hsql|Postgres)Test-->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.21.0</version>
-      </plugin>
-
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -387,7 +342,6 @@
 
         </executions>
       </plugin>
-
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -434,7 +388,6 @@
       </plugin>
     </plugins>
 
-
     <pluginManagement>
       <plugins>
         <plugin>
@@ -455,8 +408,6 @@
               <artifactId>checkstyle</artifactId>
               <version>8.16</version>
             </dependency>
-
-
 
           </dependencies>
         </plugin>
@@ -483,7 +434,6 @@
     </plugins>
   </reporting>
 
-
   <profiles>
     <profile>
       <id>direct-runner</id>
@@ -504,7 +454,6 @@
       </dependencies>
     </profile>
 
-
     <profile>
       <id>dataflow-runner</id>
       <properties>
@@ -520,7 +469,6 @@
         <!--</dependency>-->
       </dependencies>
     </profile>
-
 
     <profile>
       <id>spark-runner</id>

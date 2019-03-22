@@ -20,7 +20,7 @@
  * Created on Feb 26, 2009
  *
  * (c) 2009 Stanford University School of Medicine Center for Clinical Informatics
- * Information Resources and Technology 
+ * Information Resources and Technology
  */
 
 package com.github.susom.starr.deid.anonymizers;
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 
 /*
  * Takes in an array of the patient/doctor tokens associated to a report and removes any
- * occurrence of them in the report. 
+ * occurrence of them in the report.
  *
  * migrated from github/proc-note-deidentifier (edu.stanford.irt.core.facade)
  *
@@ -58,7 +58,6 @@ public class TokenArrayAnonymizer implements AnonymizerProcessor {
     this.replaceWord = replaceWord;
     this.anonymizerType = anonymizerType;
   }
-
 
   @Override
   public void find(String inputText, List<AnonymizedItemWithReplacement> findings) {

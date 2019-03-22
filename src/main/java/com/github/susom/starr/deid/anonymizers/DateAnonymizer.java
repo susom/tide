@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -144,7 +146,6 @@ public class DateAnonymizer implements AnonymizerProcessor {
 
   private String anonymizerType;
 
-
   /**
    * constructor.
    * @param date a known date for example birthday
@@ -170,7 +171,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
   private void initDateFormat() {
     // SimpleDateFormat is not thread safe.
     // Create new SimpleDateFormat for each DataAnonymizer instance.
-    sdf = new SimpleDateFormat("MM_dd_yyyy");
+    sdf = new SimpleDateFormat("MM_dd_yyyy",Locale.ROOT);
   }
 
   /**
@@ -186,7 +187,6 @@ public class DateAnonymizer implements AnonymizerProcessor {
    *
    * </pre>
    * @param inputText input text
-   * @return
    */
   @Override
   public void find(String inputText, List<AnonymizedItemWithReplacement> findings) {
@@ -207,7 +207,6 @@ public class DateAnonymizer implements AnonymizerProcessor {
         String monthFormatStr = "MMMM";
         String month = matcher.group("month");
 
-
         // set month format for simpledateparser.  defaults to full text
         if (month.length() < 3) {
           monthFormatStr = "M";
@@ -219,8 +218,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
           month = month.substring(0,3);
         }
 
-
-        String yearStr = "" + Calendar.getInstance().get(Calendar.YEAR);
+        String yearStr = "" + Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ROOT).get(Calendar.YEAR);
         try {
           yearStr = matcher.group("year");
           hasYear = true;
@@ -228,7 +226,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
           // if less than or equal current year, assume 2000s
           // otherwise assume 1900s
           if (yearStr.length() == 2) {
-            int currentYear = Calendar.getInstance().get(Calendar.YEAR) % 100;
+            int currentYear = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ROOT).get(Calendar.YEAR) % 100;
             Integer year = Integer.parseInt(yearStr);
             if (year <= currentYear) {
               yearStr = "20" + yearStr;
@@ -249,7 +247,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
         }
 
         try {
-          dateOfSvc = new SimpleDateFormat(monthFormatStr + "/d/yyyy")
+          dateOfSvc = new SimpleDateFormat(monthFormatStr + "/d/yyyy", Locale.ROOT)
                 .parse(month + '/' + dayStr + '/' + yearStr);
           if (knownDate != null && hasYear) {
             replacement = getAgeAndYearString(knownDate, dateOfSvc);
@@ -280,11 +278,11 @@ public class DateAnonymizer implements AnonymizerProcessor {
    *
    * @param birthDate patient birthday
    * @param dateOfService service date
-   * @return
+   * @return age and year string
    */
 
   public static String getAgeAndYearString(Date birthDate, Date dateOfService) {
-    SimpleDateFormat yrsdf = new SimpleDateFormat("yyyy");
+    SimpleDateFormat yrsdf = new SimpleDateFormat("yyyy", Locale.ROOT);
 
     if (birthDate == null) {
       if (dateOfService != null) {
@@ -302,7 +300,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
     if (ageInYears > 0) {
       //return (String.format("age %.3f(y)/%.2f(wk) in %s",
       // ageInYears, ageInWeeks, YRSDF.format(dateOfService)));
-      return (String.format("age %.3f in %s", ageInYears, yrsdf.format(dateOfService)));
+      return (String.format(Locale.ROOT,"age %.3f in %s", ageInYears, yrsdf.format(dateOfService)));
     } else {
       //if the 'date of service' passed in happens to be their date of birth
       return yrsdf.format(dateOfService); // year of birth - their age will be 0, which looks odd
@@ -314,6 +312,5 @@ public class DateAnonymizer implements AnonymizerProcessor {
     Date newDate = new Date(dateOfService.getTime() + jitter * 24 * 60 * 60 * 1000);
     return sdf.format(newDate);
   }
-
 
 }

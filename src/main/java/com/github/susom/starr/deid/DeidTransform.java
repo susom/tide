@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -118,7 +119,6 @@ public class DeidTransform
     return new StanfordCoreNLP(serProps);
   }
 
-
   /**
    * reset CoreNLP pipeline.
    */
@@ -142,7 +142,6 @@ public class DeidTransform
     if (text == null || text.length() == 0) {
       return;
     }
-
 
     /* with CoreNLP pipeline */
     if (pipeline == null) {
@@ -186,9 +185,7 @@ public class DeidTransform
         }
       }
     }
-
   }
-
 
   @Override
   public PCollection<DeidResult> expand(PCollection<String> input) {
@@ -199,6 +196,7 @@ public class DeidTransform
   public class DeidFn extends DoFn<String, DeidResult> {
 
     public DeidFn() {
+
     }
 
     /**
@@ -211,11 +209,9 @@ public class DeidTransform
     public void processElement(ProcessContext context)
         throws SQLException, IOException, IllegalAccessException {
 
-
       ObjectMapper mapper = new ObjectMapper();
       mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
       JsonNode node = mapper.readTree(context.element());
-
 
       String[] noteIdFields = job.getTextIdFields().split(",");
       String[] noteIds = new String[noteIdFields.length];
@@ -229,18 +225,13 @@ public class DeidTransform
       String[] textFields = job.getTextFields().replaceAll(" ","").split(",");
       DeidResult deidResult = new DeidResult(noteIdFields,noteIds,textFields);
 
-
-
       for (int textIndex = 0;textIndex < textFields.length;textIndex++) {
         try {
 
           String orginalText = node.has(textFields[textIndex])
               ? node.get(textFields[textIndex]).asText() : null;
 
-
           List<AnonymizedItemWithReplacement> items = new ArrayList<>();
-
-
 
           if (orginalText == null || orginalText.length() == 0) {
             deidResult.addData(DeidResultProc.STATS_CNT_DLP + textFields[textIndex],0);
@@ -248,7 +239,7 @@ public class DeidTransform
             continue;
           }
 
-          orginalText = orginalText.replaceAll("\uFFFD", "\n\r");
+          orginalText = orginalText.replaceAll("�", "\n\r"); //� "\ufffd"
 
           deidResult.addData(DeidResultProc.TEXT_ORGINAL + textFields[textIndex],orginalText);
 
@@ -270,11 +261,10 @@ public class DeidTransform
             //log.info("done NER");
           }
 
-
           //stage one : Google DLP
           if (dlpTransform != null && orginalText != null) {
             dlpTransform.dlpDeidRequest(orginalText, textFields[textIndex], deidResult);
-            log.info(String.format("DLP result:[%s]",
+            log.info(String.format(Locale.ROOT,"DLP result:[%s]",
                 deidResult.getDataAsString(DeidResultProc.TEXT_DLP + textFields[textIndex])));
           }
 
@@ -294,6 +284,7 @@ public class DeidTransform
                 scanCommonWord = true;
                 matchWholeWord = false;
                 // fallthru
+                // fall through
               case replace_minimumlengthword_with:
                 try {
                   if (spec.actionParam != null && spec.actionParam.length > 1) {
@@ -307,6 +298,7 @@ public class DeidTransform
                 }
                 matchWholeWord = true;
                 // fallthru
+                // fall through
               case replace_with:
                 List<String> words = new ArrayList<>();
 
@@ -314,16 +306,16 @@ public class DeidTransform
                   if (node.has(field)) {
                     if (matchWholeWord) {
                       String v = node.get(field).asText();
-                      if (v != null && !v.toLowerCase().equals("null")
-                          && (scanCommonWord || !ignoreWords.contains(v.toLowerCase()))
+                      if (v != null && !v.toLowerCase(Locale.ROOT).equals("null")
+                          && (scanCommonWord || !ignoreWords.contains(v.toLowerCase(Locale.ROOT)))
                           && (v.length() >= minimumWordLength)) {
                         words.add(v);
                       }
                     } else {
                       String[] fieldValues = node.get(field).asText().split(" |,|-");
                       for (String v : fieldValues) {
-                        if (v != null && !v.toLowerCase().equals("null")
-                            && (scanCommonWord || !ignoreWords.contains(v.toLowerCase()))
+                        if (v != null && !v.toLowerCase(Locale.ROOT).equals("null")
+                            && (scanCommonWord || !ignoreWords.contains(v.toLowerCase(Locale.ROOT)))
                             && (v.length() >= minimumWordLength)) {
                           words.add(v);
                         }
@@ -394,12 +386,12 @@ public class DeidTransform
                       int pos = 0;
                       NameType nameType = null;
                       for (String v : fieldValues) {
-                        if (v != null && !v.toLowerCase().equals("null")
-                            && (!ignoreWords.contains(v.toLowerCase()))
+                        if (v != null && !v.toLowerCase(Locale.ROOT).equals("null")
+                            && (!ignoreWords.contains(v.toLowerCase(Locale.ROOT)))
                             && (v.length() >= minimumWordLength)) {
                           words.add(v);
                           if (pos < nameF.length) {
-                            switch (nameF[pos].toUpperCase()) {
+                            switch (nameF[pos].toUpperCase(Locale.ROOT)) {
                               case "L":
                               case "M":
                                 nameType = NameType.Lastname;
@@ -496,26 +488,8 @@ public class DeidTransform
               default:
                 continue;
             }
-
-            long anoymizerStartTs = new Date().getTime();
-
             anonymizer.find(orginalText, items);
-
-//            double anoymizerTimeTook = (new Date().getTime() - anoymizerStartTs) / 1000.0;
-//
-//            if (anoymizerTimeTook > 0.2) {
-//              log.warn("end process id:" + Arrays.toString(noteIds)
-//                  + " with " + anonymizer.getClass() + " time:" + anoymizerTimeTook
-//                  + "s SLOW!");
-//            }
           }
-
-          //double timeTook = (new Date().getTime() - startTs) / 1000.0;
-          //log.warn("time took:" + timeTook + "s");
-//          if (timeTook > 2) {
-//            log.warn("end process id:" + Arrays.toString(noteIds)
-//                + " time:" + timeTook + "s SLOW!");
-//          }
 
           ObjectMapper resultMapper = new ObjectMapper();
           mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -529,8 +503,6 @@ public class DeidTransform
         } catch (IOException e) {
           log.error(e.getMessage(),e);
         }
-
-
         //end of text deid
       }
 
@@ -540,8 +512,4 @@ public class DeidTransform
 
     }
   }
-
-
-
-
 }

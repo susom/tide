@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -90,7 +91,7 @@ public class LocationSurrogateTest {
 
 
       for (AnonymizedItemWithReplacement item : items) {
-        log.info(String.format("word:[%s] verify:[%s] type:[%s] span[%s:%s] replacement:[%s]",
+        log.info(String.format(Locale.ROOT,"word:[%s] verify:[%s] type:[%s] span[%s:%s] replacement:[%s]",
           item.getWord(), text.substring(item.getStart(), item.getEnd()), item.getType(), item.getStart(), item.getEnd(), item.getReplacement()));
 
         Assert.assertTrue(item.getReplacement() != null

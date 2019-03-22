@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -96,7 +97,7 @@ public class DateAnonymizerTest {
   @Test
   public void scrub() throws ParseException {
 
-    final Date bdate = new SimpleDateFormat("M/d/yyyy").parse("01/01/1970");
+    final Date bdate = new SimpleDateFormat("M/d/yyyy", Locale.ROOT).parse("01/01/1970");
 
 //    Arrays.sort(sortingByAge);
 
@@ -104,10 +105,8 @@ public class DateAnonymizerTest {
 //      log.info(test);
 //    }
 
-
-
     testSet.forEach((k,v) -> {
-      log.info(String.format("--------[%s]", k));
+      log.info(String.format(Locale.ROOT,"--------[%s]", k));
       for (String test : v) {
         DateAnonymizer bdayAmizer = new DateAnonymizer(bdate,"date");
         DateAnonymizer jitterAmizer = new DateAnonymizer(15,"date");
@@ -116,7 +115,6 @@ public class DateAnonymizerTest {
         bdayAmizer.find(test, items);
         String result = DeidResultProc.applyChange(items,test);
         log.info("BDayAmizer " + test + " => " + result);
-
 
         items.clear();
         jitterAmizer.find(test, items);

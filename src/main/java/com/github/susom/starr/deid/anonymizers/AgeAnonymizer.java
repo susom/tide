@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /*
  * Looks for the patient's age in a medical report and removes if over 89.
  *
@@ -35,7 +34,6 @@ import java.util.regex.Pattern;
 /**
  * Created by eloh on 11/13/17.
  */
-
 
 public class AgeAnonymizer implements AnonymizerProcessor {
   // For testing - compile with TEST=true to show text to be deleted as highlighted
@@ -66,7 +64,6 @@ public class AgeAnonymizer implements AnonymizerProcessor {
       }
   };
 
-
   private String replaceWord;
   private String anonymizerType;
 
@@ -92,7 +89,6 @@ public class AgeAnonymizer implements AnonymizerProcessor {
         findings.add(ai);
       }
     }
-
 
   }
 

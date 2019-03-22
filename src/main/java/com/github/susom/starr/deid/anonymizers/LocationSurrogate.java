@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -39,7 +40,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.javatuples.Quintet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Location identification and surrogate.
@@ -62,7 +62,6 @@ public class LocationSurrogate implements AnonymizerProcessor {
   private static final String findAddressByI12Query
       = "select street_name, street_type, city, zip, statecode "
           + "from us_address where street_i1 = ? and street_i2 = ? and seq = ? limit 1";
-
 
   private static final Logger log = LoggerFactory.getLogger(LocationSurrogate.class);
 
@@ -92,7 +91,6 @@ public class LocationSurrogate implements AnonymizerProcessor {
             + "street_type varchar(20),city varchar(40),seq integer,occurrences integer"
             + ")",
         "address_g3.csv"));
-
 
     //address range for each group (i1,i2)  : '65,65,43'
     hsqlTables.add(Quintet.with(
@@ -131,7 +129,6 @@ public class LocationSurrogate implements AnonymizerProcessor {
     }
 
     inProcessDbBuilder = DatabaseProvider.fromDriverManager(inProcessDbUrl);
-
   }
 
   /**
@@ -154,15 +151,13 @@ public class LocationSurrogate implements AnonymizerProcessor {
       sb.append(separater).append("|").append(address.getStateCode()
           .replaceAll("[^a-zA-Z0-9]","."));
     }
-    
+
     if (address.getZipCode() != null && address.getZipCode().length() > 0) {
       sb.append(separater).append(address.getZipCode()
           .replaceAll("[^a-zA-Z0-9]","."));
     }
-
     return sb.toString();
   }
-
 
   @Override
   public void find(String text, List<AnonymizedItemWithReplacement> findings) {
@@ -204,7 +199,6 @@ public class LocationSurrogate implements AnonymizerProcessor {
 
           findings.add(ai);
         }
-
         continue;
       }
       //do broader find and replace
@@ -226,7 +220,6 @@ public class LocationSurrogate implements AnonymizerProcessor {
 
       Matcher r = Pattern.compile(regexStr,
           Pattern.CASE_INSENSITIVE).matcher(text);
-
 
       while (r.find()) {
 
@@ -255,9 +248,6 @@ public class LocationSurrogate implements AnonymizerProcessor {
       Matcher matcher = locationPattern.matcher(text);
 
       while (matcher.find()) {
-
-
-
         boolean hasStreetNum = matcher.groupCount() >= 1 &&  matcher.group(1) != null;
         boolean hasStreet = matcher.groupCount() >= 2 && matcher.group(2) != null;
         boolean hasCity = matcher.groupCount() >= 3 && matcher.group(3) != null;
@@ -272,13 +262,10 @@ public class LocationSurrogate implements AnonymizerProcessor {
               word,
               matcher.start(), matcher.end(),
               replacement, "deid-location-general", this.anonymizerType);
-
           findings.add(ai);
         }
       }
     }
-
-
     //replace for NLP discovered items
     if (this.knownNameItems != null) {
       for (AnonymizedItemWithReplacement i : this.knownNameItems) {
@@ -296,9 +283,7 @@ public class LocationSurrogate implements AnonymizerProcessor {
           findings.add(i);
         }
       }
-
     }
-
   }
 
   private static String createFormatString(
@@ -315,7 +300,7 @@ public class LocationSurrogate implements AnonymizerProcessor {
   String getLocationSurrogateForNerEntity(String originAddress) throws SQLException {
 
     if (stateToStateCode.containsKey(StringUtils.capitalize(originAddress))
-        || StateCodeToState.containsKey(originAddress.toUpperCase())) {
+        || StateCodeToState.containsKey(originAddress.toUpperCase(Locale.ROOT))) {
       return originAddress; //no need to replace just state alone
     }
 
@@ -340,9 +325,7 @@ public class LocationSurrogate implements AnonymizerProcessor {
     }
     String format = createFormatString(hasStreetNum, hasStreet, hasCity,  hasState, hasZip);
     return getExactLocationSurrogate(format, originAddress, state);
-
   }
-
 
   static Map<String,Integer> locCache = new HashMap<>();
 
@@ -366,11 +349,8 @@ public class LocationSurrogate implements AnonymizerProcessor {
       locCache.put(key, range);
       return range;
     }
-
     return 0;
-
   }
-
 
   private String getExactLocationSurrogate(String format,
                                            String originStreetName, String originalStateCode)  {
@@ -414,7 +394,6 @@ public class LocationSurrogate implements AnonymizerProcessor {
     } catch (DatabaseException e) {
       log.error(e.getMessage(), e);
     }
-
     return defaultReplacementWord;
   }
 
@@ -454,7 +433,6 @@ public class LocationSurrogate implements AnonymizerProcessor {
     Utility.loadFileToMemory(stateMappingFile,StateCodeToState, true);
     Utility.loadFileToMemory(countryMappingFile, countryCodeToCountry, false);
     Utility.loadFileToMemory(countryMappingFile, countryToCountryCode, true);
-
   }
 
   /**
@@ -463,16 +441,13 @@ public class LocationSurrogate implements AnonymizerProcessor {
    * @return true if is a state name or code
    */
   public static boolean isStateOrCountry(String text) {
-    String textUpper = text.toUpperCase();
-    String textCap = StringUtils.capitalize(text.toLowerCase());
+    String textUpper = text.toUpperCase(Locale.ROOT);
+    String textCap = StringUtils.capitalize(text.toLowerCase(Locale.ROOT));
     return countryCodeToCountry.containsKey(textUpper)
       || countryToCountryCode.containsKey(textCap)
       || stateToStateCode.containsKey(textCap)
       || StateCodeToState.containsKey(textUpper);
   }
-
-
-
 
   public static class Address {
     private String streetName;
@@ -548,11 +523,9 @@ public class LocationSurrogate implements AnonymizerProcessor {
       if (this.stateCode.length() > 2) {
         this.stateCode = stateToStateCode.get(StringUtils.capitalize(this.stateCode));
       } else {
-        this.stateCode = this.stateCode.toUpperCase();
+        this.stateCode = this.stateCode.toUpperCase(Locale.ROOT);
       }
     }
-
-
 
     public String getStreetName() {
       return streetName;
@@ -612,5 +585,4 @@ public class LocationSurrogate implements AnonymizerProcessor {
     }
 
   }
-
 }

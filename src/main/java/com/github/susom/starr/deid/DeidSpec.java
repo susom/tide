@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-
 /**
  * Deid task specification.
  * @author wenchengl
@@ -45,7 +44,6 @@ public class DeidSpec implements Serializable {
   String[] actionParam;
   Map<String,String> actionParamMap;
   String[] fields;
-
 
   public static final class DeidSpecBuilder {
     String itemName;
@@ -80,7 +78,6 @@ public class DeidSpec implements Serializable {
       this.actionParamMap = actionParamMap;
       return this;
     }
-
 
     public DeidSpecBuilder withFields(String[] fields) {
       this.fields = fields;
@@ -142,7 +139,6 @@ public class DeidSpec implements Serializable {
       this(null);
     }
 
-
     public SpecDeserializer(Class<?> c) {
       super(c);
     }
@@ -184,5 +180,3 @@ public class DeidSpec implements Serializable {
     }
   }
 }
-
-

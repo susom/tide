@@ -48,10 +48,8 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
   public static final String STATS_CNT_DEID = "STATSCNT_DEID_";
   public static final String TEXT_DEID = "TEXT_DEID_";
 
-
   private final Counter totalPhiCntStage1 =
       Metrics.counter(DeidResultProc.class, "totalPhiCntStage1");
-
 
   private final Counter totalPhiCntStage2 =
       Metrics.counter(DeidResultProc.class, "totalPhiCntStage2");
@@ -59,17 +57,14 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
   private final Counter zeroChangeCntStage1 =
       Metrics.counter(DeidResultProc.class, "zeroChangeCount_Stage1");
 
-
   private final Counter zeroChangeCntStage2 =
       Metrics.counter(DeidResultProc.class, "zeroChangeCount_Stage2");
-
 
   private final Distribution itemPerTextDistributionStage1 =
       Metrics.distribution(DeidResultProc.class, "ItemPerTextDistribution_stage1");
 
   private final Distribution itemPerTextDistributionStage2 =
       Metrics.distribution(DeidResultProc.class, "ItemPerTextDistribution_stage2");
-
 
   public DeidResultProc() {
   }
@@ -110,8 +105,6 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
         zeroChangeCntStage1.inc();
       }
 
-
-
       String statsDeidString = dt.getDataAsString(DeidResultProc.STATS_DEID + textField);
       if (statsDeidString != null) {
         Set<String> phiCat = new HashSet<>();
@@ -134,10 +127,7 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
         zeroChangeCntStage2.inc();
       }
     }
-
-
   }
-
 
   public static String applyChange(List<AnonymizedItemWithReplacement> items, String inputText) {
 
@@ -164,20 +154,18 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
 
         lastEnd.set(item.getEnd());
         lastStart.set(item.getStart());
-        if (i == items.size()-1) {
+        if (i == items.size() - 1) {
           sb.insert(0, inputText.substring(0, item.getStart()));
         }
         continue;
       }
 
-
-
       if (item.getEnd() < lastEnd.get() && item.getStart() >= lastEnd.get()) {
         //inside of last change, do nothing
       } else if (item.getEnd() < lastEnd.get() && item.getEnd() >= lastStart.get()) {
         //overlap
-        char[] spaces = new char[lastStart.get()-lastStart.get()];
-        sb.insert(0,spaces);
+//        char[] spaces = new char[lastStart.get()-item.getStart()];
+//        sb.insert(0,spaces);
         lastStart.set(item.getStart());
       } else if (item.getEnd() < lastStart.get()) {
         //outside of last change, copy fully
@@ -190,14 +178,10 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
         lastStart.set(item.getStart());
       }
 
-
-
-      if (i == items.size()-1) {
+      if (i == items.size() - 1) {
         sb.insert(0, inputText.substring(0, item.getStart()));
       }
     }
     return sb.toString();
   }
-
-
 }

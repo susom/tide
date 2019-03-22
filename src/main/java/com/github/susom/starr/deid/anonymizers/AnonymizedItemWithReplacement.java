@@ -103,13 +103,7 @@ public class AnonymizedItemWithReplacement {
     this.end = end;
   }
 
-
-
   public static String applyChange(String input) {
-
-
-
-
     return null;
   }
 }

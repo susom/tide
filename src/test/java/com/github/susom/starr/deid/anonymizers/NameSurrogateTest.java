@@ -35,12 +35,9 @@ import static org.junit.Assert.assertNotEquals;
 
 public class NameSurrogateTest {
 
-
   String[] fullNames = new String[]{"Joe Smith","Mary Johnson","Williams, Arras","Peter Jones","Rice Brown","Davis, Emma","Miller, Christopher","Wilson","Moor","Taylor","Anderson","Thomas","Jackson"};
 
-
   String[] lastNames = new String[]{"Smith","Johnson","Williams","Jones","Brown","Davis","Miller","Wilson","Moor","Taylor","Anderson","Thomas","Jackson"};
-
 
   String[] names = new String[]{"Jose","Posada","Arras","ФЭЭЭЭЭ","诚诚诚","Joe","Chris","Posada","Mary","Emma","Christopher","O'BRIEN"};
   NameType[] dic = new NameType[]{NameType.Firstname,NameType.Lastname,NameType.Lastname,NameType.Lastname,NameType.Lastname,NameType.Firstname,NameType.Firstname,NameType.Lastname,NameType.Firstname,NameType.Firstname,NameType.Firstname,NameType.Firstname,NameType.Firstname};

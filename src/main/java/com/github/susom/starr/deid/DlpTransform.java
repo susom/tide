@@ -48,13 +48,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 
 /**
  * Googld DLP Transform.
@@ -63,7 +62,6 @@ import org.slf4j.LoggerFactory;
 
 public class DlpTransform extends PTransform<PCollection<String>,
     PCollection<DeidResult>> {
-
 
   private static final Logger log = LoggerFactory.getLogger(DlpTransform.class);
 
@@ -75,14 +73,13 @@ public class DlpTransform extends PTransform<PCollection<String>,
    * @return mapped phi group type, otherwise use prefixed infoType
    */
   public String getPhiCategoryByInfoTypeName(String infoTypeName) {
-    return phiCategoryMap.containsKey(infoTypeName.toUpperCase())
-      ? phiCategoryMap.get(infoTypeName.toUpperCase())
-      : "dlp_" + infoTypeName.toLowerCase();
+    return phiCategoryMap.containsKey(infoTypeName.toUpperCase(Locale.ROOT))
+      ? phiCategoryMap.get(infoTypeName.toUpperCase(Locale.ROOT))
+      : "dlp_" + infoTypeName.toLowerCase(Locale.ROOT);
   }
 
   Likelihood minLikelihood = Likelihood.LIKELY;
   boolean includeQuote = true;
-
 
   List<InfoType> infoTypes = new ArrayList<>();
 
@@ -91,7 +88,6 @@ public class DlpTransform extends PTransform<PCollection<String>,
       //.setMaskingCharacter(maskingCharacter.toString())
       //.setNumberToMask(numberToMask)
       .build();
-
 
   ReplaceWithInfoTypeConfig replaceConf = ReplaceWithInfoTypeConfig.newBuilder().build();
   // Create the deidentification transformation configuration
@@ -115,7 +111,6 @@ public class DlpTransform extends PTransform<PCollection<String>,
         .setInfoTypeTransformations(infoTypeTransformationArray)
         .build();
 
-
   int maxFindings = 0;
   InspectConfig.FindingLimits findingLimits =
       InspectConfig.FindingLimits.newBuilder().setMaxFindingsPerItem(maxFindings).build();
@@ -136,7 +131,7 @@ public class DlpTransform extends PTransform<PCollection<String>,
     this.job = job;
     for (DeidSpec spec : job.getGoogleDlpInfoTypes()) {
       for (String f : spec.fields) {
-        f = f.trim().toUpperCase();
+        f = f.trim().toUpperCase(Locale.ROOT);
         if (f.length() > 0) {
           infoTypes.add(InfoType.newBuilder().setName(f).build());
           phiCategoryMap.put(f,spec.itemName);
@@ -152,9 +147,7 @@ public class DlpTransform extends PTransform<PCollection<String>,
         .setLimits(findingLimits)
         .setIncludeQuote(includeQuote)
         .build();
-
   }
-
 
 
   //TODO implement transform if needed
@@ -209,7 +202,6 @@ public class DlpTransform extends PTransform<PCollection<String>,
           //deidResult.setStatsStage2(stats);
           //deidResult.setStatsCntStage2(items.size());
 
-
           dlpInspectRequest(text,textFieldName,deidResult,dlpServiceClient);
           //TODO ask Google to return stats in deid api response
 
@@ -232,8 +224,6 @@ public class DlpTransform extends PTransform<PCollection<String>,
         retryCount++;
       }
 
-
-
     } catch (Exception e) {
       log.info("Failed to call DLP API ",e);
     } finally {
@@ -242,7 +232,6 @@ public class DlpTransform extends PTransform<PCollection<String>,
       }
     }
   }
-
 
   /**
    * call DLP Inspect API.
@@ -260,7 +249,6 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-
 
     if (dlpServiceClient == null) {
       dlpServiceClient = DlpServiceClient.create();
@@ -295,7 +283,7 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
         AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
             new String(slice,StandardCharsets.UTF_8),
-            (int)r.getStart(), (int)r.getEnd(), String.format("[%s]", finding.getInfoType().getName()),
+            (int)r.getStart(), (int)r.getEnd(), String.format(Locale.ROOT, "[%s]", finding.getInfoType().getName()),
             "google-dlp",
             getPhiCategoryByInfoTypeName(finding.getInfoType().getName()));
         items.add(ai);
@@ -315,7 +303,6 @@ public class DlpTransform extends PTransform<PCollection<String>,
     return result;
   }
 
-
   private String flagTextWithDlpFindings(byte[] textBytes,
                                          List<AnonymizedItemWithReplacement> items)
                               throws UnsupportedEncodingException {
@@ -334,6 +321,5 @@ public class DlpTransform extends PTransform<PCollection<String>,
     });
     return new String(buf.array(), "UTF-8");
   }
-
 
 }

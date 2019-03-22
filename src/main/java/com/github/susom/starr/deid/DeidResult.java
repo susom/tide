@@ -52,7 +52,6 @@ public class DeidResult extends HashMap implements Serializable {
 
   }
 
-
   public void addData(String key, Object value) {
     super.put(key,value);
   }
@@ -85,7 +84,5 @@ public class DeidResult extends HashMap implements Serializable {
   public void setTextFields(String[] textFields) {
     this.textFields = textFields;
   }
-
-
 
 }

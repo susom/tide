@@ -62,12 +62,9 @@ import org.slf4j.LoggerFactory;
 public class Main implements Serializable {
   private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-
-
   public static void main(String[] args) throws IOException {
     new Main().run(args);
   }
-
 
   private void run(String[] args) throws IOException {
 
@@ -96,7 +93,7 @@ public class Main implements Serializable {
       System.exit(1);
     }
 
-    if (options.getTextIdFields() != null || options.getTextIdFields() != null) {
+    if (options.getTextIdFields() != null) {
       //override text field mapping
       for (int i = 0; i < jobs.deidJobs.length;i++) {
         if (options.getTextIdFields() != null) {
@@ -124,14 +121,11 @@ public class Main implements Serializable {
                 .and(DeidTransform.statCategoryDlpTag)
                 .and(DeidTransform.statCategoryDeidTag)));
 
-
-
     if (jobs.deidJobs[0].googleDlpEnabled) {
       result.get(DeidTransform.statsDlpTag)
         .apply("AnalyzeCategoryStatsDlp", new AnalyzeStatsTransform())
         .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
         .apply(TextIO.write().to(options.getOutputResource() + "/DeidPhiStatsDlp"));
-
 
       result.get(DeidTransform.statCategoryDlpTag)
         .apply("AnalyzeTextDlp", new AnalyzeStatsTransform())
@@ -149,7 +143,6 @@ public class Main implements Serializable {
       .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
       .apply(TextIO.write().to(options.getOutputResource() + "/DeidTextStatsStage2"));
 
-
     result.get(DeidTransform.fullResultTag)
       .apply(TextIO.write().to(options.getOutputResource() + "/DeidNote"));
 
@@ -163,7 +156,6 @@ public class Main implements Serializable {
 //        .addNameFilter(MetricNameFilter.inNamespace(DeidResultProc.class))
 //        .addStep("processResult")
 //        .build());
-
 
 //    ResourceId reportResourceId = FileSystems
 //        .matchNewResource(options.getOutputResource() + "/job_report.txt", false);
@@ -197,12 +189,9 @@ public class Main implements Serializable {
 //      log.error(e.getMessage(),e);
 //    }
 
-
   }
 
-
   public interface DeidOptions extends PipelineOptions {
-
 
     @Description("Namen of the Deid configuration, the default is deid_test_config.yaml")
     @Default.String("deid_config_clarity.yaml")
@@ -216,7 +205,6 @@ public class Main implements Serializable {
 
     void setInputResource(String value);
 
-
     @Description("Path of the file to save to")
     @Validation.Required
     String getOutputResource();
@@ -228,7 +216,6 @@ public class Main implements Serializable {
     String getInputType();
 
     void setInputType(String value);
-
 
     @Description("The Google project id that DLP API will be called, optional.")
     @Default.String("")
@@ -247,7 +234,6 @@ public class Main implements Serializable {
     String getTextIdFields();
 
     void setTextIdFields(String value);
-
   }
 
 }

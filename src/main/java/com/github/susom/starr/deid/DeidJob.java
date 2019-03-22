@@ -67,7 +67,6 @@ public class DeidJob implements Serializable {
     this.nerEnabled = nerEnabled;
   }
 
-
   public String getVersion() {
     return version;
   }
@@ -91,7 +90,6 @@ public class DeidJob implements Serializable {
   public void setSpec(DeidSpec[] spec) {
     this.spec = spec;
   }
-
 
   public String getTextFields() {
     return textFields;

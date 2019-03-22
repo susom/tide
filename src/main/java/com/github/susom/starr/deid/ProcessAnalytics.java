@@ -29,7 +29,6 @@ public class ProcessAnalytics<T> extends PTransform<PCollection<T>, PDone> {
   private final String itemName;
   private final String[] fields;
 
-
   public ProcessAnalytics(String itemName, String[] fields) {
     this.itemName = itemName;
     this.fields = fields;
@@ -43,7 +42,6 @@ public class ProcessAnalytics<T> extends PTransform<PCollection<T>, PDone> {
     return null;
   }
 
-
   public static class PrintCounts extends SimpleFunction<KV<String, Long>, String> {
     @Override
     public String apply(KV<String, Long> input) {
@@ -51,5 +49,4 @@ public class ProcessAnalytics<T> extends PTransform<PCollection<T>, PDone> {
     }
   }
 }
-
 

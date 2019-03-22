@@ -40,11 +40,8 @@ public class AgeAnonymizerTest {
       "67 year old"
   };
 
-
   @Test
   public void scrub() {
-
-
     System.out.println("Ages to be detected.");
     for (String test : positiveTests) {
       List<AnonymizedItemWithReplacement> items = new ArrayList<>();
