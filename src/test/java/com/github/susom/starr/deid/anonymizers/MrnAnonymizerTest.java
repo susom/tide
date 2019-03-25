@@ -26,6 +26,7 @@ import org.junit.Test;
 
 public class MrnAnonymizerTest {
   String[] positiveTests = new String[]{
+      "SSN style example: 123-45-6789",
       "RE: MRN:  166-52-35-2  ",
       "RE: George MR#:  178-83-87-2 DOB:  ",
       "RE: George Medical  Record #: 178-83-87-2",

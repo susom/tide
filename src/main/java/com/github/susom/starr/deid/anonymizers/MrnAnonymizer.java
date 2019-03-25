@@ -39,12 +39,12 @@ import java.util.regex.Pattern;
 
 /*
  * Looks for the patient's MRN number in a medical report and removes them.
- * 
+ *
  * E.g MRN: ###-##-##
  *     MR#: #######
  *     MEDICAL RECORD #: ###-##-##
- *     Globally looks for ###-##-##, #######-#, ######### 
- * 
+ *     Globally looks for ###-##-##, #######-#, #########
+ *
  * @author Nara
  *
  */
@@ -74,6 +74,10 @@ public class MrnAnonymizer implements AnonymizerProcessor {
   private static final Object[][] SUBSTITUTIONS = new Object[][] {
     // nnn-nn-nn-d, nnn-nn-nn
     { Pattern.compile(PRECEDING + "\\d{3}-\\d{2}-\\d{2}(?:-\\d)?" + FOLLOWING),
+      TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : REPLACE_WORD
+    },
+    // nnn-nn-nnnn
+    { Pattern.compile(PRECEDING + "\\d{3}-\\d{2}-\\d{4}(?:-\\d)?" + FOLLOWING),
       TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : REPLACE_WORD
     },
     // nnnnnnn-n
