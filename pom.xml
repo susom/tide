@@ -16,7 +16,7 @@
   <artifactId>deid</artifactId>
   <version>3.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  
+
   <distributionManagement>
     <repository>
       <id>io.cloudrepo.rit-private</id>
@@ -356,6 +356,16 @@
           <!--</execution>-->
 
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/DlpTransformTest.java</exclude>
+          </excludes>
+        </configuration>
       </plugin>
 
       <plugin>
