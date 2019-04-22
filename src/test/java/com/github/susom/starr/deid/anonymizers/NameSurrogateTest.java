@@ -23,6 +23,7 @@ import com.github.susom.starr.deid.anonymizers.NameSurrogate.NameType;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.stream.Collectors;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -52,8 +53,13 @@ public class NameSurrogateTest {
     NameSurrogate ns = new NameSurrogate(names, "phi-name", dic);
 
     ns.find(text, items);
+    items = items.stream().map(i -> {
+      i.setReplacement("[SURROGATED]");
+      return i;
+    }).collect(Collectors.toList());
+
     String resultText = DeidResultProc.applyChange(items,text);
-//    items.forEach(i->{log.info(i.getWord());});
+
     log.info("find input:"+text);
     log.info("find output:"+resultText);
 
