@@ -18,6 +18,7 @@
     <orderEntry type="library" name="Maven: org.apache.beam:beam-sdks-java-core:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: org.tukaani:xz:1.8" level="project" />
     <orderEntry type="library" name="Maven: joda-time:joda-time:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: args4j:args4j:2.33" level="project" />
     <orderEntry type="library" name="Maven: org.apache.beam:beam-sdks-java-io-google-cloud-platform:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core:2.8.0" level="project" />
@@ -159,10 +160,6 @@
     <orderEntry type="library" name="Maven: org.xerial.snappy:snappy-java:1.1.7" level="project" />
     <orderEntry type="library" name="Maven: com.github.susom:database:3.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:3.0.2" level="project" />
-    <orderEntry type="module" module-name="library-parent-files" scope="PROVIDED" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.checkerframework:checker-qual:2.1.14" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.checkerframework:checker:2.1.14" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.checkerframework:jdk8:2.1.14" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.susom:library-parent-files:1.0.2" level="project" />
   </component>
 </module>
