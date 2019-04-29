@@ -12,6 +12,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.susom:library-parent-files:1.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.beam:beam-runners-direct-java:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.beam:beam-model-pipeline:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.errorprone:error_prone_annotations:2.1.2" level="project" />
