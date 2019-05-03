@@ -20,36 +20,25 @@ package com.github.susom.starr.deid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.util.Iterator;
-import org.apache.beam.repackaged.beam_runners_google_cloud_dataflow_java.com.google.common.io.ByteStreams;
+import java.util.Arrays;
+
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
-import org.apache.beam.sdk.io.FileSystems;
 import org.apache.beam.sdk.io.TextIO;
-import org.apache.beam.sdk.io.fs.ResourceId;
-import org.apache.beam.sdk.metrics.DistributionResult;
-import org.apache.beam.sdk.metrics.MetricName;
-import org.apache.beam.sdk.metrics.MetricNameFilter;
-import org.apache.beam.sdk.metrics.MetricQueryResults;
-import org.apache.beam.sdk.metrics.MetricResult;
-import org.apache.beam.sdk.metrics.MetricResults;
-import org.apache.beam.sdk.metrics.MetricsFilter;
-import org.apache.beam.sdk.metrics.SourceMetrics;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.options.Validation;
+import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.util.MimeTypes;
 import org.apache.beam.sdk.values.PCollectionTuple;
 import org.apache.beam.sdk.values.TupleTagList;
 import org.slf4j.Logger;
@@ -68,9 +57,8 @@ public class Main implements Serializable {
 
   private void run(String[] args) throws IOException {
 
-    DeidOptions options =
-        PipelineOptionsFactory.fromArgs(args)
-            .withValidation().as(DeidOptions.class);
+    DeidOptions options = getOptions(args);
+
     log.info(options.toString());
 
     DeidJobs jobs = null;
@@ -109,7 +97,7 @@ public class Main implements Serializable {
     Pipeline p = Pipeline.create(options);
     PCollectionTuple result =
         (options.getInputType().equals(ResourceType.gcp_bq.name())
-          ? InputTransforms.BigQueryRowToJson.withBigQueryLink(p,options.getInputResource())
+          ? InputTransforms.BigQueryRowToJson.withBigQueryLink(p,options.getInputResource().get())
           : p.apply(TextIO.read().from(options.getInputResource())))
 
         .apply("Deid", new DeidTransform(jobs.deidJobs[0], options.getDlpProject()))
@@ -147,51 +135,40 @@ public class Main implements Serializable {
       .apply(TextIO.write().to(options.getOutputResource() + "/DeidNote"));
 
     PipelineResult pipelineResult = p.run();
-    pipelineResult.waitUntilFinish();
 
-    //MetricName elementsRead = SourceMetrics.elementsRead().getName();
+    if (!isTemplateCreationRun(args)) {
+      pipelineResult.waitUntilFinish();
+    }
+  }
 
-//    MetricResults metricResults = pipelineResult.metrics();
-//    MetricQueryResults mqr = metricResults.queryMetrics(MetricsFilter.builder()
-//        .addNameFilter(MetricNameFilter.inNamespace(DeidResultProc.class))
-//        .addStep("processResult")
-//        .build());
+  private static boolean isTemplateCreationRun(String[] args) {
+    for (String arg : args) {
+      if (arg.contains("--templateLocation")) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-//    ResourceId reportResourceId = FileSystems
-//        .matchNewResource(options.getOutputResource() + "/job_report.txt", false);
-//
-//
-//    StringBuffer sb = new StringBuffer();
-//
-//    Iterator<MetricResult<Long>> itC = mqr.getCounters().iterator();
-//    while (itC.hasNext()) {
-//      MetricResult<Long> m = itC.next();
-//      log.info("Counter " + m.getName() + ":" + m.getCommitted());
-//      sb.append(("Counter " + m.getName() + ":" + m.getCommitted() + "\n\r"));
-//    }
-//
-//    Iterator<MetricResult<DistributionResult>> itD = mqr.getDistributions().iterator();
-//    while (itD.hasNext()) {
-//      MetricResult<DistributionResult> r = itD.next();
-//      log.info("Distribution " + r.getName() + ":" + r.getCommitted().toString());
-//      sb.append(("Distribution " + r.getName() + ":" + r.getCommitted().toString() + "\n\r"));
-//    }
-//
-//
-//    try {
-//      try (ByteArrayInputStream in = new ByteArrayInputStream(sb.toString().getBytes());
-//           ReadableByteChannel readerChannel = Channels.newChannel(in);
-//           WritableByteChannel writerChannel
-//                = FileSystems.create(reportResourceId, MimeTypes.TEXT)) {
-//        ByteStreams.copy(readerChannel, writerChannel);
-//      }
-//    } catch (IOException e) {
-//      log.error(e.getMessage(),e);
-//    }
+  private static DeidOptions getOptions(String[] args) throws IOException {
+    DeidOptions options = PipelineOptionsFactory.fromArgs(args)
+      .withValidation().as(DeidOptions.class);
 
+    if (options.getGcpCredentialsKeyFile().trim().length() > 0) {
+      GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(options.getGcpCredentialsKeyFile()))
+        .createScoped(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
+      options.setGcpCredential(credentials);
+    }
+
+    return options;
   }
 
   public interface DeidOptions extends PipelineOptions {
+    @Description("Set GCP credentials key file if using DataflowRunner.")
+    @Default.String("")
+    String getGcpCredentialsKeyFile();
+    void setGcpCredentialsKeyFile(String value);
+    void setGcpCredential(Credentials value);
 
     @Description("Namen of the Deid configuration, the default is deid_test_config.yaml")
     @Default.String("deid_config_clarity.yaml")
@@ -201,21 +178,21 @@ public class Main implements Serializable {
 
     @Description("Path of the file to read from")
     @Validation.Required
-    String getInputResource();
+    ValueProvider<String> getInputResource();
 
-    void setInputResource(String value);
+    void setInputResource(ValueProvider<String> value);
 
     @Description("Path of the file to save to")
     @Validation.Required
-    String getOutputResource();
+    ValueProvider<String> getOutputResource();
 
-    void setOutputResource(String value);
+    void setOutputResource(ValueProvider<String> value);
 
     @Description("type of the input resouce. gcp_gcs | gcp_bq | local")
     @Default.String("gcp_gcs")
-    String getInputType();
+    ValueProvider<String> getInputType();
 
-    void setInputType(String value);
+    void setInputType(ValueProvider<String> value);
 
     @Description("The Google project id that DLP API will be called, optional.")
     @Default.String("")
@@ -224,16 +201,14 @@ public class Main implements Serializable {
     void setDlpProject(String value);
 
     @Description("override text field, optional.")
-    @Default.String("")
-    String getTextInputFields();
+    ValueProvider<String> getTextInputFields();
 
-    void setTextInputFields(String value);
+    void setTextInputFields(ValueProvider<String> value);
 
     @Description("override text-id field, optional.")
-    @Default.String("")
-    String getTextIdFields();
+    ValueProvider<String> getTextIdFields();
 
-    void setTextIdFields(String value);
+    void setTextIdFields(ValueProvider<String> value);
   }
 
 }

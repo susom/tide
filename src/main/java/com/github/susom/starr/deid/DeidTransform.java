@@ -213,7 +213,7 @@ public class DeidTransform
       mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
       JsonNode node = mapper.readTree(context.element());
 
-      String[] noteIdFields = job.getTextIdFields().split(",");
+      String[] noteIdFields = job.getTextIdFields().get().split(",");
       String[] noteIds = new String[noteIdFields.length];
       for (int i = 0;i < noteIdFields.length;i++) {
         if (node.has(noteIdFields[i])) {
@@ -222,7 +222,7 @@ public class DeidTransform
           throw new IOException("input data does not have field " + noteIdFields[i]);
         }
       }
-      String[] textFields = job.getTextFields().replaceAll(" ","").split(",");
+      String[] textFields = job.getTextFields().get().replaceAll(" ","").split(",");
       DeidResult deidResult = new DeidResult(noteIdFields,noteIds,textFields);
 
       for (int textIndex = 0;textIndex < textFields.length;textIndex++) {

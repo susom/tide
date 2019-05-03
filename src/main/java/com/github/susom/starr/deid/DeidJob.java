@@ -18,13 +18,15 @@
 
 package com.github.susom.starr.deid;
 
+import org.apache.beam.sdk.options.ValueProvider;
+
 import java.io.Serializable;
 
 public class DeidJob implements Serializable {
   String jobName;
   String version;
-  String textFields;
-  String textIdFields;
+  ValueProvider<String> textFields;
+  ValueProvider<String> textIdFields;
   boolean analytic;
   DeidSpec[] spec;
   DeidSpec[] googleDlpInfoTypes;
@@ -91,19 +93,19 @@ public class DeidJob implements Serializable {
     this.spec = spec;
   }
 
-  public String getTextFields() {
+  public ValueProvider<String> getTextFields() {
     return textFields;
   }
 
-  public void setTextFields(String textFields) {
+  public void setTextFields(ValueProvider<String> textFields) {
     this.textFields = textFields;
   }
 
-  public String getTextIdFields() {
+  public ValueProvider<String> getTextIdFields() {
     return textIdFields;
   }
 
-  public void setTextIdFields(String textIdFields) {
+  public void setTextIdFields(ValueProvider<String> textIdFields) {
     this.textIdFields = textIdFields;
   }
 
