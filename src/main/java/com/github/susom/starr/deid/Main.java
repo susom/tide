@@ -167,7 +167,9 @@ public class Main implements Serializable {
     @Description("Set GCP credentials key file if using DataflowRunner.")
     @Default.String("")
     String getGcpCredentialsKeyFile();
+
     void setGcpCredentialsKeyFile(String value);
+
     void setGcpCredential(Credentials value);
 
     @Description("Namen of the Deid configuration, the default is deid_test_config.yaml")
