@@ -177,6 +177,7 @@ public class Main implements Serializable {
 
   private static class AppendSuffixSerializableFunction implements SerializableFunction<String, String> {
     private String suffix;
+
     public AppendSuffixSerializableFunction(String suffix) {
       this.suffix = suffix;
     }
