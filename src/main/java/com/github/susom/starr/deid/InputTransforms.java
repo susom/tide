@@ -28,6 +28,7 @@ import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.bigquery.SchemaAndRecord;
+import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.PCollection;
 import org.slf4j.Logger;
@@ -113,7 +114,7 @@ public class InputTransforms {
 
   static class BigQueryRowToJson {
 
-    public static PCollection<String>  withBigQueryLink(Pipeline pipeline, String resourceLink) {
+    public static PCollection<String>  withBigQueryLink(Pipeline pipeline, ValueProvider<String> resourceLink) {
       return pipeline.apply(
         BigQueryIO
           .read(bigQueryRowToJsonFn)

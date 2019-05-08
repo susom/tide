@@ -37,8 +37,10 @@ import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.options.Validation;
 import org.apache.beam.sdk.options.ValueProvider;
+import org.apache.beam.sdk.options.ValueProvider.NestedValueProvider;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.PCollectionTuple;
 import org.apache.beam.sdk.values.TupleTagList;
 import org.slf4j.Logger;
@@ -97,7 +99,7 @@ public class Main implements Serializable {
     Pipeline p = Pipeline.create(options);
     PCollectionTuple result =
         (options.getInputType().equals(ResourceType.gcp_bq.name())
-          ? InputTransforms.BigQueryRowToJson.withBigQueryLink(p,options.getInputResource().get())
+          ? InputTransforms.BigQueryRowToJson.withBigQueryLink(p,options.getInputResource())
           : p.apply(TextIO.read().from(options.getInputResource())))
 
         .apply("Deid", new DeidTransform(jobs.deidJobs[0], options.getDlpProject()))
@@ -113,26 +115,36 @@ public class Main implements Serializable {
       result.get(DeidTransform.statsDlpTag)
         .apply("AnalyzeCategoryStatsDlp", new AnalyzeStatsTransform())
         .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
-        .apply(TextIO.write().to(options.getOutputResource() + "/DeidPhiStatsDlp"));
+        .apply(TextIO.write().to(
+          NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/DeidPhiStatsDlp")))
+        );
 
       result.get(DeidTransform.statCategoryDlpTag)
         .apply("AnalyzeTextDlp", new AnalyzeStatsTransform())
         .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
-        .apply(TextIO.write().to(options.getOutputResource() + "/DeidTextStatsDlp"));
+        .apply(TextIO.write().to(
+          NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/DeidTextStatsDlp")))
+        );
     }
 
     result.get(DeidTransform.statsDeidTag)
       .apply("AnalyzeGlobalStage2", new AnalyzeStatsTransform())
       .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
-      .apply(TextIO.write().to(options.getOutputResource() + "/DeidPhiStatsStage2"));
+      .apply(TextIO.write().to(
+        NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/DeidPhiStatsStage2")))
+      );
 
     result.get(DeidTransform.statCategoryDeidTag)
       .apply("AnalyzeTextStage2", new AnalyzeStatsTransform())
       .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
-      .apply(TextIO.write().to(options.getOutputResource() + "/DeidTextStatsStage2"));
+      .apply(TextIO.write().to(
+        NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/DeidTextStatsStage2")))
+      );
 
     result.get(DeidTransform.fullResultTag)
-      .apply(TextIO.write().to(options.getOutputResource() + "/DeidNote"));
+      .apply(TextIO.write().to(
+        NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/DeidNote")))
+      );
 
     PipelineResult pipelineResult = p.run();
 
@@ -161,6 +173,18 @@ public class Main implements Serializable {
     }
 
     return options;
+  }
+
+  private static class AppendSuffixSerializableFunction implements SerializableFunction<String, String> {
+    private String suffix;
+    public AppendSuffixSerializableFunction(String suffix) {
+      this.suffix = suffix;
+    }
+
+    @Override
+    public String apply(String prefix) {
+      return prefix + suffix;
+    }
   }
 
   public interface DeidOptions extends PipelineOptions {
@@ -192,9 +216,9 @@ public class Main implements Serializable {
 
     @Description("type of the input resouce. gcp_gcs | gcp_bq | local")
     @Default.String("gcp_gcs")
-    ValueProvider<String> getInputType();
+    String getInputType();
 
-    void setInputType(ValueProvider<String> value);
+    void setInputType(String value);
 
     @Description("The Google project id that DLP API will be called, optional.")
     @Default.String("")
