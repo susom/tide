@@ -22,15 +22,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.susom.starr.core.integration.gcp.GCPIntegration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.StringJoiner;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DlpTransformTest {
+public class DlpTransformIT {
   String[] fields = new String[]{
       "F0001",
       "F0002",
@@ -38,7 +41,7 @@ public class DlpTransformTest {
       "NAMES"
   };
 
-  String[] text = new String[]{
+  String[] textLines = new String[]{
       ">>>>>>>>>>>>> more tests: date test Jan 01, 2018, ssn: 874-98-5739",
       "Jose's birth day: 2003-09-18, passport: 56521368, pp2: 56985631 ",
       "i2b2: Record date: 2088-07-03\\\\n\\\\n"
@@ -62,14 +65,22 @@ public class DlpTransformTest {
           + "for their daughters. Harper continues to rise up the charts "
           + "(up 17 places to 22) seven years after The Beckham’s chose the name for their daughter."};
 
+  String text;
+
   DeidJob job;
 
-  private static final Logger log = LoggerFactory.getLogger(DlpTransformTest.class);
+  private static final Logger log = LoggerFactory.getLogger(DlpTransformIT.class);
   @Before
   public void setUp() throws Exception {
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     DeidJobs jobs = mapper.readValue(this.getClass().getClassLoader()
       .getResourceAsStream("deid_test_config.yaml"), DeidJobs.class);
+
+    StringJoiner sj = new StringJoiner("\n");
+    for (String line : textLines) {
+      sj.add(line);
+    }
+    text = sj.toString();
 
     job = jobs.deidJobs[0];
   }
@@ -78,9 +89,9 @@ public class DlpTransformTest {
   public void dlpInspectRequest() throws IOException, IllegalAccessException {
 
     DeidResult deidResult = new DeidResult(new String[]{"id"}, new String[]{"0001"}, fields);
-    DlpTransform transform = new DlpTransform(job, "som-rit-phi-starr-miner-dev");
+    DlpTransform transform = new DlpTransform(job, GCPIntegration.getDefaultIntegrationTestProject());
     for (int i = 0; i < fields.length; i++) {
-      transform.dlpInspectRequest(text[i],fields[i],deidResult,null);
+      transform.dlpInspectRequest(text, fields[i], deidResult,null);
     }
 
     ObjectMapper mapper = new ObjectMapper();
@@ -100,11 +111,12 @@ public class DlpTransformTest {
   @Test
   public void deidRequest() throws IOException {
 
-    //DeidResult deidResult = new DeidResult(fields, text, new String[]{"TEXT"});
+    DeidResult deidResult = new DeidResult(new String[]{"id"}, new String[]{"0001"}, fields);
+    DlpTransform transform = new DlpTransform(job, GCPIntegration.getDefaultIntegrationTestProject());
+    for (int i = 0; i < fields.length; i++) {
+      transform.dlpDeidRequest(text, fields[i], deidResult);
+    }
 
-    //new DlpTransform(job, "som-rit-phi-starr-miner-dev").dlpDeidRequest(text,"text", deidResult);
     return;
   }
-
-
 }

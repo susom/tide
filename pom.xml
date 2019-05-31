@@ -41,6 +41,13 @@
   <dependencies>
 
     <dependency>
+      <groupId>com.github.susom.starr.core.integration</groupId>
+      <artifactId>gcp</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-runners-direct-java</artifactId>
       <version>${beam.version}</version>
@@ -233,16 +240,6 @@
             <phase>package</phase>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>**/DlpTransformTest.java</exclude>
-          </excludes>
-        </configuration>
       </plugin>
 
       <plugin>

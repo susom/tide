@@ -12,6 +12,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="gcp" scope="TEST" />
     <orderEntry type="library" name="Maven: org.apache.beam:beam-runners-direct-java:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.beam:beam-model-pipeline:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.errorprone:error_prone_annotations:2.1.2" level="project" />
