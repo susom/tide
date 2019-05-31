@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.github.susom.starr.core.integration.gcp.GCPIntegration;
+import com.github.susom.starr.core.integration.gcp.GcpIntegration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,7 +89,7 @@ public class DlpTransformIT {
   public void dlpInspectRequest() throws IOException, IllegalAccessException {
 
     DeidResult deidResult = new DeidResult(new String[]{"id"}, new String[]{"0001"}, fields);
-    DlpTransform transform = new DlpTransform(job, GCPIntegration.getDefaultIntegrationTestProject());
+    DlpTransform transform = new DlpTransform(job, GcpIntegration.getDefaultIntegrationTestProject());
     for (int i = 0; i < fields.length; i++) {
       transform.dlpInspectRequest(text, fields[i], deidResult,null);
     }
@@ -112,7 +112,7 @@ public class DlpTransformIT {
   public void deidRequest() throws IOException {
 
     DeidResult deidResult = new DeidResult(new String[]{"id"}, new String[]{"0001"}, fields);
-    DlpTransform transform = new DlpTransform(job, GCPIntegration.getDefaultIntegrationTestProject());
+    DlpTransform transform = new DlpTransform(job, GcpIntegration.getDefaultIntegrationTestProject());
     for (int i = 0; i < fields.length; i++) {
       transform.dlpDeidRequest(text, fields[i], deidResult);
     }
