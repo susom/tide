@@ -4,7 +4,7 @@ deidJobs:
     version: v1.6
     textFields: note_text
     textIdFields: note_id
-    analytic: true
+    analytic: false
     dateJitter: local
     dateJitterRange: 30
     dateJitterSeedField: pat_id

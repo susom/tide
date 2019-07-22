@@ -27,6 +27,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Date anonymizer
@@ -36,6 +38,7 @@ import java.util.regex.Pattern;
  * @author wenchengli
  */
 public class DateAnonymizer implements AnonymizerProcessor {
+  private static final Logger log = LoggerFactory.getLogger(DateAnonymizer.class);
   // For testing - compile with TEST=true to show text to be deleted as highlighted
   private static final boolean TEST = false;
 
@@ -268,16 +271,19 @@ public class DateAnonymizer implements AnonymizerProcessor {
         try {
           dateOfSvc = new SimpleDateFormat(monthFormatStr + "/d/yyyy", Locale.ROOT)
                 .parse(month + '/' + dayStr + '/' + yearStr);
-          if (knownDate != null && hasYear) {
-            replacement = getAgeAndYearString(knownDate, dateOfSvc);
-          } else if (jitter != null) {
+          if (jitter != null) {
             //not sure if we should do something different here if no day or
             //no year is present in original date string?
             replacement = getJitteredDate(jitter, dateOfSvc);
+          } else if (knownDate != null && hasYear) {
+            replacement = getAgeAndYearString(knownDate, dateOfSvc);
+          } else {
+            replacement = AnonymizerProcessor.REPLACE_WORD;
           }
+
           // else replacement defaults to "DATE"
         } catch (ParseException e) {
-          System.out.println("ERROR parsing " + e.getMessage());
+          log.error("ERROR parsing " + e.getMessage());
         }
 
         String word =
@@ -326,9 +332,9 @@ public class DateAnonymizer implements AnonymizerProcessor {
     }
   }
 
-  // does this need to be public and static?
+  private static final long milsecPerDay = 24L * 60L * 60L * 1000L;
   private String getJitteredDate(Integer jitter, Date dateOfService) {
-    Date newDate = new Date(dateOfService.getTime() + jitter * 24 * 60 * 60 * 1000);
+    Date newDate = new Date(dateOfService.getTime() + jitter * milsecPerDay);
     return sdf.format(newDate);
   }
 

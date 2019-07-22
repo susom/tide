@@ -94,7 +94,8 @@ public class DeidResultProcTest {
       "{\"note_id\":\"003_J2\",\"jitter\":2,\"note_text\":\"Bob's birthday is Jun 04,1980\"}",
       "{\"note_id\":\"004_J3\",\"jitter\":3,\"note_text\":\"Bob's birthday is June 4,     1980\"}",
       "{\"note_id\":\"005_J4\",\"jitter\":4,\"note_text\":\"Bob's birthday is June 04 1980\"}",
-      "{\"note_id\":\"006_JNULL\",\"jitter\":null,\"note_text\":\"Bob's birthday is Jun 4, 1980\"}"
+      "{\"note_id\":\"006_JNULL\",\"jitter\":null,\"note_text\":\"Bob's birthday is Jun 4, 1980\"}",
+      "{\"note_id\":\"007_J86\",\"jitter\":86,\"note_text\":\"Tom visited on 10/18/2018 2:08 PM\"}"
     };
 
     final List<String> notes = Arrays.asList(noteTexts);
@@ -130,7 +131,8 @@ public class DeidResultProcTest {
         "Alex has fever on 06/04/2019[TESTING]",
         "Alex has fever on 06/05/2019[TESTING]",
         "Alex has fever on 06/06/2019[TESTING]",
-        "Alex has fever on 06/01/2019[TESTING]"
+        "Alex has fever on 06/01/2019[TESTING]",
+        "Tom visited on 01/11/2019[TESTING]"
       );
 
     p.run();
