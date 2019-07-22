@@ -20,14 +20,13 @@ package com.github.susom.starr.deid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
-
-import com.google.auth.Credentials;
-import com.google.auth.oauth2.GoogleCredentials;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.TextIO;
@@ -116,32 +115,36 @@ public class Main implements Serializable {
 
       if (jobs.deidJobs[0].googleDlpEnabled) {
         result.get(DeidTransform.statsDlpPhiTypeTag)
-          .apply("AnalyzeCategoryStatsDlp", new AnalyzeStatsTransform())
-          .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
-          .apply(TextIO.write().to(
-            NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/statsDlpPhiType")))
+            .apply("AnalyzeCategoryStatsDlp", new AnalyzeStatsTransform())
+            .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
+            .apply(TextIO.write().to(
+              NestedValueProvider.of(options.getOutputResource(),
+                new AppendSuffixSerializableFunction("/statsDlpPhiType")))
           );
       }
 
       result.get(DeidTransform.statsPhiTypeTag)
-        .apply("AnalyzeGlobalStage2", new AnalyzeStatsTransform())
-        .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
-        .apply(TextIO.write().to(
-          NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/statsPhiTypeStage2")))
+          .apply("AnalyzeGlobalStage2", new AnalyzeStatsTransform())
+          .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
+          .apply(TextIO.write().to(
+            NestedValueProvider.of(options.getOutputResource(),
+                new AppendSuffixSerializableFunction("/statsPhiTypeStage2")))
         );
 
       result.get(DeidTransform.statPhiFoundByTag)
-        .apply("AnalyzeFoundbyStats", new AnalyzeStatsTransform())
-        .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
-        .apply(TextIO.write().to(
-          NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/statPhiFoundBy")))
+          .apply("AnalyzeFoundbyStats", new AnalyzeStatsTransform())
+          .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
+          .apply(TextIO.write().to(
+            NestedValueProvider.of(options.getOutputResource(),
+                new AppendSuffixSerializableFunction("/statPhiFoundBy")))
         );
     }
 
 
     result.get(DeidTransform.fullResultTag)
-      .apply(TextIO.write().to(
-        NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/DeidNote")))
+        .apply(TextIO.write().to(
+          NestedValueProvider.of(options.getOutputResource(),
+              new AppendSuffixSerializableFunction("/DeidNote")))
       );
 
     PipelineResult pipelineResult = p.run();
@@ -162,18 +165,20 @@ public class Main implements Serializable {
 
   private static DeidOptions getOptions(String[] args) throws IOException {
     DeidOptions options = PipelineOptionsFactory.fromArgs(args)
-      .withValidation().as(DeidOptions.class);
+        .withValidation().as(DeidOptions.class);
 
     if (options.getGcpCredentialsKeyFile().trim().length() > 0) {
-      GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(options.getGcpCredentialsKeyFile()))
-        .createScoped(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
+      GoogleCredentials credentials =
+          GoogleCredentials.fromStream(new FileInputStream(options.getGcpCredentialsKeyFile()))
+          .createScoped(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
       options.setGcpCredential(credentials);
     }
 
     return options;
   }
 
-  private static class AppendSuffixSerializableFunction implements SerializableFunction<String, String> {
+  private static class AppendSuffixSerializableFunction
+      implements SerializableFunction<String, String> {
     private String suffix;
 
     public AppendSuffixSerializableFunction(String suffix) {

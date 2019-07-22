@@ -235,7 +235,8 @@ public class DateAnonymizer implements AnonymizerProcessor {
           month = month.substring(0,3);
         }
 
-        String yearStr = "" + Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ROOT).get(Calendar.YEAR);
+        String yearStr = "" + Calendar.getInstance(TimeZone.getTimeZone("UTC"),
+            Locale.ROOT).get(Calendar.YEAR);
         try {
           yearStr = matcher.group("year");
           hasYear = true;
@@ -243,7 +244,8 @@ public class DateAnonymizer implements AnonymizerProcessor {
           // if less than or equal current year, assume 2000s
           // otherwise assume 1900s
           if (yearStr.length() == 2) {
-            int currentYear = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ROOT).get(Calendar.YEAR) % 100;
+            int currentYear = Calendar.getInstance(TimeZone.getTimeZone("UTC"),
+                Locale.ROOT).get(Calendar.YEAR) % 100;
             Integer year = Integer.parseInt(yearStr);
             if (year <= currentYear) {
               yearStr = "20" + yearStr;

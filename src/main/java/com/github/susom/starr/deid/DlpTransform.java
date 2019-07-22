@@ -195,7 +195,8 @@ public class DlpTransform extends PTransform<PCollection<String>,
           //
           //summaries.stream().forEach(s->{
           //AnonymizedItemWithReplacement ai =
-          //new AnonymizedItemWithReplacement("", getPhiCategoryByInfoTypeName(s.getInfoType().getName()));
+          //new AnonymizedItemWithReplacement("",
+          // getPhiCategoryByInfoTypeName(s.getInfoType().getName()));
           //items.add(ai);
           //});
           //String stats = mapper.writeValueAsString(items);
@@ -283,7 +284,8 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
         AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
             new String(slice,StandardCharsets.UTF_8),
-            (int)r.getStart(), (int)r.getEnd(), String.format(Locale.ROOT, "[%s]", finding.getInfoType().getName()),
+            (int)r.getStart(), (int)r.getEnd(),
+            String.format(Locale.ROOT, "[%s]", finding.getInfoType().getName()),
             "google-dlp",
             getPhiCategoryByInfoTypeName(finding.getInfoType().getName()));
         items.add(ai);

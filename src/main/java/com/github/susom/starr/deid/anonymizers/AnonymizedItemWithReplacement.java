@@ -31,7 +31,18 @@ public class AnonymizedItemWithReplacement {
     this.type = anonymizerType;
   }
 
-  public AnonymizedItemWithReplacement(String word, int start, int end, String replacement, String foundBy, String anonymizerType) {
+  /**
+   * data collector for all the phi findings.
+   * @param word the phi word
+   * @param start start position of the phi
+   * @param end end position of the phi
+   * @param replacement suggested replacement
+   * @param foundBy to track performance of anonymizers or external deid services
+   * @param anonymizerType phi type, for example a name or ssn
+   */
+  public AnonymizedItemWithReplacement(
+      String word, int start, int end,
+      String replacement, String foundBy, String anonymizerType) {
     this.word = word;
     this.start = start;
     this.end = end;

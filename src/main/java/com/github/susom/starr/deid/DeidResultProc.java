@@ -126,6 +126,13 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
     }
   }
 
+  /**
+   * based on findings from earlier processes, this step actually applies the changes
+   * and create deided text.
+   * @param items findings
+   * @param inputText original input text
+   * @return deided text
+   */
   public static String applyChange(List<AnonymizedItemWithReplacement> items, String inputText) {
 
     //log.info(String.format("input:[%s] output:[%s]", inputText, output));
@@ -140,14 +147,11 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
     for (int i = 0; i < items.size(); i++) {
 
       AnonymizedItemWithReplacement item = items.get(i);
-//      System.out.println(String.format("~~~~[%s]=>[%s] at [%s:%s]", item.getWord(), item.getReplacement(), item.getStart(), item.getEnd()));
 
       if (i == 0) {
         //first instance
         sb.insert(0, inputText.substring(item.getEnd()));
         sb.insert(0, item.getReplacement());
-//        System.out.println("<<<<<" + inputText);
-//        System.out.println(">>>>>" + sb.toString());
 
         lastEnd.set(item.getEnd());
         lastStart.set(item.getStart());
@@ -161,15 +165,13 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
         //inside of last change, do nothing
       } else if (item.getEnd() < lastEnd.get() && item.getEnd() >= lastStart.get()) {
         //overlap
-//        char[] spaces = new char[lastStart.get()-item.getStart()];
-//        sb.insert(0,spaces);
+        //char[] spaces = new char[lastStart.get()-item.getStart()];
+        //sb.insert(0,spaces);
         lastStart.set(item.getStart());
       } else if (item.getEnd() < lastStart.get()) {
         //outside of last change, copy fully
         sb.insert(0, inputText.substring(item.getEnd(), lastStart.get()));
         sb.insert(0, item.getReplacement());
-//        System.out.println("<<<<<" + inputText);
-//        System.out.println(">>>>>" + sb.toString());
 
         lastEnd.set(item.getEnd());
         lastStart.set(item.getStart());

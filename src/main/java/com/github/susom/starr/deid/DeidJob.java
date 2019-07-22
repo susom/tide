@@ -18,9 +18,8 @@
 
 package com.github.susom.starr.deid;
 
-import org.apache.beam.sdk.options.ValueProvider;
-
 import java.io.Serializable;
+import org.apache.beam.sdk.options.ValueProvider;
 
 public class DeidJob implements Serializable {
   String jobName;

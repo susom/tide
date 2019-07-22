@@ -106,7 +106,8 @@ public class Utility {
    */
   public static Pair<Integer,Integer> getRandomChars(String avoidWord) {
     int random1 = 65 + random.nextInt(26);
-    if (avoidWord != null && avoidWord.length() > 0 && random1 == avoidWord.toUpperCase(Locale.ROOT).charAt(0)) {
+    if (avoidWord != null && avoidWord.length() > 0
+        && random1 == avoidWord.toUpperCase(Locale.ROOT).charAt(0)) {
       random1 = (random1 - 65 + 1) % 26 + 65;
     }
     int random2 = 65 + random.nextInt(26);

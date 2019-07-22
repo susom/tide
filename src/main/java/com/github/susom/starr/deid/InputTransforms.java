@@ -114,7 +114,8 @@ public class InputTransforms {
 
   static class BigQueryRowToJson {
 
-    public static PCollection<String>  withBigQueryLink(Pipeline pipeline, ValueProvider<String> resourceLink) {
+    public static PCollection<String>  withBigQueryLink(
+        Pipeline pipeline, ValueProvider<String> resourceLink) {
       return pipeline.apply(
         BigQueryIO
           .read(bigQueryRowToJsonFn)
