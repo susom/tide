@@ -18,13 +18,26 @@
 
 package com.github.susom.starr.deid;
 
-import static org.junit.Assert.*;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.beam.sdk.coders.StringUtf8Coder;
+import org.apache.beam.sdk.testing.PAssert;
+import org.apache.beam.sdk.testing.TestPipeline;
+import org.apache.beam.sdk.transforms.Create;
+import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.PCollection;
+import org.apache.beam.sdk.values.PCollectionTuple;
+import org.apache.beam.sdk.values.TupleTagList;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,4 +79,73 @@ public class DeidResultProcTest {
     Assert.assertEquals("overlaping findings only removed as a whole", 2,
         StringUtils.countMatches(result, "[REMOVED]"));
   }
+
+  @Rule
+  public final transient TestPipeline p = TestPipeline.create();
+
+  @Test
+  public void testDeidFn() throws IOException {
+    String[] noteTexts = new String[]{
+      "{\"note_id\":\"001_J0\",\"jitter\":0,\"note_text\":\"Alex has fever on June 4, 2019\"}",
+      "{\"note_id\":\"001_J1\",\"jitter\":1,\"note_text\":\"Alex has fever on June 4, 2019\"}",
+      "{\"note_id\":\"001_J2\",\"jitter\":2,\"note_text\":\"Alex has fever on June 4, 2019\"}",
+      "{\"note_id\":\"001_J-3\",\"jitter\":-3,\"note_text\":\"Alex has fever on June 4, 2019\"}",
+      "{\"note_id\":\"002_J1\",\"jitter\":1,\"note_text\":\"Bob's birthday is 06/04/1980\"}",
+      "{\"note_id\":\"003_J2\",\"jitter\":2,\"note_text\":\"Bob's birthday is Jun 04,1980\"}",
+      "{\"note_id\":\"004_J3\",\"jitter\":3,\"note_text\":\"Bob's birthday is June 4,     1980\"}",
+      "{\"note_id\":\"005_J4\",\"jitter\":4,\"note_text\":\"Bob's birthday is June 04 1980\"}",
+      "{\"note_id\":\"006_JNULL\",\"jitter\":null,\"note_text\":\"Bob's birthday is Jun 4, 1980\"}"
+    };
+
+    final List<String> notes = Arrays.asList(noteTexts);
+
+    PCollection input = p.apply(Create.of(notes)).setCoder( StringUtf8Coder.of());
+
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+    DeidJobs jobs = mapper.readValue(this.getClass().getClassLoader()
+      .getResourceAsStream("deid_test_config.yaml"), DeidJobs.class);
+
+    DeidTransform transform = new DeidTransform(jobs.getDeidJobs()[0], null);
+
+    PCollection<DeidResult> deidResults = transform.expand(input);
+
+    PCollectionTuple result = deidResults.apply("processResult",
+      ParDo.of(new DeidResultProc())
+        .withOutputTags(DeidTransform.fullResultTag,
+          TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
+            .and(DeidTransform.statsPhiTypeTag)
+            .and(DeidTransform.statPhiFoundByTag)));
+
+    PCollection<String> cleanText = result.get(DeidTransform.fullResultTag)
+        .apply(ParDo.of(new PrintResult()));
+
+    PAssert.that(cleanText)
+      .containsInAnyOrder(
+        "Bob's birthday is 06/04/1980[TESTING]",
+        "Bob's birthday is 06/05/1980[TESTING]",
+        "Bob's birthday is 06/06/1980[TESTING]",
+        "Bob's birthday is 06/07/1980[TESTING]",
+        "Bob's birthday is 06/08/1980[TESTING]",
+        "Alex has fever on 06/04/2019[TESTING]",
+        "Alex has fever on 06/05/2019[TESTING]",
+        "Alex has fever on 06/06/2019[TESTING]",
+        "Alex has fever on 06/01/2019[TESTING]"
+      );
+
+    p.run();
+  }
+
+  private static class PrintResult extends   DoFn<String,String> {
+    final static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+    @ProcessElement
+    public void processElement(ProcessContext c) throws IOException {
+      String line = c.element();
+      JsonNode node = mapper.readTree(line);
+      log.info(line);
+      c.output(node.get("TEXT_DEID_note_text").asText());
+    }
+  }
+
 }

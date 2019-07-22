@@ -22,8 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,12 +93,11 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
         Set<String> phiCat = new HashSet<>();
         for (JsonNode node : nodes) {
           String stat = node.get("type").asText();
-
-          context.output(DeidTransform.statsDlpTag, stat);
-          phiCat.add(stat);
+          String foundBy = node.get("foundBy").asText();
+          context.output(DeidTransform.statsDlpPhiTypeTag, stat);
+          context.output(DeidTransform.statPhiFoundByTag, foundBy);
         }
 
-        phiCat.forEach(s -> context.output(DeidTransform.statCategoryDlpTag, s));
       } else {
         zeroChangeCntStage1.inc();
       }
@@ -117,11 +114,11 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
 
         for (JsonNode node : nodes) {
           String stat = node.get("type").asText();
-          context.output(DeidTransform.statsDeidTag, stat);
-          phiCat.add(stat);
+          String foundBy = node.get("foundBy").asText();
+          context.output(DeidTransform.statsPhiTypeTag, stat);
+          context.output(DeidTransform.statPhiFoundByTag, foundBy);
         }
 
-        phiCat.forEach(s -> context.output(DeidTransform.statCategoryDeidTag, s));
 
       } else {
         zeroChangeCntStage2.inc();

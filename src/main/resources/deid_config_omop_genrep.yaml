@@ -1,15 +1,15 @@
-name: note_deid_test_20190715
+name: note_deid_20190712
 deidJobs:
   - jobName: stanford_deid_v2_strict
     version: v1.6
     textFields: note_text
     textIdFields: note_id
-    analytic: false
+    analytic: true
     dateJitter: local
     dateJitterRange: 30
     dateJitterSeedField: pat_id
     googleDlpEnabled: false
-    nerEnabled: false
+    nerEnabled: true
     googleDlpInfoTypes:
       - itemName: age
         fields: AGE
@@ -44,12 +44,12 @@ deidJobs:
 
       - itemName: phi_date
         action: jitter_date_from_field
-        actionParam: '[TESTING]'
-        fields: 'jitter'
+        actionParam: ''
+        fields: 'JITTER'
 
-      - itemName: age
-        action: remove_age
-        fields: ''
+#      - itemName: age
+#        action: remove_age
+#        fields: ''
 
       - itemName: mrn
         action: remove_mrn
@@ -77,7 +77,7 @@ deidJobs:
 
       - itemName: patient_email
         action: replace_minimumlengthword_with
-        actionParam: e.mail@address 3
+        actionParam: e.mail@example.com 3
         fields:  email_address
 
       - itemName: other_email
@@ -95,24 +95,24 @@ deidJobs:
         actionParam: 000-000-000 3
         fields:  mother_pat_id, father_pat_id
 
-#      - itemName: general_name
-#        action: surrogate_name
-#        fields: ''
-#
-#      - itemName: patient_name
-#        action: surrogate_name
-#        actionParamMap: {"format":"L,F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-#        fields:  pat_name, PROXY_NAME
-#
-#      - itemName: patient_name
-#        action: surrogate_name
-#        actionParamMap: {"format":"F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-#        fields:  PAT_FIRST_NAME
-#
-#      - itemName: patient_name
-#        action: surrogate_name
-#        actionParamMap: {"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-#        fields:  PAT_LAST_NAME, PAT_MIDDLE_NAME
+      - itemName: general_name
+        action: surrogate_name
+        fields: ''
+
+      - itemName: patient_name
+        action: surrogate_name
+        actionParamMap: {"format":"L,F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
+        fields:  pat_name, PROXY_NAME
+
+      - itemName: patient_name
+        action: surrogate_name
+        actionParamMap: {"format":"F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
+        fields:  PAT_FIRST_NAME
+
+      - itemName: patient_name
+        action: surrogate_name
+        actionParamMap: {"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
+        fields:  PAT_LAST_NAME, PAT_MIDDLE_NAME
 
       - itemName: other_name
         action: replace_with
@@ -124,30 +124,30 @@ deidJobs:
         actionParam: parent
         fields: father_name, mother_name
 
-#      - itemName: other_address
-#        action: surrogate_address
-#        fields:  ''
-#
-#      - itemName: patient_address
-#        action: surrogate_address
-#        actionParamMap: {"f_address_1":"add_line_1","f_address_2":"add_line_2", "f_city":"city", "f_zip":"zip"}
-#        fields: ''
-#
-#      - itemName: patient_address
-#        action: surrogate_address
-#        actionParamMap: {"f_address_1":"tmp_addr_line_1","f_address_2":"tmp_addr_line_2", "f_city":"tmp_city", "f_zip":"tmp_zip"}
-#        fields: ''
-#
-#
-#      - itemName: mergency_contact_address
-#        action: surrogate_address
-#        actionParamMap: {"f_address_1":"father_addr_ln_1","f_address_2":"father_addr_ln_2", "f_city":"father_city", "f_zip":"father_zip"}
-#        fields: ''
-#
-#      - itemName: mergency_contact_address
-#        action: surrogate_address
-#        actionParamMap: {"f_address_1":"mother_addr_ln_1","f_address_2":"mother_addr_ln_2", "f_city":"mother_city", "f_zip":"mother_zip"}
-#        fields: ''
+      - itemName: other_address
+        action: surrogate_address
+        fields:  ''
+
+      - itemName: patient_address
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"add_line_1","f_address_2":"add_line_2", "f_city":"city", "f_zip":"zip"}
+        fields: ''
+
+      - itemName: patient_address
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"tmp_addr_line_1","f_address_2":"tmp_addr_line_2", "f_city":"tmp_city", "f_zip":"tmp_zip"}
+        fields: ''
+
+
+      - itemName: mergency_contact_address
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"father_addr_ln_1","f_address_2":"father_addr_ln_2", "f_city":"father_city", "f_zip":"father_zip"}
+        fields: ''
+
+      - itemName: mergency_contact_address
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"mother_addr_ln_1","f_address_2":"mother_addr_ln_2", "f_city":"mother_city", "f_zip":"mother_zip"}
+        fields: ''
 
 
       - itemName: patient_phone

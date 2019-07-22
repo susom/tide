@@ -106,40 +106,38 @@ public class Main implements Serializable {
         .apply("processResult",
           ParDo.of(new DeidResultProc())
             .withOutputTags(DeidTransform.fullResultTag,
-                TupleTagList.of(DeidTransform.statsDlpTag)
-                .and(DeidTransform.statsDeidTag)
-                .and(DeidTransform.statCategoryDlpTag)
-                .and(DeidTransform.statCategoryDeidTag)));
+                TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
+                .and(DeidTransform.statsPhiTypeTag)
+                .and(DeidTransform.statPhiFoundByTag)));
 
-    if (jobs.deidJobs[0].googleDlpEnabled) {
-      result.get(DeidTransform.statsDlpTag)
-        .apply("AnalyzeCategoryStatsDlp", new AnalyzeStatsTransform())
+
+
+    if (jobs.deidJobs[0].analytic) {
+
+      if (jobs.deidJobs[0].googleDlpEnabled) {
+        result.get(DeidTransform.statsDlpPhiTypeTag)
+          .apply("AnalyzeCategoryStatsDlp", new AnalyzeStatsTransform())
+          .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
+          .apply(TextIO.write().to(
+            NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/statsDlpPhiType")))
+          );
+      }
+
+      result.get(DeidTransform.statsPhiTypeTag)
+        .apply("AnalyzeGlobalStage2", new AnalyzeStatsTransform())
         .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
         .apply(TextIO.write().to(
-          NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/DeidPhiStatsDlp")))
+          NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/statsPhiTypeStage2")))
         );
 
-      result.get(DeidTransform.statCategoryDlpTag)
-        .apply("AnalyzeTextDlp", new AnalyzeStatsTransform())
+      result.get(DeidTransform.statPhiFoundByTag)
+        .apply("AnalyzeFoundbyStats", new AnalyzeStatsTransform())
         .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
         .apply(TextIO.write().to(
-          NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/DeidTextStatsDlp")))
+          NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/statPhiFoundBy")))
         );
     }
 
-    result.get(DeidTransform.statsDeidTag)
-      .apply("AnalyzeGlobalStage2", new AnalyzeStatsTransform())
-      .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
-      .apply(TextIO.write().to(
-        NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/DeidPhiStatsStage2")))
-      );
-
-    result.get(DeidTransform.statCategoryDeidTag)
-      .apply("AnalyzeTextStage2", new AnalyzeStatsTransform())
-      .apply(MapElements.via(new ProcessAnalytics.PrintCounts()))
-      .apply(TextIO.write().to(
-        NestedValueProvider.of(options.getOutputResource(), new AppendSuffixSerializableFunction("/DeidTextStatsStage2")))
-      );
 
     result.get(DeidTransform.fullResultTag)
       .apply(TextIO.write().to(

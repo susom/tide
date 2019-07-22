@@ -63,10 +63,9 @@ public class DeidTransform
     extends PTransform<PCollection<String>, PCollection<DeidResult>> {
 
   public static final TupleTag<String> fullResultTag = new TupleTag<String>() {};
-  public static final TupleTag<String> statsDlpTag = new TupleTag<String>() {};
-  public static final TupleTag<String> statsDeidTag = new TupleTag<String>() {};
-  public static final TupleTag<String> statCategoryDlpTag = new TupleTag<String>() {};
-  public static final TupleTag<String> statCategoryDeidTag = new TupleTag<String>() {};
+  public static final TupleTag<String> statsDlpPhiTypeTag = new TupleTag<String>() {};
+  public static final TupleTag<String> statsPhiTypeTag = new TupleTag<String>() {};
+  public static final TupleTag<String> statPhiFoundByTag = new TupleTag<String>() {};
 
   public static final int MINIMUM_WORD_LENGTH = 3;
 
@@ -328,7 +327,7 @@ public class DeidTransform
                 }
                 String[] wordArray = new String[words.size()];
                 anonymizer = new TokenArrayAnonymizer(words.toArray(wordArray),
-                  "[" +  spec.actionParam[0] + "]", spec.itemName);
+                  spec.actionParam[0], spec.itemName);
 
                 break;
               case general:
@@ -465,10 +464,19 @@ public class DeidTransform
               case remove_age:
                 anonymizer = new AgeAnonymizer("[AGE]", spec.itemName);
                 break;
-              case jitter_date:
+              case jitter_date_from_field:
+                int jitter = 0;
+                for (String field : spec.fields) { //take only the first field
+                  if (node.has(field)) {
+                    jitter = node.get(field).asInt();
+                  }
+                }
+                anonymizer = new DateAnonymizer(jitter, spec.itemName, spec.actionParam[0]);
+                break;
+              case jitter_date_randomly:
                 anonymizer = new DateAnonymizer(
                     Utility.jitterHash(jitterSeed, spec.actionParam[0],
-                        job.getDateJitterRange()), spec.itemName);
+                        job.getDateJitterRange()), spec.itemName, spec.actionParam[1]);
                 break;
               case jitter_birth_date:
                 for (String field : spec.fields) { //take only the first field

@@ -37,7 +37,7 @@ Configure General Regex pattern matching, or find known PHI of the patient assoc
 - general : for Phone/Fax, Email, URL, IP address, SSN
 - surrogate_name : surrogate name using NameSurrogate
 - surrogate_address : surrogate address using LocationSurrogate
-- jitter_date : Date Anonymizer
+- jitter_date_from_field : Date Anonymizer with jitter value provided in an input field
 - jitter_birth_date : Date Anonymizer
 - remove_age : Age Anonymizer
 - remove_mrn : Mrn Anonymizer

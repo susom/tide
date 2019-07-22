@@ -108,8 +108,9 @@ public class DeidSpec implements Serializable {
     general, // general pattern matching deid with GeneralAnonymizer
     surrogate_name, //surrogate name using NameSurrogate
     surrogate_address, //surrogate address using LocationSurrogate
-    jitter_date, //DateAnonymizer
+    jitter_date_from_field, //DateAnonymizer with jitter provided in a field
     jitter_birth_date, //DateAnonymizer
+    jitter_date_randomly, //randomly generate jitter using hash function
     remove_age, //AgeAnonymizer
     remove_mrn, //MrnAnonymizer
 

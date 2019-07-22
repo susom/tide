@@ -59,7 +59,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
   // was ?i:
   private static final String
         MONTH = "(?<month>January|February|March|April|May|June|July|August|September|October"
-        + "|November|December|Jan|Feb|Mar|Apr|Jul|Aug|Sep|Sept|Oct|Nov|Dec)";
+        + "|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)";
   // was ?:
   private static final String
         DAY = "(?<day>1|2|3|4|5|6|7|8|9|01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18"
@@ -120,7 +120,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
       // January 1st, 2010
       {
         Pattern.compile(PRECEDING + MONTH + " +" + DAY + DAY_SUFFIX
-            + ",?\\s+" + YEAR + "(?:\\s*" + TIME + ")?" + FOLLOWING, Pattern.CASE_INSENSITIVE),
+            + "(,|\\s)+" + YEAR + "(?:\\s*" + TIME + ")?" + FOLLOWING, Pattern.CASE_INSENSITIVE),
           TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : "${month}/${day}/${year}"
       },
 
@@ -145,6 +145,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
   private Integer jitter;
 
   private String anonymizerType;
+  private String postfix;
 
   /**
    * constructor.
@@ -161,17 +162,19 @@ public class DateAnonymizer implements AnonymizerProcessor {
    * constructor that takes a jitter value.
    * @param jitter a int value for jitter offset
    * @param anonymizerType phi type
+   * @param postfix if added additional text to the end of the replacement, e.g. add [JITTERED]
    */
-  public DateAnonymizer(int jitter, String anonymizerType) {
+  public DateAnonymizer(int jitter, String anonymizerType, String postfix) {
     this.anonymizerType = anonymizerType;
     this.jitter = jitter;
+    this.postfix = postfix;
     initDateFormat();
   }
 
   private void initDateFormat() {
     // SimpleDateFormat is not thread safe.
     // Create new SimpleDateFormat for each DataAnonymizer instance.
-    sdf = new SimpleDateFormat("MM_dd_yyyy",Locale.ROOT);
+    sdf = new SimpleDateFormat("MM/dd/yyyy",Locale.ROOT);
   }
 
   /**
@@ -203,6 +206,20 @@ public class DateAnonymizer implements AnonymizerProcessor {
       Matcher matcher = pattern.matcher(inputText);
 
       while (matcher.find()) {
+
+        //skip if this finding is within the range of earlier ones
+        boolean overlapped = false;
+        for (AnonymizedItemWithReplacement f : findings) {
+          if (matcher.start() >= f.getStart() && matcher.start() <=  f.getEnd()) {
+            overlapped = true;
+            break;
+          }
+        }
+
+        if (overlapped) {
+          continue;
+        }
+
         Date dateOfSvc = null;
         String monthFormatStr = "MMMM";
         String month = matcher.group("month");
@@ -265,7 +282,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
             inputText.substring(matcher.start(), matcher.end());
         AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
             word, matcher.start(), matcher.end(),
-            replacement + "[JITTERED]", "deid-date", this.anonymizerType);
+            replacement + this.postfix, "deid-date", this.anonymizerType);
         findings.add(ai);
       }
     }

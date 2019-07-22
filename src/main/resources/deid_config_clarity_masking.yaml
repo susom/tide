@@ -1,15 +1,15 @@
-name: note_deid_test_20190715
+name: note_deid_20180831
 deidJobs:
-  - jobName: stanford_deid_v2_strict
-    version: v1.6
-    textFields: note_text
+  - jobName: stanford_deid_v1_strict
+    version: v1.5
+    textFields: fullnote
     textIdFields: note_id
-    analytic: false
+    analytic: true
     dateJitter: local
     dateJitterRange: 30
     dateJitterSeedField: pat_id
     googleDlpEnabled: false
-    nerEnabled: false
+    nerEnabled: true
     googleDlpInfoTypes:
       - itemName: age
         fields: AGE
@@ -42,14 +42,14 @@ deidJobs:
 
     spec:
 
-      - itemName: phi_date
-        action: jitter_date_from_field
-        actionParam: '[TESTING]'
-        fields: 'jitter'
+#      - itemName: phi_date
+#        action: jitter_date_from_field
+#        actionParam: ''
+#        fields: 'jitter'
 
-      - itemName: age
-        action: remove_age
-        fields: ''
+#      - itemName: age
+#        action: remove_age
+#        fields: ''
 
       - itemName: mrn
         action: remove_mrn
@@ -57,12 +57,12 @@ deidJobs:
 
       - itemName: patient_mrn
         action: replace_minimumlengthword_with
-        actionParam: 12345678 3
+        actionParam: [mrn] 3
         fields:  PAT_MRN_ID
 
       - itemName: other_id
         action: replace_minimumlengthword_with
-        actionParam: 1111111 3
+        actionParam: [id] 3
         fields:  pat_id, birth_wrist_band, epic_pat_id, PRIM_CVG_ID, PRIM_EPP_ID, EMPLOYER_ID
 
       - itemName: general
@@ -72,96 +72,98 @@ deidJobs:
 
       - itemName: patient_ssn
         action: replace_minimumlengthword_with
-        actionParam: 000-00-0000 4
+        actionParam: [ssn] 4
         fields:  ssn
 
       - itemName: patient_email
         action: replace_minimumlengthword_with
-        actionParam: e.mail@address 3
+        actionParam: [patient_email] 3
         fields:  email_address
 
       - itemName: other_email
         action: replace_minimumlengthword_with
-        actionParam: e.mail@address 3
+        actionParam: [email] 3
         fields:
 
       - itemName: public_id
         action: replace_minimumlengthword_with
-        actionParam: 000-000-000 3
+        actionParam: [public_id] 3
         fields:  medicare_num, medicaid_num
 
       - itemName: family_id
         action: replace_minimumlengthword_with
-        actionParam: 000-000-000 3
+        actionParam: [family_id] 3
         fields:  mother_pat_id, father_pat_id
 
-#      - itemName: general_name
-#        action: surrogate_name
-#        fields: ''
-#
-#      - itemName: patient_name
-#        action: surrogate_name
-#        actionParamMap: {"format":"L,F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-#        fields:  pat_name, PROXY_NAME
-#
-#      - itemName: patient_name
-#        action: surrogate_name
-#        actionParamMap: {"format":"F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-#        fields:  PAT_FIRST_NAME
-#
-#      - itemName: patient_name
-#        action: surrogate_name
-#        actionParamMap: {"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-#        fields:  PAT_LAST_NAME, PAT_MIDDLE_NAME
+      - itemName: general_name
+        action: surrogate_name
+        fields: ''
+
+      - itemName: patient_name
+        action: surrogate_name
+        actionParamMap: {"format":"L,F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
+        fields:  pat_name, PROXY_NAME
+
+      - itemName: patient_name
+        action: surrogate_name
+        actionParamMap: {"format":"F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
+        fields:  PAT_FIRST_NAME
+
+      - itemName: patient_name
+        action: surrogate_name
+        actionParamMap: {"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
+        fields:  PAT_LAST_NAME, PAT_MIDDLE_NAME
+
 
       - itemName: other_name
         action: replace_with
-        actionParam: guardian
+        actionParam: [name]
         fields: GUARDIAN_NAME
 
       - itemName: mergency_contact
         action: replace_strictly_with
-        actionParam: parent
+        actionParam: [emergency_contact]
         fields: father_name, mother_name
 
-#      - itemName: other_address
-#        action: surrogate_address
-#        fields:  ''
-#
-#      - itemName: patient_address
-#        action: surrogate_address
-#        actionParamMap: {"f_address_1":"add_line_1","f_address_2":"add_line_2", "f_city":"city", "f_zip":"zip"}
-#        fields: ''
-#
-#      - itemName: patient_address
-#        action: surrogate_address
-#        actionParamMap: {"f_address_1":"tmp_addr_line_1","f_address_2":"tmp_addr_line_2", "f_city":"tmp_city", "f_zip":"tmp_zip"}
-#        fields: ''
-#
-#
-#      - itemName: mergency_contact_address
-#        action: surrogate_address
-#        actionParamMap: {"f_address_1":"father_addr_ln_1","f_address_2":"father_addr_ln_2", "f_city":"father_city", "f_zip":"father_zip"}
-#        fields: ''
-#
-#      - itemName: mergency_contact_address
-#        action: surrogate_address
-#        actionParamMap: {"f_address_1":"mother_addr_ln_1","f_address_2":"mother_addr_ln_2", "f_city":"mother_city", "f_zip":"mother_zip"}
-#        fields: ''
+      - itemName: other_address
+        action: surrogate_address
+        fields:  ''
+
+      - itemName: patient_address
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"add_line_1","f_address_2":"add_line_2", "f_city":"city", "f_zip":"zip"}
+        fields: ''
+
+      - itemName: patient_address
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"tmp_addr_line_1","f_address_2":"tmp_addr_line_2", "f_city":"tmp_city", "f_zip":"tmp_zip"}
+        fields: ''
+
+
+      - itemName: mergency_contact_address
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"father_addr_ln_1","f_address_2":"father_addr_ln_2", "f_city":"father_city", "f_zip":"father_zip"}
+        fields: ''
+
+      - itemName: mergency_contact_address
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"mother_addr_ln_1","f_address_2":"mother_addr_ln_2", "f_city":"mother_city", "f_zip":"mother_zip"}
+        fields: ''
 
 
       - itemName: patient_phone
         action: replace_minimumlengthword_with
-        actionParam: 111-111-1111 7
+        actionParam: [patient_phone] 7
         fields:  home_phone, work_phone, tmp_home_phone, PROXY_PHONE,
+
 
 
       - itemName: mergency_contact_phone
         action: replace_minimumlengthword_with
-        actionParam: 111-111-1111 7
+        actionParam: [mergency_contact_phone] 7
         fields: father_cell_phone, mother_cell_phone
 
       - itemName: accession_num
         action: replace_minimumlengthword_with
-        actionParam: 1111-1111 5
+        actionParam: [accession_number] 5
         fields: accession_num

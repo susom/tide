@@ -22,7 +22,6 @@ import com.github.susom.starr.deid.DeidResultProc;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -109,7 +108,7 @@ public class DateAnonymizerTest {
       log.info(String.format(Locale.ROOT,"--------[%s]", k));
       for (String test : v) {
         DateAnonymizer bdayAmizer = new DateAnonymizer(bdate,"date");
-        DateAnonymizer jitterAmizer = new DateAnonymizer(15,"date");
+        DateAnonymizer jitterAmizer = new DateAnonymizer(15,"date", "");
 
         List<AnonymizedItemWithReplacement> items = new ArrayList<>();
         bdayAmizer.find(test, items);

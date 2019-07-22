@@ -27,7 +27,7 @@ public class DeidJob implements Serializable {
   String version;
   ValueProvider<String> textFields;
   ValueProvider<String> textIdFields;
-  boolean analytic;
+  boolean analytic = true;
   DeidSpec[] spec;
   DeidSpec[] googleDlpInfoTypes;
   DeidSpec.DateJitterMode dateJitter;
