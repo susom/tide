@@ -85,7 +85,7 @@ public class DlpTransformIT {
     job = jobs.deidJobs[0];
   }
 
-  @Test
+  //@Test
   public void dlpInspectRequest() throws IOException, IllegalAccessException {
 
     DeidResult deidResult = new DeidResult(new String[]{"id"}, new String[]{"0001"}, fields);
@@ -108,7 +108,7 @@ public class DlpTransformIT {
   }
 
 
-  @Test
+  //@Test
   public void deidRequest() throws IOException {
 
     DeidResult deidResult = new DeidResult(new String[]{"id"}, new String[]{"0001"}, fields);
