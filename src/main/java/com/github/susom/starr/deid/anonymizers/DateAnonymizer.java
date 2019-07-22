@@ -143,7 +143,6 @@ public class DateAnonymizer implements AnonymizerProcessor {
       }
   };
 
-  private SimpleDateFormat sdf;
   private Date knownDate;
   private Integer jitter;
 
@@ -158,7 +157,6 @@ public class DateAnonymizer implements AnonymizerProcessor {
   public DateAnonymizer(Date date, String anonymizerType) {
     this.anonymizerType = anonymizerType;
     this.knownDate = date;
-    initDateFormat();
   }
 
   /**
@@ -171,14 +169,8 @@ public class DateAnonymizer implements AnonymizerProcessor {
     this.anonymizerType = anonymizerType;
     this.jitter = jitter;
     this.postfix = postfix;
-    initDateFormat();
   }
 
-  private void initDateFormat() {
-    // SimpleDateFormat is not thread safe.
-    // Create new SimpleDateFormat for each DataAnonymizer instance.
-    sdf = new SimpleDateFormat("MM/dd/yyyy",Locale.ROOT);
-  }
 
   /**
    * main find function.
@@ -269,8 +261,10 @@ public class DateAnonymizer implements AnonymizerProcessor {
         }
 
         try {
-          dateOfSvc = new SimpleDateFormat(monthFormatStr + "/d/yyyy", Locale.ROOT)
-                .parse(month + '/' + dayStr + '/' + yearStr);
+          SimpleDateFormat sdf = new SimpleDateFormat(monthFormatStr + "/d/yyyy", Locale.ROOT);
+          sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+
+          dateOfSvc = sdf.parse(month + '/' + dayStr + '/' + yearStr);
           if (jitter != null) {
             //not sure if we should do something different here if no day or
             //no year is present in original date string?
@@ -308,6 +302,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
 
   public static String getAgeAndYearString(Date birthDate, Date dateOfService) {
     SimpleDateFormat yrsdf = new SimpleDateFormat("yyyy", Locale.ROOT);
+    yrsdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
 
     if (birthDate == null) {
       if (dateOfService != null) {
@@ -334,6 +329,9 @@ public class DateAnonymizer implements AnonymizerProcessor {
 
   private static final long milsecPerDay = 24L * 60L * 60L * 1000L;
   private String getJitteredDate(Integer jitter, Date dateOfService) {
+    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy",Locale.ROOT);
+    sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+
     Date newDate = new Date(dateOfService.getTime() + jitter * milsecPerDay);
     return sdf.format(newDate);
   }
