@@ -328,6 +328,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
   }
 
   private static final long milsecPerDay = 24L * 60L * 60L * 1000L;
+
   private String getJitteredDate(Integer jitter, Date dateOfService) {
     SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy",Locale.ROOT);
     sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
