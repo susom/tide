@@ -49,10 +49,12 @@ deidJobs:
 
       - itemName: age
         action: remove_age
+        actionParam: '[AGE]'
         fields: ''
 
       - itemName: mrn
         action: remove_mrn
+        actionParam: [mrn]
         fields: ''
 
       - itemName: patient_mrn
