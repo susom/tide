@@ -458,11 +458,11 @@ public class DeidTransform
                 break;
 
               case remove_mrn:
-                anonymizer = new MrnAnonymizer("[MRN]", spec.itemName);
+                anonymizer = new MrnAnonymizer(spec.actionParam[0], spec.itemName);
                 break;
 
               case remove_age:
-                anonymizer = new AgeAnonymizer("[AGE]", spec.itemName);
+                anonymizer = new AgeAnonymizer(spec.actionParam[0], spec.itemName);
                 break;
               case jitter_date_from_field:
                 int jitter = 0;
@@ -517,7 +517,6 @@ public class DeidTransform
       if (deidResult != null) {
         context.output(deidResult);
       }
-
     }
   }
 }

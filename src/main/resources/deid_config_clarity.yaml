@@ -53,16 +53,17 @@ deidJobs:
 
       - itemName: mrn
         action: remove_mrn
+        actionParam: [mrn]
         fields: ''
 
       - itemName: patient_mrn
         action: replace_minimumlengthword_with
-        actionParam: mrn 3
+        actionParam: [mrn] 3
         fields:  PAT_MRN_ID
 
       - itemName: other_id
         action: replace_minimumlengthword_with
-        actionParam: id 3
+        actionParam: [id] 3
         fields:  pat_id, birth_wrist_band, epic_pat_id, PRIM_CVG_ID, PRIM_EPP_ID, EMPLOYER_ID
 
       - itemName: general
@@ -72,27 +73,27 @@ deidJobs:
 
       - itemName: patient_ssn
         action: replace_minimumlengthword_with
-        actionParam: ssn 4
+        actionParam: [ssn] 4
         fields:  ssn
 
       - itemName: patient_email
         action: replace_minimumlengthword_with
-        actionParam: patient_email 3
+        actionParam: [patient_email] 3
         fields:  email_address
 
       - itemName: other_email
         action: replace_minimumlengthword_with
-        actionParam: email 3
+        actionParam: [email] 3
         fields:
 
       - itemName: public_id
         action: replace_minimumlengthword_with
-        actionParam: public_id 3
+        actionParam: [public_id] 3
         fields:  medicare_num, medicaid_num
 
       - itemName: family_id
         action: replace_minimumlengthword_with
-        actionParam: family_id 3
+        actionParam: [family_id] 3
         fields:  mother_pat_id, father_pat_id
 
       - itemName: general_name
@@ -123,13 +124,13 @@ deidJobs:
 
       - itemName: other_name
         action: replace_with
-        actionParam: name
+        actionParam: [name]
         fields: GUARDIAN_NAME
 
       - itemName: mergency_contact
         action: replace_strictly_with
         actionParam: emergency_contact
-        fields: father_name, mother_name
+        fields: [father_name], mother_name
 
       - itemName: other_address
         action: surrogate_address
@@ -163,7 +164,7 @@ deidJobs:
 
       - itemName: patient_phone
         action: replace_minimumlengthword_with
-        actionParam: patient_phone 7
+        actionParam: [patient_phone] 7
         fields:  home_phone, work_phone, tmp_home_phone, PROXY_PHONE,
 
 #      - itemName: other_phone
@@ -174,10 +175,10 @@ deidJobs:
 
       - itemName: mergency_contact_phone
         action: replace_minimumlengthword_with
-        actionParam: mergency_contact_phone 7
+        actionParam: [mergency_contact_phone] 7
         fields: father_cell_phone, mother_cell_phone
 
       - itemName: accession_num
         action: replace_minimumlengthword_with
-        actionParam: accession_number 5
+        actionParam: [accession_number] 5
         fields: accession_num
