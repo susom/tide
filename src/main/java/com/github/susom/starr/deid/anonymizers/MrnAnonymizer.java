@@ -49,6 +49,9 @@ import java.util.regex.Pattern;
  *
  */
 public class MrnAnonymizer implements AnonymizerProcessor {
+
+  public static final String DEFAULT_REPLACEMENT = "[MRN]";
+
   // For testing - compile with TEST=true to show text to be deleted as highlighted
   private static final boolean TEST = false;
 

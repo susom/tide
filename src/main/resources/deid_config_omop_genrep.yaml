@@ -53,6 +53,7 @@ deidJobs:
 
       - itemName: mrn
         action: remove_mrn
+        actionParam: 12345678
         fields: ''
 
       - itemName: patient_mrn

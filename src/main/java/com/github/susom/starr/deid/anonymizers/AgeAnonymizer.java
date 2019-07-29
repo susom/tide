@@ -36,6 +36,8 @@ import java.util.regex.Pattern;
  */
 
 public class AgeAnonymizer implements AnonymizerProcessor {
+  public static final String DEFAULT_REPLACEMENT = "[90 year old]";
+
   // For testing - compile with TEST=true to show text to be deleted as highlighted
   private static final boolean TEST = false;
 
