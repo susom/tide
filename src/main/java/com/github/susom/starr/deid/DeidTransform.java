@@ -458,12 +458,19 @@ public class DeidTransform
                 break;
 
               case remove_mrn:
-                anonymizer = new MrnAnonymizer(spec.actionParam[0], spec.itemName);
+                anonymizer = new MrnAnonymizer(
+                    (spec.actionParam == null || spec.actionParam.length == 0)
+                    ? MrnAnonymizer.DEFAULT_REPLACEMENT
+                    : spec.actionParam[0], spec.itemName);
                 break;
 
               case remove_age:
-                anonymizer = new AgeAnonymizer(spec.actionParam[0], spec.itemName);
+                anonymizer = new AgeAnonymizer(
+                    (spec.actionParam == null || spec.actionParam.length == 0)
+                    ? AgeAnonymizer.DEFAULT_REPLACEMENT
+                    : spec.actionParam[0], spec.itemName);
                 break;
+
               case jitter_date_from_field:
                 int jitter = 0;
                 for (String field : spec.fields) { //take only the first field
@@ -471,7 +478,9 @@ public class DeidTransform
                     jitter = node.get(field).asInt();
                   }
                 }
-                anonymizer = new DateAnonymizer(jitter, spec.itemName, spec.actionParam[0]);
+                anonymizer = new DateAnonymizer(jitter, spec.itemName,
+                  (spec.actionParam == null || spec.actionParam.length == 0)
+                  ? "" : spec.actionParam[0]);
                 break;
               case jitter_date_randomly:
                 anonymizer = new DateAnonymizer(
