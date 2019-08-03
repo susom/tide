@@ -221,7 +221,8 @@ public class DeidTransform
           throw new IOException("input data does not have field " + noteIdFields[i]);
         }
       }
-      String[] textFields = job.getTextFields().get().replaceAll(" ","").split(",");
+      String[] textFields = job.getTextFields().get()
+          .replaceAll(" ","").split(",");
       DeidResult deidResult = new DeidResult(noteIdFields,noteIds,textFields);
 
       for (int textIndex = 0;textIndex < textFields.length;textIndex++) {
@@ -233,14 +234,15 @@ public class DeidTransform
           List<AnonymizedItemWithReplacement> items = new ArrayList<>();
 
           if (orginalText == null || orginalText.length() == 0) {
-            deidResult.addData(DeidResultProc.STATS_CNT_DLP + textFields[textIndex],0);
+            //deidResult.addData(DeidResultProc.STATS_CNT_DLP + textFields[textIndex],0);
             deidResult.addData(DeidResultProc.STATS_CNT_DEID + textFields[textIndex],0);
             continue;
           }
+//        //clean risky characters: � "\ufffd"
+          orginalText = orginalText.replaceAll("�", "\n");
 
-          orginalText = orginalText.replaceAll("�", "\n\r"); //� "\ufffd"
-
-          deidResult.addData(DeidResultProc.TEXT_ORGINAL + textFields[textIndex],orginalText);
+          deidResult.addData(DeidResultProc.TEXT_ORGINAL
+              + textFields[textIndex],orginalText);
 
           List<AnonymizedItemWithReplacement> foundNerNameItems = new ArrayList<>();
           List<AnonymizedItemWithReplacement> foundNerLocationItems = new ArrayList<>();
@@ -260,17 +262,24 @@ public class DeidTransform
             //log.info("done NER");
           }
 
+          String jitterSeed = (job.getDateJitterSeedField() != null
+            && node.has(job.getDateJitterSeedField()))
+            ? node.get(job.getDateJitterSeedField()).asText() : null;
+
+
           //stage one : Google DLP
-          if (dlpTransform != null && orginalText != null) {
-            dlpTransform.dlpDeidRequest(orginalText, textFields[textIndex], deidResult);
-            log.info(String.format(Locale.ROOT,"DLP result:[%s]",
-                deidResult.getDataAsString(DeidResultProc.TEXT_DLP + textFields[textIndex])));
+          if (dlpTransform != null) {
+            int jitter = 0;
+            if (node.has(dlpTransform.dateJitterField)) {
+              jitter = node.get(dlpTransform.dateJitterField).asInt();
+            }
+
+            dlpTransform.dlpInspectRequest(orginalText, items, jitter);
+            log.info(String.format(Locale.ROOT,"finding count after stage one:[%d]", items.size()));
           }
 
           //stage two : Stanford DeID
-          String jitterSeed = (job.getDateJitterSeedField() != null
-              && node.has(job.getDateJitterSeedField()))
-              ? node.get(job.getDateJitterSeedField()).asText() : null;
+
 
           for (DeidSpec spec : job.getSpec()) {
 
@@ -507,6 +516,9 @@ public class DeidTransform
             }
             anonymizer.find(orginalText, items);
           }
+          //end of stage2
+          log.info(String.format(Locale.ROOT,"finding count after stage two:[%d]", items.size()));
+
 
           ObjectMapper resultMapper = new ObjectMapper();
           mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);

@@ -22,7 +22,7 @@ deidJobs:
       - itemName: patient_ssn
         fields: US_SOCIAL_SECURITY_NUMBER
       - itemName: other_id
-        fields: US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER,MEDICARE_NUMBER,UNKNOWN_IDENTIFIER
+        fields: US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER
       - itemName: other_email
         fields: EMAIL_ADDRESS
       - itemName: other_name

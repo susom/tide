@@ -45,8 +45,12 @@ import org.slf4j.LoggerFactory;
 public class DeidResultProcTest {
 
   private static final Logger log = LoggerFactory.getLogger(DeidResultProc.class);
+
+  @Rule
+  public final transient TestPipeline pipeline = TestPipeline.create();
+
   @Test
-  public void applyChange() {
+  public void testApplyChange() {
     String text = "Case discussed with "
         + "Dr. Jacory Zaer, Vas"
         + "cular Surgery Fellow"
@@ -80,11 +84,11 @@ public class DeidResultProcTest {
         StringUtils.countMatches(result, "[REMOVED]"));
   }
 
-  @Rule
-  public final transient TestPipeline p = TestPipeline.create();
+
 
   @Test
   public void testDeidFn() throws IOException {
+
     String[] noteTexts = new String[]{
       "{\"note_id\":\"001_J0\",\"jitter\":0,\"note_text\":\"Alex has fever on June 4, 2019\"}",
       "{\"note_id\":\"001_J1\",\"jitter\":1,\"note_text\":\"Alex has fever on June 4, 2019\"}",
@@ -100,7 +104,7 @@ public class DeidResultProcTest {
 
     final List<String> notes = Arrays.asList(noteTexts);
 
-    PCollection input = p.apply(Create.of(notes)).setCoder( StringUtf8Coder.of());
+    PCollection input = pipeline.apply(Create.of(notes)).setCoder( StringUtf8Coder.of());
 
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
@@ -135,7 +139,7 @@ public class DeidResultProcTest {
         "Tom visited on 10/19/2018[TESTING]"
       );
 
-    p.run();
+    pipeline.run();
   }
 
   private static class PrintResult extends   DoFn<String,String> {

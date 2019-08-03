@@ -21,6 +21,7 @@ package com.github.susom.starr.deid;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
+import com.github.susom.starr.deid.anonymizers.AnonymizerProcessor;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -38,12 +39,8 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
   private static final Logger log = LoggerFactory.getLogger(DeidResultProc.class);
   public static final String TEXT_ORGINAL = "";
 
-  public static final String STATS_DLP = "STATS_DLP_";
-  public static final String STATS_CNT_DLP = "STATSCNT_DLP_";
-  public static final String TEXT_DLP = "TEXT_DLP_";
-
-  public static final String STATS_DEID = "STATS_DEID_";
-  public static final String STATS_CNT_DEID = "STATSCNT_DEID_";
+  public static final String STATS_DEID = "FINDING_";
+  public static final String STATS_CNT_DEID = "FINDING_CNT_";
   public static final String TEXT_DEID = "TEXT_DEID_";
 
   private final Counter totalPhiCntStage1 =
@@ -81,26 +78,6 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
     context.output(DeidTransform.fullResultTag, dtString);
 
     for (String textField : dt.getTextFields()) {
-      String statsDlpString = dt.getDataAsString(DeidResultProc.STATS_DLP + textField);
-      if (statsDlpString != null) {
-        JsonNode nodes = mapper.readTree(statsDlpString);
-        if (nodes.size() == 0) {
-          zeroChangeCntStage1.inc();
-        }
-
-        totalPhiCntStage1.inc(nodes.size());
-        itemPerTextDistributionStage1.update(nodes.size());
-        Set<String> phiCat = new HashSet<>();
-        for (JsonNode node : nodes) {
-          String stat = node.get("type").asText();
-          String foundBy = node.get("foundBy").asText();
-          context.output(DeidTransform.statsDlpPhiTypeTag, stat);
-          context.output(DeidTransform.statPhiFoundByTag, foundBy);
-        }
-
-      } else {
-        zeroChangeCntStage1.inc();
-      }
 
       String statsDeidString = dt.getDataAsString(DeidResultProc.STATS_DEID + textField);
       if (statsDeidString != null) {
@@ -109,17 +86,25 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
         if (nodes.size() == 0) {
           zeroChangeCntStage2.inc();
         }
-        totalPhiCntStage2.inc(nodes.size());
-        itemPerTextDistributionStage2.update(nodes.size());
 
+        int cnt1 = 0;
+        int cnt2 = 0;
         for (JsonNode node : nodes) {
           String stat = node.get("type").asText();
           String foundBy = node.get("foundBy").asText();
+          if (foundBy.equals("google-dlp")) {
+            cnt1++;
+          } else {
+            cnt2++;
+          }
           context.output(DeidTransform.statsPhiTypeTag, stat);
           context.output(DeidTransform.statPhiFoundByTag, foundBy);
         }
 
-
+        totalPhiCntStage1.inc(cnt1);
+        totalPhiCntStage2.inc(cnt2);
+        itemPerTextDistributionStage1.update(cnt1);
+        itemPerTextDistributionStage2.update(cnt2);
       } else {
         zeroChangeCntStage2.inc();
       }
@@ -140,8 +125,24 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
       return inputText;
     }
 
-    items.sort((a,b) -> b.getEnd().compareTo(a.getEnd()));
-    StringBuffer sb = new StringBuffer();
+    items.sort((a,b) -> {
+      int c1 = b.getEnd().compareTo(a.getEnd());
+      if (c1 != 0) {
+        return c1;
+      }
+      if (a.getReplacement() != null && b.getReplacement() != null) {
+        return b.getReplacement().compareTo(a.getReplacement());
+      }
+
+      if (a.getReplacement() == null) {
+        return 1;
+      } else {
+        return -1;
+      }
+
+    });
+
+    StringBuilder sb = new StringBuilder();
     final AtomicInteger lastEnd = new AtomicInteger(Integer.MAX_VALUE);
     final AtomicInteger lastStart = new AtomicInteger(Integer.MAX_VALUE);
     for (int i = 0; i < items.size(); i++) {
@@ -151,7 +152,9 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
       if (i == 0) {
         //first instance
         sb.insert(0, inputText.substring(item.getEnd()));
-        sb.insert(0, item.getReplacement());
+        sb.insert(0, item.getReplacement() != null
+            ? item.getReplacement() :
+            AnonymizerProcessor.REPLACE_WORD);
 
         lastEnd.set(item.getEnd());
         lastStart.set(item.getStart());
@@ -171,7 +174,10 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
       } else if (item.getEnd() < lastStart.get()) {
         //outside of last change, copy fully
         sb.insert(0, inputText.substring(item.getEnd(), lastStart.get()));
-        sb.insert(0, item.getReplacement());
+        sb.insert(0,
+            item.getReplacement() != null
+              ? item.getReplacement() :
+                AnonymizerProcessor.REPLACE_WORD);
 
         lastEnd.set(item.getEnd());
         lastStart.set(item.getStart());

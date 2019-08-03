@@ -21,9 +21,14 @@ package com.github.susom.starr;
 import com.github.susom.database.Database;
 import com.github.susom.database.DatabaseProvider;
 import com.github.susom.database.SqlInsert;
-import com.github.susom.starr.deid.DeidTransform.DeidFn;
 
 import com.google.common.base.Charsets;
+import edu.stanford.nlp.util.StreamGobbler;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -39,6 +44,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -160,7 +166,7 @@ public class Utility {
   public static void loadFileToMemory(String classPathResource, HashSet<String> hashSet) {
     try (Scanner s =
            new Scanner(
-             DeidFn.class.getClassLoader().getResourceAsStream(classPathResource), "UTF-8")) {
+             Utility.class.getClassLoader().getResourceAsStream(classPathResource), "UTF-8")) {
       while (s.hasNext()) {
         hashSet.add(s.nextLine());
       }
@@ -179,7 +185,7 @@ public class Utility {
                                       Map<String, String> map, boolean reverse) {
     try (Scanner s =
             new Scanner(
-                DeidFn.class.getClassLoader().getResourceAsStream(classPathResource), "UTF-8")) {
+              Utility.class.getClassLoader().getResourceAsStream(classPathResource), "UTF-8")) {
       while (s.hasNext()) {
         String[] parts = s.nextLine().split(",");
         if (reverse) {
@@ -285,5 +291,29 @@ public class Utility {
       });
     });
 
+  }
+
+  public static void runCmd(String[] cmds) {
+    try {
+      ProcessBuilder builder = new ProcessBuilder();
+      builder.inheritIO();
+      builder.command(cmds);
+      builder.directory(new File(System.getProperty("user.home")));
+      Process process = builder.start();
+      Writer outWriter = new BufferedWriter(
+          new OutputStreamWriter(System.out, Charset.defaultCharset()));
+
+      StreamGobbler streamGobbler =
+        new StreamGobbler(process.getInputStream(), outWriter);
+      Executors.newSingleThreadExecutor().submit(streamGobbler);
+      int exitCode = process.waitFor();
+      if (0 != exitCode) {
+        log.error("failed to run command" , streamGobbler.getStackTrace());
+      } else {
+        log.info("run command" , streamGobbler.getStackTrace());
+      }
+    } catch (Exception e) {
+      log.error(e.getMessage(),e);
+    }
   }
 }

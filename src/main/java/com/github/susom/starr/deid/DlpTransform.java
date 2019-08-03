@@ -22,11 +22,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
 import com.github.susom.starr.deid.anonymizers.AnonymizerProcessor;
+import com.github.susom.starr.deid.anonymizers.DateAnonymizer;
 import com.google.cloud.dlp.v2.DlpServiceClient;
+import com.google.cloud.dlp.v2.DlpServiceSettings;
 import com.google.privacy.dlp.v2.ByteContentItem;
 import com.google.privacy.dlp.v2.CharacterMaskConfig;
 import com.google.privacy.dlp.v2.ContentItem;
+import com.google.privacy.dlp.v2.DateTime;
 import com.google.privacy.dlp.v2.DeidentifyConfig;
+import com.google.privacy.dlp.v2.DeidentifyContentRequest;
+import com.google.privacy.dlp.v2.DeidentifyContentResponse;
 import com.google.privacy.dlp.v2.Finding;
 import com.google.privacy.dlp.v2.InfoType;
 import com.google.privacy.dlp.v2.InfoTypeTransformations;
@@ -37,6 +42,7 @@ import com.google.privacy.dlp.v2.InspectResult;
 import com.google.privacy.dlp.v2.Likelihood;
 import com.google.privacy.dlp.v2.PrimitiveTransformation;
 import com.google.privacy.dlp.v2.ProjectName;
+import com.google.privacy.dlp.v2.QuoteInfo.ParsedQuoteCase;
 import com.google.privacy.dlp.v2.Range;
 import com.google.privacy.dlp.v2.ReplaceWithInfoTypeConfig;
 import com.google.protobuf.ByteString;
@@ -44,16 +50,21 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Duration;
 
 /**
  * Googld DLP Transform.
@@ -66,6 +77,9 @@ public class DlpTransform extends PTransform<PCollection<String>,
   private static final Logger log = LoggerFactory.getLogger(DlpTransform.class);
 
   public static Map<String,String> phiCategoryMap = new HashMap<>();
+  public static Map<String,String> phiReplacementMap = new HashMap<>();
+
+  public  String dateJitterField;
 
   /**
    * unify category mapping with other deid methods.
@@ -76,6 +90,10 @@ public class DlpTransform extends PTransform<PCollection<String>,
     return phiCategoryMap.containsKey(infoTypeName.toUpperCase(Locale.ROOT))
       ? phiCategoryMap.get(infoTypeName.toUpperCase(Locale.ROOT))
       : "dlp_" + infoTypeName.toLowerCase(Locale.ROOT);
+  }
+
+  public String getReplacementByInfoType(String infoType) {
+    return phiReplacementMap.get(infoType);
   }
 
   Likelihood minLikelihood = Likelihood.LIKELY;
@@ -111,13 +129,15 @@ public class DlpTransform extends PTransform<PCollection<String>,
         .setInfoTypeTransformations(infoTypeTransformationArray)
         .build();
 
-  int maxFindings = 0;
+  int maxFindings = 1000;
   InspectConfig.FindingLimits findingLimits =
       InspectConfig.FindingLimits.newBuilder().setMaxFindingsPerItem(maxFindings).build();
 
   private final DeidJob job;
   private final String projectId;
   private InspectConfig inspectConfig;
+
+  //private DlpServiceSettings dlpServiceSettings;
 
   /**
    * DLP transform contructor.
@@ -130,12 +150,18 @@ public class DlpTransform extends PTransform<PCollection<String>,
     this.projectId = projectId;
     this.job = job;
     for (DeidSpec spec : job.getGoogleDlpInfoTypes()) {
-      for (String f : spec.fields) {
+      for (String f : spec.infoTypes) {
         f = f.trim().toUpperCase(Locale.ROOT);
         if (f.length() > 0) {
           infoTypes.add(InfoType.newBuilder().setName(f).build());
           phiCategoryMap.put(f,spec.itemName);
+          phiReplacementMap.put(f, spec.actionParam != null && spec.actionParam.length > 0
+            ? spec.actionParam[0] : null);
           log.info("added infoType: " +  f + " to   " + spec.itemName);
+        }
+
+        if (f.equals("DATE") && spec.fields != null && spec.fields.length > 0) {
+          dateJitterField = spec.fields[0];
         }
       }
     }
@@ -144,11 +170,18 @@ public class DlpTransform extends PTransform<PCollection<String>,
       InspectConfig.newBuilder()
         .addAllInfoTypes(infoTypes)
         .setMinLikelihood(minLikelihood)
-        .setLimits(findingLimits)
+        //.setLimits(findingLimits)
         .setIncludeQuote(includeQuote)
         .build();
-  }
 
+    //DlpServiceSettings.Builder dlpServiceSettingsBuilder =
+    //  DlpServiceSettings.newBuilder();
+    //
+    //dlpServiceSettingsBuilder.inspectContentSettings().getRetrySettings().toBuilder()
+    //  .setTotalTimeout(Duration.ofSeconds(10));
+    //
+    //dlpServiceSettings = dlpServiceSettingsBuilder.build();
+  }
 
   //TODO implement transform if needed
   @Override
@@ -157,68 +190,54 @@ public class DlpTransform extends PTransform<PCollection<String>,
   }
 
   /**
-   * call DLP api. Currently it does not call deid request, instead it call Inspect api.
+   * call DLP api.
    * @param text input text
-   * @param deidResult store findings in DeidResult object
+   * @param items store findings
    */
-  public void dlpDeidRequest(String text, String textFieldName, DeidResult deidResult) {
-    DlpServiceClient dlpServiceClient = null;
-    try {
-      dlpServiceClient = DlpServiceClient.create();
+  public void dlpDeidRequest(String text,  List<AnonymizedItemWithReplacement> items) {
+
+    try (DlpServiceClient dlpServiceClient = DlpServiceClient.create()) { //or with dlpServiceSettings
 
       ObjectMapper mapper = new ObjectMapper();
       mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
       int retryCount = 0;
-      int maxTry = 12;
+      int maxTry = 4;
       while (retryCount < maxTry) {
         try {
-          //ContentItem contentItem = ContentItem.newBuilder().setValue(text).build();
-          //
-          //DeidentifyContentRequest request =
-          //DeidentifyContentRequest.newBuilder()
-          //  .setParent(ProjectName.of(projectId).toString())
-          //  .setInspectConfig(inspectConfig)
-          //  .setDeidentifyConfig(deidentifyConfig)
-          //  .setItem(contentItem)
-          //  .build();
-          //
-          //DeidentifyContentResponse response = dlpServiceClient.deidentifyContent(request);
-          //
-          //java.util.List<com.google.privacy.dlp.v2.TransformationSummary>
-          //summaries = response.getOverview().getTransformationSummariesList();
-          //
-          //List<AnonymizedItemWithReplacement> items = new ArrayList<>();
-          //
-          //String result = response.getItem().getValue();
-          //deidResult.setTextStage2(result);
-          //
-          //summaries.stream().forEach(s->{
-          //AnonymizedItemWithReplacement ai =
-          //new AnonymizedItemWithReplacement("",
-          // getPhiCategoryByInfoTypeName(s.getInfoType().getName()));
-          //items.add(ai);
-          //});
-          //String stats = mapper.writeValueAsString(items);
-          //deidResult.setStatsStage2(stats);
-          //deidResult.setStatsCntStage2(items.size());
+          ContentItem contentItem = ContentItem.newBuilder().setValue(text).build();
 
-          dlpInspectRequest(text,textFieldName,deidResult,dlpServiceClient);
-          //TODO ask Google to return stats in deid api response
+          DeidentifyContentRequest request =
+          DeidentifyContentRequest.newBuilder()
+            .setParent(ProjectName.of(projectId).toString())
+            .setInspectConfig(inspectConfig)
+            .setDeidentifyConfig(deidentifyConfig)
+            .setItem(contentItem)
+            .build();
+
+          DeidentifyContentResponse response = dlpServiceClient.deidentifyContent(request);
+
+          java.util.List<com.google.privacy.dlp.v2.TransformationSummary>
+          summaries = response.getOverview().getTransformationSummariesList();
+          String result = response.getItem().getValue();
+
+          summaries.stream().forEach(s -> {
+            AnonymizedItemWithReplacement ai =
+              new AnonymizedItemWithReplacement("",
+                getPhiCategoryByInfoTypeName(s.getInfoType().getName()));
+            items.add(ai);
+          });
 
           break;
         } catch (Exception e) {
           log.info("Error from DLP request", e);
-          if (retryCount < 8) {
+          if (retryCount < maxTry - 1) {
             double waitFor = Math.pow(2,retryCount);
             log.info("retry after " + waitFor + " seconds");
             Thread.sleep((long)waitFor * 1000L);
           } else {
-            log.info("retry after 5 minutes");
-            Thread.sleep(300000L);
-          }
-          if (retryCount == maxTry - 1) {
-            log.error("giving up processing");
+            log.error("give up DLP request");
+            return;
           }
         }
 
@@ -227,79 +246,73 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
     } catch (Exception e) {
       log.info("Failed to call DLP API ",e);
-    } finally {
-      if (dlpServiceClient != null) {
-        dlpServiceClient.shutdown();
-      }
     }
   }
 
   /**
    * call DLP Inspect API.
    * @param text input text
-   * @param deidResult store findings in deidResult
-   * @param dlpServiceClient reuse dlp client if possible
+   * @param items store findings
    * @return inpectResult from DLP api
    * @throws IOException if api call fails
    */
-  public InspectResult dlpInspectRequest(String text, String textFieldName,
-                                         DeidResult deidResult,
-                                         DlpServiceClient dlpServiceClient) throws IOException {
+  public InspectResult dlpInspectRequest(String text, List<AnonymizedItemWithReplacement> items, int jitter) throws IOException {
 
     InspectResult result = null;
 
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
-    if (dlpServiceClient == null) {
-      dlpServiceClient = DlpServiceClient.create();
-    }
-
-    ByteContentItem byteContentItem =
+    try (DlpServiceClient dlpServiceClient = DlpServiceClient.create()) {
+      ByteContentItem byteContentItem =
         ByteContentItem.newBuilder()
           .setType(ByteContentItem.BytesType.TEXT_UTF8)
           .setData(ByteString.copyFromUtf8(text))
           .build();
-    ContentItem contentItem = ContentItem.newBuilder().setByteItem(byteContentItem).build();
+      ContentItem contentItem = ContentItem.newBuilder().setByteItem(byteContentItem).build();
 
-    InspectContentRequest request =
+      InspectContentRequest request =
         InspectContentRequest.newBuilder()
           .setParent(ProjectName.of(projectId).toString())
           .setInspectConfig(inspectConfig)
           .setItem(contentItem)
           .build();
 
-    // Inspect the text for info types
-    InspectContentResponse response = dlpServiceClient.inspectContent(request);
+      // Inspect the text for info types
+      InspectContentResponse response = dlpServiceClient.inspectContent(request);
 
-    result = response.getResult();
-    if (result.getFindingsCount() > 0) {
+      result = response.getResult();
+      if (result.getFindingsCount() > 0) {
+        byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
 
-      List<AnonymizedItemWithReplacement> items = new ArrayList<>();
-      byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
+        for (Finding finding : result.getFindingsList()) {
+          String replacement = null;
+          InfoType it = finding.getInfoType();
+          replacement = getReplacementByInfoType(it.getName());
 
-      for (Finding finding : result.getFindingsList()) {
-        Range r = finding.getLocation().getByteRange();
-        byte[] slice = Arrays.copyOfRange(textBytes, (int)r.getStart(), (int)r.getEnd());
+          ParsedQuoteCase findingCase = finding.getQuoteInfo().getParsedQuoteCase();
+          if (findingCase == ParsedQuoteCase.DATE_TIME) {
+            DateTime dateFound = finding.getQuoteInfo().getDateTime();
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ROOT);
+            cal.set(Calendar.YEAR, dateFound.getDate().getYear());
+            cal.set(Calendar.MONTH, dateFound.getDate().getMonth() - 1);
+            cal.set(Calendar.DAY_OF_MONTH, dateFound.getDate().getDay());
 
-        AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
+            replacement = DateAnonymizer.getJitteredDate(jitter, cal.getTime());
+          }
+
+          Range r = finding.getLocation().getByteRange();
+          byte[] slice = Arrays.copyOfRange(textBytes, (int)r.getStart(), (int)r.getEnd());
+
+          AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
             new String(slice,StandardCharsets.UTF_8),
             (int)r.getStart(), (int)r.getEnd(),
-            String.format(Locale.ROOT, "[%s]", finding.getInfoType().getName()),
+            replacement,
             "google-dlp",
             getPhiCategoryByInfoTypeName(finding.getInfoType().getName()));
-        items.add(ai);
+          items.add(ai);
+        }
       }
-
-      String stats = mapper.writeValueAsString(items);
-      deidResult.addData(DeidResultProc.STATS_DLP + textFieldName,stats);
-      deidResult.addData(DeidResultProc.STATS_CNT_DLP + textFieldName,items.size());
-      deidResult.addData(DeidResultProc.TEXT_DLP
-            + textFieldName,flagTextWithDlpFindings(textBytes,items));
-    } else {
-      deidResult.addData(DeidResultProc.STATS_DLP + textFieldName,null);
-      deidResult.addData(DeidResultProc.STATS_CNT_DLP + textFieldName,0);
-      deidResult.addData(DeidResultProc.TEXT_DLP + textFieldName,text);
     }
 
     return result;

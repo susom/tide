@@ -36,7 +36,7 @@ public class DateAnonymizerTest {
   private static final Logger log = LoggerFactory.getLogger(DateAnonymizerTest.class);
 
   static String[] positiveTests = new String[]{
-      "25-NOV-2008 10:17:35 , 04/18/2012, 3/29/2012, 02/10/2006 9:24 a, 09/08/2008 01:26 P CT",
+      "2088-07-03, 25-NOV-2008 10:17:35 , 04/18/2012, 3/29/2012, 02/10/2006 9:24 a, 09/08/2008 01:26 P CT",
 //      "25-NOV-2008 10:17:35",
 //      "25-11-2008 10:17:35",
 //      "04/18/2012",

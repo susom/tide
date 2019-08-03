@@ -85,7 +85,7 @@ public class DeidJob implements Serializable {
   }
 
   public DeidSpec[] getSpec() {
-    return spec;
+    return spec == null ? new DeidSpec[0] : spec;
   }
 
   public void setSpec(DeidSpec[] spec) {

@@ -12,31 +12,31 @@ deidJobs:
     nerEnabled: false
     googleDlpInfoTypes:
       - itemName: age
-        fields: AGE
+        infoTypes: AGE
       - itemName: date
-        fields: DATE
+        infoTypes: DATE
       - itemName: phi_date
-        fields: DATE_OF_BIRTH
+        infoTypes: DATE_OF_BIRTH
       - itemName: payment_id
-        fields: CREDIT_CARD_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE
+        infoTypes: CREDIT_CARD_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE
       - itemName: public_id
-        fields: US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT
+        infoTypes: US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT
       - itemName: patient_ssn
-        fields: US_SOCIAL_SECURITY_NUMBER
+        infoTypes: US_SOCIAL_SECURITY_NUMBER
       - itemName: other_id
-        fields: US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER,MEDICARE_NUMBER,UNKNOWN_IDENTIFIER
+        infoTypes: US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER
       - itemName: other_email
-        fields: EMAIL_ADDRESS
+        infoTypes: EMAIL_ADDRESS
       - itemName: other_name
-        fields: PERSON_NAME
+        infoTypes: PERSON_NAME
       - itemName: other_phone
-        fields: PHONE_NUMBER
+        infoTypes: PHONE_NUMBER
       - itemName: care_provider_id
-        fields: US_HEALTHCARE_NPI,US_DEA_NUMBER
+        infoTypes: US_HEALTHCARE_NPI,US_DEA_NUMBER
       - itemName: other_address
-        fields: LOCATION
+        infoTypes: LOCATION
       - itemName: internet_locator
-        fields: IP_ADDRESS,MAC_ADDRESS,URL
+        infoTypes: IP_ADDRESS,MAC_ADDRESS,URL
 
 #    ALL_BASIC,FEMALE_NAME,FIRST_NAME,LAST_NAME,MALE_NAME,
 
@@ -54,17 +54,17 @@ deidJobs:
 
       - itemName: mrn
         action: remove_mrn
-        actionParam: [mrn]
+        actionParam: 99999999]
         fields: ''
 
       - itemName: patient_mrn
         action: replace_minimumlengthword_with
-        actionParam: 12345678 3
+        actionParam: 99999999 3
         fields:  PAT_MRN_ID
 
       - itemName: other_id
         action: replace_minimumlengthword_with
-        actionParam: 1111111 3
+        actionParam: 999999999 3
         fields:  pat_id, birth_wrist_band, epic_pat_id, PRIM_CVG_ID, PRIM_EPP_ID, EMPLOYER_ID
 
       - itemName: general
@@ -74,22 +74,22 @@ deidJobs:
 
       - itemName: patient_ssn
         action: replace_minimumlengthword_with
-        actionParam: 000-00-0000 4
+        actionParam: 999-99-9999 4
         fields:  ssn
 
       - itemName: patient_email
         action: replace_minimumlengthword_with
-        actionParam: e.mail@address 3
+        actionParam: deidentified@example.com 3
         fields:  email_address
 
       - itemName: other_email
         action: replace_minimumlengthword_with
-        actionParam: e.mail@address 3
+        actionParam: deidentified@example.com 3
         fields:
 
       - itemName: public_id
         action: replace_minimumlengthword_with
-        actionParam: 000-000-000 3
+        actionParam: 9999999999999 3
         fields:  medicare_num, medicaid_num
 
       - itemName: family_id
@@ -117,8 +117,8 @@ deidJobs:
 #        fields:  PAT_LAST_NAME, PAT_MIDDLE_NAME
 
       - itemName: other_name
-        action: replace_with
-        actionParam: guardian
+        action: surrogate_name
+        actionParamMap: {"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
         fields: GUARDIAN_NAME
 
       - itemName: mergency_contact
@@ -154,16 +154,16 @@ deidJobs:
 
       - itemName: patient_phone
         action: replace_minimumlengthword_with
-        actionParam: 111-111-1111 7
+        actionParam: 999-999-9999 7
         fields:  home_phone, work_phone, tmp_home_phone, PROXY_PHONE,
 
 
       - itemName: mergency_contact_phone
         action: replace_minimumlengthword_with
-        actionParam: 111-111-1111 7
+        actionParam: 999-999-9999 7
         fields: father_cell_phone, mother_cell_phone
 
       - itemName: accession_num
         action: replace_minimumlengthword_with
-        actionParam: 1111-1111 5
+        actionParam: 9999-9999 5
         fields: accession_num

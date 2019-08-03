@@ -90,6 +90,12 @@ public class DateAnonymizer implements AnonymizerProcessor {
               + FOLLOWING, Pattern.CASE_INSENSITIVE),
           TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : "${month}/${day}/${year}"
       },
+      //2018-01-01
+      {
+        Pattern.compile(PRECEDING + YEAR + "(/|-)" + MON + "\\2" + DAY + "(?:\\s*" + TIME + ")?"
+          + FOLLOWING, Pattern.CASE_INSENSITIVE),
+        TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : "${month}/${day}/${year}"
+      },
       //This pattern interfere with mon/dd/yyyy e.g. wrong result for 9/5/2018
       //25-11-2008 10:17 dd-mon-yyyy hh:mm:ss am
       //{ Pattern.compile(PRECEDING + DAY + "(/|-)" + MON + "\\2" + YEAR + "(?:\\s*" + TIME + ")?"
@@ -205,7 +211,8 @@ public class DateAnonymizer implements AnonymizerProcessor {
         //skip if this finding is within the range of earlier ones
         boolean overlapped = false;
         for (AnonymizedItemWithReplacement f : findings) {
-          if (matcher.start() >= f.getStart() && matcher.start() <=  f.getEnd()) {
+          if (matcher.start() >= f.getStart() && matcher.start() <=  f.getEnd()
+            && f.getReplacement() != null) {
             overlapped = true;
             break;
           }
@@ -329,7 +336,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
 
   private static final long milsecPerDay = 24L * 60L * 60L * 1000L;
 
-  private String getJitteredDate(Integer jitter, Date dateOfService) {
+  public static String getJitteredDate(Integer jitter, Date dateOfService) {
     SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy",Locale.ROOT);
     sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
 

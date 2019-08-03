@@ -44,6 +44,7 @@ public class DeidSpec implements Serializable {
   String[] actionParam;
   Map<String,String> actionParamMap;
   String[] fields;
+  String[] infoTypes;
 
   public static final class DeidSpecBuilder {
     String itemName;
@@ -51,6 +52,7 @@ public class DeidSpec implements Serializable {
     String[] actionParam;
     Map<String,String> actionParamMap;
     String[] fields;
+    String[] infoTypes;
 
     private DeidSpecBuilder() {
     }
@@ -84,6 +86,11 @@ public class DeidSpec implements Serializable {
       return this;
     }
 
+    public DeidSpecBuilder withInfoTypes(String[] infoTypes) {
+      this.infoTypes = infoTypes;
+      return this;
+    }
+
     /**
      * build DeidSpec object.
      * @return DeidSpec
@@ -92,6 +99,7 @@ public class DeidSpec implements Serializable {
       DeidSpec deidSpec = new DeidSpec();
       deidSpec.actionParam = this.actionParam;
       deidSpec.fields = this.fields;
+      deidSpec.infoTypes = this.infoTypes;
       deidSpec.itemName = this.itemName;
       deidSpec.actionParamMap = this.actionParamMap;
       deidSpec.action = this.action;
@@ -177,6 +185,9 @@ public class DeidSpec implements Serializable {
         builder.withFields(node.get("fields").asText().split(","));
       }
 
+      if (node.get("infoTypes") != null) {
+        builder.withInfoTypes(node.get("infoTypes").asText().split(","));
+      }
       return builder.build();
     }
   }
