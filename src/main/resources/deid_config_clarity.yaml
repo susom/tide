@@ -11,34 +11,42 @@ deidJobs:
     googleDlpEnabled: false
     nerEnabled: true
     googleDlpInfoTypes:
-      - itemName: age
-        fields: AGE
+#      - itemName: age
+#        infoTypes: AGE
       - itemName: date
-        fields: DATE
+        infoTypes: DATE
+        actionParam: ''
+        fields: 'jitter'
       - itemName: phi_date
-        fields: DATE_OF_BIRTH
+        infoTypes: DATE_OF_BIRTH
+        actionParam: ''
+        fields: 'jitter'
       - itemName: payment_id
-        fields: CREDIT_CARD_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE
+        infoTypes: CREDIT_CARD_NUMBER,CREDIT_CARD_TRACK_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE
+        actionParam: 999999999999999
       - itemName: public_id
-        fields: US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT
+        infoTypes: US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT,SWIFT_CODE
+        actionParam: 999999999
       - itemName: patient_ssn
-        fields: US_SOCIAL_SECURITY_NUMBER
+        infoTypes: US_SOCIAL_SECURITY_NUMBER
+        actionParam: 999-99-9999
       - itemName: other_id
-        fields: US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER
+        infoTypes: US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER,IMEI_HARDWARE_ID
+        actionParam: 999999999
       - itemName: other_email
-        fields: EMAIL_ADDRESS
+        infoTypes: EMAIL_ADDRESS
+        actionParam: deidentified@example.com
       - itemName: other_name
-        fields: PERSON_NAME
+        infoTypes: PERSON_NAME
       - itemName: other_phone
-        fields: PHONE_NUMBER
+        infoTypes: PHONE_NUMBER,US_TOLLFREE_PHONE_NUMBER
       - itemName: care_provider_id
-        fields: US_HEALTHCARE_NPI,US_DEA_NUMBER
+        infoTypes: US_HEALTHCARE_NPI,US_DEA_NUMBER
+        actionParam: 9999999999999
       - itemName: other_address
-        fields: LOCATION
+        infoTypes: LOCATION,STREET_ADDRESS
       - itemName: internet_locator
-        fields: IP_ADDRESS,MAC_ADDRESS,URL
-
-#    ALL_BASIC,FEMALE_NAME,FIRST_NAME,LAST_NAME,MALE_NAME,
+        infoTypes: IP_ADDRESS,MAC_ADDRESS,URL
 
     spec:
 
@@ -69,6 +77,7 @@ deidJobs:
       - itemName: general
         action: general
         actionParam:
+        actionParamMap: {"general-phone":"[phone]","general-email":"[email]","general-ip":"[ip address]","general-url":"[url]","general-ssn":"[ssn]"}
         fields:
 
       - itemName: patient_ssn
