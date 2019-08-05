@@ -219,7 +219,7 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
           java.util.List<com.google.privacy.dlp.v2.TransformationSummary>
           summaries = response.getOverview().getTransformationSummariesList();
-          String result = response.getItem().getValue();
+          //String result = response.getItem().getValue();
 
           summaries.stream().forEach(s -> {
             AnonymizedItemWithReplacement ai =
@@ -291,7 +291,7 @@ public class DlpTransform extends PTransform<PCollection<String>,
           replacement = getReplacementByInfoType(it.getName());
 
           ParsedQuoteCase findingCase = finding.getQuoteInfo().getParsedQuoteCase();
-          if (findingCase == ParsedQuoteCase.DATE_TIME) {
+          if (findingCase == ParsedQuoteCase.DATE_TIME && jitter != 0) {
             DateTime dateFound = finding.getQuoteInfo().getDateTime();
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.ROOT);
             cal.set(Calendar.YEAR, dateFound.getDate().getYear());

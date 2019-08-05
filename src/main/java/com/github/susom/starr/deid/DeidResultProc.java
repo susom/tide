@@ -131,7 +131,12 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
         return c1;
       }
       if (a.getReplacement() != null && b.getReplacement() != null) {
-        return b.getReplacement().compareTo(a.getReplacement());
+        //return b.getReplacement().compareTo(a.getReplacement());
+        if (!a.getFoundBy().equals("google-dlp")) {
+          return -1;
+        } else {
+          return 1;
+        }
       }
 
       if (a.getReplacement() == null) {

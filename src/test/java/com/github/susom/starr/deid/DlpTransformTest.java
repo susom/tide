@@ -62,7 +62,7 @@ class DlpTransformTest {
 
   String[] noteJsonText = new String[]{
     "{\"note_id\":\"001_J0\",\"jitter\":0,\"note_text\":\"more tests: date test Jan 01, 2018, ssn: 874-98-5739\"}",
-    "{\"note_id\":\"001_J1\",\"jitter\":1,\"note_text\":\"Jose's birth day: 2003-09-18, passport: 56521368, pp2: 56985631 \"}",
+    "{\"note_id\":\"001_J1\",\"jitter\":1,\"note_text\":\"Jose's birth day: 2003-09-18, passport: 56521368, pp2: 56985631 credit card number is 4111111111111111 \"}",
     "{\"note_id\":\"001_J2\",\"jitter\":2,\"note_text\":\"i2b2: Record date: 2088-07-03 \"}",
     "{\"note_id\":\"001_J-3\",\"jitter\":-3,\"note_text\":\"Alex has fever on June 4, 2019\\nTeam 1 Intern Admission Note\\nName: Younger, T Eugene\\nMR#: 6381987\\nAtt: Dr. Gilbert\\nCards: Dr. Ullrich\\nNeuro: Dr. Donovan\\nDate of Admission: 7/2/88 CC: Lightheadedness, vertigo, and presyncopal sx x several episodes \"}"
   };

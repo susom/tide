@@ -20,8 +20,10 @@ package com.github.susom.starr.deid.anonymizers;
 
 import com.github.susom.starr.Utility;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +33,7 @@ import java.util.regex.Pattern;
  */
 public class GeneralAnonymizer implements AnonymizerProcessor {
 
-  private static final String typePhone = "general-phone";
+  static final String typePhone = "general-phone";
 
   private static final String phonePatternPart1 = "\\(?\\d{3}\\)?";
   private static final String phonePatternPart2 = "[\\s.-]?\\d{3}[\\s.-]\\d{4}";
@@ -42,19 +44,19 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
               + phonePatternPart1 + phonePatternPart2 + phonePatternPart3,
         Pattern.CASE_INSENSITIVE);
 
-  private static final String typeEmail = "general-email";
+  static final String typeEmail = "general-email";
   private static final Pattern emailPattern =
         Pattern.compile("\\b\\S+@\\S+\\.\\S+\\b",
             Pattern.CASE_INSENSITIVE);
-  private static final String typeIp = "general-ip";
+  static final String typeIp = "general-ip";
   private static final Pattern ipAddressPattern =
         Pattern.compile("\\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.|\\b)){4}\\b",
             Pattern.CASE_INSENSITIVE);
-  private static final String typeIpv6 = "general-ip";
+  static final String typeIpv6 = "general-ip";
   private static final Pattern ipAddressV6Pattern =
         Pattern.compile("\\b([A-F0-9]{1,4}:){7}[A-F0-9]{1,4}\\b",
             Pattern.CASE_INSENSITIVE);
-  private static final String typeUrl = "general-url";
+  static final String typeUrl = "general-url";
 
   private static final String urlPatternPart1 = "(https?:\\/\\/)(www\\.)?";
   private static final Pattern urlPattern = Pattern.compile(
@@ -62,7 +64,7 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
         + "[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)",
         Pattern.CASE_INSENSITIVE);
 
-  private static final String typeSsn = "general-ssn";
+  static final String typeSsn = "general-ssn";
   private static final Pattern ssn =
       Pattern.compile("(?=(\\D|\\S|^))\\b\\d{3}[\\s.-]\\d{2}[\\s.-]\\d{4}\\b",
           Pattern.CASE_INSENSITIVE);
@@ -83,6 +85,25 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
       typeUrl,
       typeSsn};
 
+  private static Map<String,String> replacementMap = new HashMap<String,String>();
+
+  static {
+    for (String type : types) {
+      replacementMap.put(type, "[" + type + "]");
+    }
+  }
+
+  public void setReplacementMap(Map<String,String> actionParamMap) {
+    if (actionParamMap == null || actionParamMap.size() == 0) {
+      return;
+    }
+    actionParamMap.forEach((k,v) -> {
+      if (replacementMap.containsKey(k)) {
+        replacementMap.put(k,v);
+      }
+    });
+  }
+
   @Override
   public void find(String text, List<AnonymizedItemWithReplacement> findings) {
 
@@ -94,7 +115,7 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
       while (matcher.find()) {
         String word = text.substring(matcher.start(),matcher.end());
         AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
-            word, matcher.start(), matcher.end(), String.format(Locale.ROOT, "[%s]", type),
+            word, matcher.start(), matcher.end(), replacementMap.get(type),
             "deid-general", type);
 
         findings.add(ai);

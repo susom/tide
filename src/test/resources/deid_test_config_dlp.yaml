@@ -9,7 +9,7 @@ deidJobs:
     dateJitterRange: 30
     dateJitterSeedField: pat_id
     googleDlpEnabled: true
-    nerEnabled: false
+    nerEnabled: true
     googleDlpInfoTypes:
 #      - itemName: age
 #        infoTypes: AGE
@@ -54,3 +54,11 @@ deidJobs:
         action: jitter_date_from_field
         actionParam: '[TESTING]'
         fields: 'jitter'
+      - itemName: general
+        action: general
+        actionParam:
+        actionParamMap: {"general-phone":"999-999-9999","general-email":"99999","general-ip":"000.000.000.000","general-url":"www.example.com","general-ssn":"999-99-9999"}
+        fields:
+      - itemName: general_name
+        action: surrogate_name
+        fields: ''

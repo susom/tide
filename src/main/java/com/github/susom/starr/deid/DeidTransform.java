@@ -234,7 +234,6 @@ public class DeidTransform
           List<AnonymizedItemWithReplacement> items = new ArrayList<>();
 
           if (orginalText == null || orginalText.length() == 0) {
-            //deidResult.addData(DeidResultProc.STATS_CNT_DLP + textFields[textIndex],0);
             deidResult.addData(DeidResultProc.STATS_CNT_DEID + textFields[textIndex],0);
             continue;
           }
@@ -267,20 +266,8 @@ public class DeidTransform
             ? node.get(job.getDateJitterSeedField()).asText() : null;
 
 
-          //stage one : Google DLP
-          if (dlpTransform != null) {
-            int jitter = 0;
-            if (node.has(dlpTransform.dateJitterField)) {
-              jitter = node.get(dlpTransform.dateJitterField).asInt();
-            }
 
-            dlpTransform.dlpInspectRequest(orginalText, items, jitter);
-            log.info(String.format(Locale.ROOT,"finding count after stage one:[%d]", items.size()));
-          }
-
-          //stage two : Stanford DeID
-
-
+          //Stanford DeID
           for (DeidSpec spec : job.getSpec()) {
 
             AnonymizerProcessor anonymizer = null;
@@ -342,6 +329,7 @@ public class DeidTransform
               case general:
 
                 anonymizer = new GeneralAnonymizer();
+                ((GeneralAnonymizer)anonymizer).setReplacementMap(spec.actionParamMap);
                 break;
 
               case surrogate_address:
@@ -516,8 +504,22 @@ public class DeidTransform
             }
             anonymizer.find(orginalText, items);
           }
-          //end of stage2
-          log.info(String.format(Locale.ROOT,"finding count after stage two:[%d]", items.size()));
+          log.info(String.format(Locale.ROOT,"finding count after Stanford Deid:[%d]", items.size()));
+          //end of Stanford Deid
+
+
+          //Google DLP
+          if (dlpTransform != null) {
+            int jitter = 0;
+            if (node.has(dlpTransform.dateJitterField)) {
+              jitter = node.get(dlpTransform.dateJitterField).asInt();
+            }
+
+            dlpTransform.dlpInspectRequest(orginalText, items, jitter);
+            log.info(String.format(Locale.ROOT,"finding count after Google DLP:[%d]", items.size()));
+          }
+
+
 
 
           ObjectMapper resultMapper = new ObjectMapper();
@@ -533,6 +535,9 @@ public class DeidTransform
           log.error(e.getMessage(),e);
         }
         //end of text deid
+
+
+
       }
 
       if (deidResult != null) {
