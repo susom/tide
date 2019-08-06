@@ -306,7 +306,7 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
           AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
             new String(slice,StandardCharsets.UTF_8),
-            (int)r.getStart(), (int)r.getEnd(),
+            r.getStart(), r.getEnd(),
             replacement,
             "google-dlp",
             getPhiCategoryByInfoTypeName(finding.getInfoType().getName()));
@@ -318,23 +318,23 @@ public class DlpTransform extends PTransform<PCollection<String>,
     return result;
   }
 
-  private String flagTextWithDlpFindings(byte[] textBytes,
-                                         List<AnonymizedItemWithReplacement> items)
-                              throws UnsupportedEncodingException {
-    final ByteBuffer buf = ByteBuffer.wrap(textBytes);
-    items.forEach(i -> {
-      byte[] newContent = new byte[i.getEnd() - i.getStart()];
-      newContent[0] = 91;
-      newContent[newContent.length - 1] = 93;
-      int pos = 1;
-      while (pos < newContent.length - 1) {
-        newContent[pos] = pos - 1 < i.getType().length() ? (byte)i.getType().charAt(pos - 1) : 32;
-        pos++;
-      }
-      buf.position(i.getStart());
-      buf.put(newContent);
-    });
-    return new String(buf.array(), "UTF-8");
-  }
+//  private String flagTextWithDlpFindings(byte[] textBytes,
+//                                         List<AnonymizedItemWithReplacement> items)
+//                              throws UnsupportedEncodingException {
+//    final ByteBuffer buf = ByteBuffer.wrap(textBytes);
+//    items.forEach(i -> {
+//      byte[] newContent = new byte[i.getEnd() - i.getStart()];
+//      newContent[0] = 91;
+//      newContent[newContent.length - 1] = 93;
+//      int pos = 1;
+//      while (pos < newContent.length - 1) {
+//        newContent[pos] = pos - 1 < i.getType().length() ? (byte)i.getType().charAt(pos - 1) : 32;
+//        pos++;
+//      }
+//      buf.position(i.getStart());
+//      buf.put(newContent);
+//    });
+//    return new String(buf.array(), "UTF-8");
+//  }
 
 }

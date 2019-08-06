@@ -153,48 +153,56 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
     });
 
     StringBuilder sb = new StringBuilder();
-    final AtomicInteger lastEnd = new AtomicInteger(Integer.MAX_VALUE);
-    final AtomicInteger lastStart = new AtomicInteger(Integer.MAX_VALUE);
+    long lastEnd = Long.MAX_VALUE;
+    long lastStart = Long.MAX_VALUE;
+    boolean doneWithTheFirst = false;
     for (int i = 0; i < items.size(); i++) {
 
       AnonymizedItemWithReplacement item = items.get(i);
+      if (item.getStart() < 0 || item.getStart() >= inputText.length()
+          || item.getEnd() < 0 || item.getEnd() >= inputText.length()) {
+        log.warn("invalid finding s:{} e:{} foundby:{}", item.getStart(), item.getEnd(),item.getFoundBy());
+        continue;
+      }
 
-      if (i == 0) {
+      if (!doneWithTheFirst) {
         //first instance
-        sb.insert(0, inputText.substring(item.getEnd()));
+        sb.insert(0, inputText.substring(Math.toIntExact(item.getEnd())));
         sb.insert(0, item.getReplacement() != null
             ? item.getReplacement() :
             AnonymizerProcessor.REPLACE_WORD);
 
-        lastEnd.set(item.getEnd());
-        lastStart.set(item.getStart());
+        lastEnd = item.getEnd();
+        lastStart = item.getStart();
         if (i == items.size() - 1) {
-          sb.insert(0, inputText.substring(0, item.getStart()));
+          sb.insert(0, inputText.substring(0, Math.toIntExact(item.getStart())));
         }
+        doneWithTheFirst = true;
         continue;
       }
 
-      if (item.getEnd() < lastEnd.get() && item.getStart() >= lastEnd.get()) {
+      if (item.getEnd() < lastEnd && item.getStart() >= lastEnd) {
         //inside of last change, do nothing
-      } else if (item.getEnd() < lastEnd.get() && item.getEnd() >= lastStart.get()) {
+      } else if (item.getEnd() < lastEnd && item.getEnd() >= lastStart) {
         //overlap
         //char[] spaces = new char[lastStart.get()-item.getStart()];
         //sb.insert(0,spaces);
-        lastStart.set(item.getStart());
-      } else if (item.getEnd() < lastStart.get()) {
+        lastStart = item.getStart();
+      } else if (item.getEnd() < lastStart) {
         //outside of last change, copy fully
-        sb.insert(0, inputText.substring(item.getEnd(), lastStart.get()));
+        sb.insert(0,
+            inputText.substring(Math.toIntExact(item.getEnd()), Math.toIntExact(lastStart)));
         sb.insert(0,
             item.getReplacement() != null
               ? item.getReplacement() :
                 AnonymizerProcessor.REPLACE_WORD);
 
-        lastEnd.set(item.getEnd());
-        lastStart.set(item.getStart());
+        lastEnd = item.getEnd();
+        lastStart = item.getStart();
       }
 
       if (i == items.size() - 1) {
-        sb.insert(0, inputText.substring(0, item.getStart()));
+        sb.insert(0, inputText.substring(0, Math.toIntExact(item.getStart())));
       }
     }
     return sb.toString();

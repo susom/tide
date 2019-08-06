@@ -20,8 +20,8 @@ package com.github.susom.starr.deid.anonymizers;
 
 public class AnonymizedItemWithReplacement {
   String word;
-  Integer start;
-  Integer end;
+  Long start;
+  Long end;
   String type;
   String replacement;
   String foundBy;
@@ -41,7 +41,7 @@ public class AnonymizedItemWithReplacement {
    * @param anonymizerType phi type, for example a name or ssn
    */
   public AnonymizedItemWithReplacement(
-      String word, int start, int end,
+      String word, long start, long end,
       String replacement, String foundBy, String anonymizerType) {
     this.word = word;
     this.start = start;
@@ -98,19 +98,19 @@ public class AnonymizedItemWithReplacement {
     this.type = type;
   }
 
-  public Integer getStart() {
+  public Long getStart() {
     return start;
   }
 
-  public void setStart(Integer start) {
+  public void setStart(Long start) {
     this.start = start;
   }
 
-  public Integer getEnd() {
+  public Long getEnd() {
     return end;
   }
 
-  public void setEnd(Integer end) {
+  public void setEnd(Long end) {
     this.end = end;
   }
 

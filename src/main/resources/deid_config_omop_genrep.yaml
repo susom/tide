@@ -8,7 +8,7 @@ deidJobs:
     dateJitter: local
     dateJitterRange: 30
     dateJitterSeedField: pat_id
-    googleDlpEnabled: true
+    googleDlpEnabled: false
     nerEnabled: true
     googleDlpInfoTypes:
 #      - itemName: age
