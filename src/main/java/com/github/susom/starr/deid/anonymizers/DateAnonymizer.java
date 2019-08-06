@@ -153,7 +153,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
   private Integer jitter;
 
   private String anonymizerType;
-  private String postfix;
+  private String defaultReplacement;
 
   /**
    * constructor.
@@ -169,12 +169,12 @@ public class DateAnonymizer implements AnonymizerProcessor {
    * constructor that takes a jitter value.
    * @param jitter a int value for jitter offset
    * @param anonymizerType phi type
-   * @param postfix if added additional text to the end of the replacement, e.g. add [JITTERED]
+   * @param defaultReplacement if jitter is not provided, or jitter is zero
    */
-  public DateAnonymizer(int jitter, String anonymizerType, String postfix) {
+  public DateAnonymizer(int jitter, String anonymizerType, String defaultReplacement) {
     this.anonymizerType = anonymizerType;
     this.jitter = jitter;
-    this.postfix = postfix;
+    this.defaultReplacement = defaultReplacement;
   }
 
 
@@ -272,14 +272,14 @@ public class DateAnonymizer implements AnonymizerProcessor {
           sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
 
           dateOfSvc = sdf.parse(month + '/' + dayStr + '/' + yearStr);
-          if (jitter != null) {
+          if (jitter != null && jitter != 0) {
             //not sure if we should do something different here if no day or
             //no year is present in original date string?
             replacement = getJitteredDate(jitter, dateOfSvc);
           } else if (knownDate != null && hasYear) {
             replacement = getAgeAndYearString(knownDate, dateOfSvc);
           } else {
-            replacement = AnonymizerProcessor.REPLACE_WORD;
+            replacement = this.defaultReplacement;
           }
 
           // else replacement defaults to "DATE"
@@ -291,7 +291,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
             inputText.substring(matcher.start(), matcher.end());
         AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
             word, matcher.start(), matcher.end(),
-            replacement + this.postfix, "deid-date", this.anonymizerType);
+            replacement, "deid-date", this.anonymizerType);
         findings.add(ai);
       }
     }

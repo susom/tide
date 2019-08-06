@@ -94,7 +94,8 @@ public class DlpTransform extends PTransform<PCollection<String>,
   }
 
   public String getReplacementByInfoType(String infoType) {
-    return phiReplacementMap.get(infoType);
+    String key = infoType.toUpperCase(Locale.ROOT);
+    return phiReplacementMap.get(key);
   }
 
   Likelihood minLikelihood = Likelihood.LIKELY;

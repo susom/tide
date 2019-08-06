@@ -15,7 +15,7 @@ deidJobs:
 #        infoTypes: AGE
       - itemName: date
         infoTypes: DATE
-        actionParam: ''
+        actionParam: 10/10/2100
         fields: 'jitter'
       - itemName: phi_date
         infoTypes: DATE_OF_BIRTH
@@ -52,7 +52,7 @@ deidJobs:
     spec:
       - itemName: phi_date
         action: jitter_date_from_field
-        actionParam: '[TESTING]'
+        actionParam: 10/10/2100
         fields: 'jitter'
       - itemName: general
         action: general

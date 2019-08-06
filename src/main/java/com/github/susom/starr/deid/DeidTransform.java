@@ -230,7 +230,7 @@ public class DeidTransform
 
       for (int textIndex = 0;textIndex < textFields.length;textIndex++) {
 
-        long trackingTsStart = System.nanoTime();
+        long trackingTsStart = System.currentTimeMillis();
         long trackingTsEnd = trackingTsStart;
         String trackingMessage = "trackingId:[" + trackingId + "] ";
 
@@ -266,8 +266,8 @@ public class DeidTransform
               log.error("NER ERROR trackingId: " + trackingId,e);
               resetNer();
             }
-            trackingTsEnd = System.nanoTime();
-            trackingMessage += ("NER:[" + (trackingTsEnd - trackingTsStart) / 1000 + "ms] ");
+            trackingTsEnd = System.currentTimeMillis();
+            trackingMessage += ("NER:[" + (trackingTsEnd - trackingTsStart)  + "ms] ");
             trackingTsStart = trackingTsEnd;
           }
 
@@ -515,8 +515,8 @@ public class DeidTransform
             anonymizer.find(orginalText, items);
           }
 
-          trackingTsEnd = System.nanoTime();
-          trackingMessage += ("StanfordDeid:[" + (trackingTsEnd - trackingTsStart) / 1000
+          trackingTsEnd = System.currentTimeMillis();
+          trackingMessage += ("StanfordDeid:[" + (trackingTsEnd - trackingTsStart)
               + "ms] found:[" + items.size() + "] ");
           trackingTsStart = trackingTsEnd;
 
@@ -533,8 +533,8 @@ public class DeidTransform
             int findingCntBefore = items.size();
             dlpTransform.dlpInspectRequest(orginalText, items, jitter);
 
-            trackingTsEnd = System.nanoTime();
-            trackingMessage += ("DLP:[" + (trackingTsEnd - trackingTsStart) / 1000
+            trackingTsEnd = System.currentTimeMillis();
+            trackingMessage += ("DLP:[" + (trackingTsEnd - trackingTsStart)
               + "ms] found:[" + (items.size() - findingCntBefore) + "] ");
             //trackingTsStart = trackingTsEnd;
           }
