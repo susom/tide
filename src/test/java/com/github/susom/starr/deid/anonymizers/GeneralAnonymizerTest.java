@@ -56,7 +56,7 @@ public class GeneralAnonymizerTest {
       log.info("OUTPUT:" + result);
 
       for (AnonymizedItemWithReplacement item : items) {
-        String clipFromOriginal = textArray[i].substring(item.getStart(), item.getEnd());
+        String clipFromOriginal = textArray[i].substring(Math.toIntExact(item.getStart()), Math.toIntExact(item.getEnd()));
 //        log.info(String.format("item words:%s type:%s span from:%s to:%s verify word:%s",
 //          item.getWord(), item.getType(), item.getStart(), item.getEnd(), clipFromOriginal));
         assertEquals("span start and end should be based on original, not on processed text with offset", item.getWord(), clipFromOriginal );

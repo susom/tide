@@ -159,9 +159,9 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
     for (int i = 0; i < items.size(); i++) {
 
       AnonymizedItemWithReplacement item = items.get(i);
-      if (item.getStart() < 0 || item.getStart() >= inputText.length()
-          || item.getEnd() < 0 || item.getEnd() >= inputText.length()) {
-        log.warn("invalid finding s:{} e:{} foundby:{}", item.getStart(), item.getEnd(),item.getFoundBy());
+      if (item.getStart() < 0 || item.getStart() > inputText.length()
+          || item.getEnd() < 0 || item.getEnd() > inputText.length()) {
+        log.warn("invalid finding s:{} e:{} foundby:{} [orginalTextLen:{}]", item.getStart(), item.getEnd(),item.getFoundBy(), inputText.length());
         continue;
       }
 

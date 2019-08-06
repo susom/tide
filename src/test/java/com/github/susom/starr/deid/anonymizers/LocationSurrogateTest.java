@@ -92,7 +92,7 @@ public class LocationSurrogateTest {
 
       for (AnonymizedItemWithReplacement item : items) {
         log.info(String.format(Locale.ROOT,"word:[%s] verify:[%s] type:[%s] span[%s:%s] replacement:[%s]",
-          item.getWord(), text.substring(item.getStart(), item.getEnd()), item.getType(), item.getStart(), item.getEnd(), item.getReplacement()));
+          item.getWord(), text.substring(Math.toIntExact(item.getStart()), Math.toIntExact(item.getEnd())), item.getType(), item.getStart(), item.getEnd(), item.getReplacement()));
 
         Assert.assertTrue(item.getReplacement() != null
             && !item.getReplacement().equals(item.getWord()));

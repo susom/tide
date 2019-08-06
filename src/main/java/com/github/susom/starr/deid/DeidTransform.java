@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.UUID;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -214,6 +215,8 @@ public class DeidTransform
 
       String[] noteIdFields = job.getTextIdFields().get().split(",");
       String[] noteIds = new String[noteIdFields.length];
+      String trackingId = UUID.randomUUID().toString();
+
       for (int i = 0;i < noteIdFields.length;i++) {
         if (node.has(noteIdFields[i])) {
           noteIds[i] = node.get(noteIdFields[i]).asText();
@@ -226,6 +229,11 @@ public class DeidTransform
       DeidResult deidResult = new DeidResult(noteIdFields,noteIds,textFields);
 
       for (int textIndex = 0;textIndex < textFields.length;textIndex++) {
+
+        long trackingTsStart = System.nanoTime();
+        long trackingTsEnd = trackingTsStart;
+        String trackingMessage = "trackingId:[" + trackingId + "] ";
+
         try {
 
           String orginalText = node.has(textFields[textIndex])
@@ -237,7 +245,7 @@ public class DeidTransform
             deidResult.addData(DeidResultProc.STATS_CNT_DEID + textFields[textIndex],0);
             continue;
           }
-//        //clean risky characters: � "\ufffd"
+          //clean risky characters: � "\ufffd"
           orginalText = orginalText.replaceAll("�", "\n");
 
           deidResult.addData(DeidResultProc.TEXT_ORGINAL
@@ -246,24 +254,26 @@ public class DeidTransform
           List<AnonymizedItemWithReplacement> foundNerNameItems = new ArrayList<>();
           List<AnonymizedItemWithReplacement> foundNerLocationItems = new ArrayList<>();
 
-          final long startTs = new Date().getTime();
+
           //log.info("start process id:" + Arrays.toString(noteIds));
           //preprocess with CoreDLP to find names and locations
           //with CoreNLP pipeline
           if (job.nerEnabled) {
-            //log.info("Start NER");
+
             try {
               findEntiesWithNer(orginalText, foundNerNameItems, foundNerLocationItems);
             } catch (Exception e) {
-              log.error("NER ERROR for text id: " + Arrays.toString(noteIds),e);
+              log.error("NER ERROR trackingId: " + trackingId,e);
               resetNer();
             }
-            //log.info("done NER");
+            trackingTsEnd = System.nanoTime();
+            trackingMessage += ("NER:[" + (trackingTsEnd - trackingTsStart) / 1000 + "ms] ");
+            trackingTsStart = trackingTsEnd;
           }
 
           String jitterSeed = (job.getDateJitterSeedField() != null
-            && node.has(job.getDateJitterSeedField()))
-            ? node.get(job.getDateJitterSeedField()).asText() : null;
+              && node.has(job.getDateJitterSeedField()))
+              ? node.get(job.getDateJitterSeedField()).asText() : null;
 
 
 
@@ -504,23 +514,32 @@ public class DeidTransform
             }
             anonymizer.find(orginalText, items);
           }
-          log.info(String.format(Locale.ROOT,"finding count after Stanford Deid:[%d]", items.size()));
+
+          trackingTsEnd = System.nanoTime();
+          trackingMessage += ("StanfordDeid:[" + (trackingTsEnd - trackingTsStart) / 1000
+              + "ms] found:[" + items.size() + "] ");
+          trackingTsStart = trackingTsEnd;
+
           //end of Stanford Deid
 
 
           //Google DLP
           if (dlpTransform != null) {
+
             int jitter = 0;
             if (node.has(dlpTransform.dateJitterField)) {
               jitter = node.get(dlpTransform.dateJitterField).asInt();
             }
-
+            int findingCntBefore = items.size();
             dlpTransform.dlpInspectRequest(orginalText, items, jitter);
-            log.info(String.format(Locale.ROOT,"finding count after Google DLP:[%d]", items.size()));
+
+            trackingTsEnd = System.nanoTime();
+            trackingMessage += ("DLP:[" + (trackingTsEnd - trackingTsStart) / 1000
+              + "ms] found:[" + (items.size() - findingCntBefore) + "] ");
+            //trackingTsStart = trackingTsEnd;
           }
 
-
-
+          log.info(trackingMessage);
 
           ObjectMapper resultMapper = new ObjectMapper();
           mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -535,9 +554,6 @@ public class DeidTransform
           log.error(e.getMessage(),e);
         }
         //end of text deid
-
-
-
       }
 
       if (deidResult != null) {

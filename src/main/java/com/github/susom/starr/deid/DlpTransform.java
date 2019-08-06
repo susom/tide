@@ -76,8 +76,8 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
   private static final Logger log = LoggerFactory.getLogger(DlpTransform.class);
 
-  public static Map<String,String> phiCategoryMap = new HashMap<>();
-  public static Map<String,String> phiReplacementMap = new HashMap<>();
+  public Map<String,String> phiCategoryMap = new HashMap<>();
+  public Map<String,String> phiReplacementMap = new HashMap<>();
 
   public  String dateJitterField;
 
@@ -87,8 +87,9 @@ public class DlpTransform extends PTransform<PCollection<String>,
    * @return mapped phi group type, otherwise use prefixed infoType
    */
   public String getPhiCategoryByInfoTypeName(String infoTypeName) {
-    return phiCategoryMap.containsKey(infoTypeName.toUpperCase(Locale.ROOT))
-      ? phiCategoryMap.get(infoTypeName.toUpperCase(Locale.ROOT))
+    String key = infoTypeName.toUpperCase(Locale.ROOT);
+    return phiCategoryMap.containsKey(key)
+      ? phiCategoryMap.get(key)
       : "dlp_" + infoTypeName.toLowerCase(Locale.ROOT);
   }
 
