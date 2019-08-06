@@ -52,7 +52,7 @@ deidJobs:
 
       - itemName: phi_date
         action: jitter_date_from_field
-        actionParam: '[TESTING]'
+        actionParam: '[DATE_TESTING]'
         fields: 'jitter'
 
       - itemName: age

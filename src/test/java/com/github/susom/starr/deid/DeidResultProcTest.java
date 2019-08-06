@@ -127,16 +127,16 @@ public class DeidResultProcTest {
 
     PAssert.that(cleanText)
       .containsInAnyOrder(
-        "Bob's birthday is 06/04/1980[TESTING]",
-        "Bob's birthday is 06/05/1980[TESTING]",
-        "Bob's birthday is 06/06/1980[TESTING]",
-        "Bob's birthday is 06/07/1980[TESTING]",
-        "Bob's birthday is 06/08/1980[TESTING]",
-        "Alex has fever on 06/04/2019[TESTING]",
-        "Alex has fever on 06/05/2019[TESTING]",
-        "Alex has fever on 06/06/2019[TESTING]",
-        "Alex has fever on 06/01/2019[TESTING]",
-        "Tom visited on 10/19/2018[TESTING]"
+        "Bob's birthday is 06/05/1980",
+        "Bob's birthday is 06/06/1980",
+        "Bob's birthday is 06/07/1980",
+        "Bob's birthday is 06/08/1980",
+        "Alex has fever on 06/05/2019",
+        "Alex has fever on 06/06/2019",
+        "Alex has fever on 06/01/2019",
+        "Alex has fever on [DATE_TESTING]",//jitter is zero
+        "Bob's birthday is [DATE_TESTING]",//jitter is null
+        "Tom visited on 10/19/2018"
       );
 
     pipeline.run();
