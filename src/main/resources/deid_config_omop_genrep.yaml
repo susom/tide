@@ -16,11 +16,11 @@ deidJobs:
       - itemName: date
         infoTypes: DATE
         actionParam: 10/10/2100
-        fields: 'jitter'
+        fields: 'JITTER'
       - itemName: phi_date
         infoTypes: DATE_OF_BIRTH
         actionParam: ''
-        fields: 'jitter'
+        fields: 'JITTER'
       - itemName: payment_id
         infoTypes: CREDIT_CARD_NUMBER,CREDIT_CARD_TRACK_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE
         actionParam: 999999999999999
