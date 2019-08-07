@@ -210,19 +210,13 @@ class DlpTransformTest {
     PCollection<String> cleanText = result.get(DeidTransform.fullResultTag)
       .apply(ParDo.of(new PrintResult()));
 
-//      PAssert.that(cleanText)
-//        .containsInAnyOrder(
-//          "Bob's birthday is 06/04/1980[TESTING]",
-//          "Bob's birthday is 06/05/1980[TESTING]",
-//          "Bob's birthday is 06/06/1980[TESTING]",
-//          "Bob's birthday is 06/07/1980[TESTING]",
-//          "Bob's birthday is 06/08/1980[TESTING]",
-//          "Alex has fever on 06/04/2019[TESTING]",
-//          "Alex has fever on 06/05/2019[TESTING]",
-//          "Alex has fever on 06/06/2019[TESTING]",
-//          "Alex has fever on 06/01/2019[TESTING]",
-//          "Tom visited on 10/19/2018[TESTING]"
-//        );
+      PAssert.that(cleanText)
+        .containsInAnyOrder(
+          "more tests: date test 10/10/2100, ssn: 999-99-9999",
+          "Alex has fever on 06/01/2019\nTeam 1 Intern Admission Note\nName: Younger, T Eugene\nMR#: 6381987\nAtt: Dr. Gilbert\nCards: Dr. Ullrich\nNeuro: Dr. Donovan\nDate of Admission: 06/29/1988 CC: Lightheadedness, vertigo, and presyncopal sx x several episodes ",
+          "i2b2: Record date: 07/05/2088 ",
+          "Jose's birth day: 09/19/2003, passport: 56521368, pp2: 56985631 credit card number is 999999999999999 "
+        );
 
     pipeline.run();
   }
