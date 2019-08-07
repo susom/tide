@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.TextIO;
@@ -170,7 +171,7 @@ public class Main implements Serializable {
     if (options.getGcpCredentialsKeyFile().trim().length() > 0) {
       GoogleCredentials credentials =
           GoogleCredentials.fromStream(new FileInputStream(options.getGcpCredentialsKeyFile()))
-          .createScoped(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
+          .createScoped(Collections.singletonList("https://www.googleapis.com/auth/cloud-platform"));
       options.setGcpCredential(credentials);
     }
 

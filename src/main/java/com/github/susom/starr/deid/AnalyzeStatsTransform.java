@@ -23,7 +23,7 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 
-public class AnalyzeStatsTransform
+class AnalyzeStatsTransform
     extends PTransform<PCollection<String>, PCollection<KV<String, Long>>> {
 
   public AnalyzeStatsTransform() {
@@ -33,7 +33,6 @@ public class AnalyzeStatsTransform
   @Override
   public PCollection<KV<String, Long>> expand(PCollection<String> input) {
 
-    PCollection<KV<String, Long>> result = input.apply(Count.perElement());
-    return result;
+    return input.apply(Count.perElement());
   }
 }

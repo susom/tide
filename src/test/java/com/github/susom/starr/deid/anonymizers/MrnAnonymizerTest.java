@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class MrnAnonymizerTest {
-  String[] positiveTests = new String[]{
+  private String[] positiveTests = new String[]{
       "SSN style example: 123-45-6789",
       "RE: MRN:  166-52-35-2  ",
       "RE: George MR#:  178-83-87-2 DOB:  ",
@@ -49,7 +49,7 @@ public class MrnAnonymizerTest {
       "MRN#:   112-07 38    DOB:  "
   };
 
-  String[] negativeTests = new String[]{
+  private String[] negativeTests = new String[]{
       "plain number 123456789",
       "equation 1234567-345",
       "H12345678"

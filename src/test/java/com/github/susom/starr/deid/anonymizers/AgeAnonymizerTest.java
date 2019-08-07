@@ -26,7 +26,7 @@ import org.junit.Test;
 
 public class AgeAnonymizerTest {
 
-  String[] positiveTests = new String[] {
+  private String[] positiveTests = new String[] {
       "90 year old",
       "100 Y, M",
       "94-year-old",

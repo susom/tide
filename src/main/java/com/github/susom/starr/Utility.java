@@ -249,19 +249,18 @@ public class Utility {
 
     String[] names =  tableDef.getValue1().split(",");
     List<String> fields = Arrays.asList(names);
-    int[] types = inProcessDbBuilder.transactReturning(dbs -> {
-      return dbs.get().toSelect("SELECT * FROM " + tableDef.getValue0()).query(r -> {
+    int[] types = inProcessDbBuilder.transactReturning(
+      dbs -> dbs.get().toSelect("SELECT * FROM " + tableDef.getValue0()).query(r -> {
 
-        ResultSetMetaData metadata = r.getMetadata();
-        int[] fieldTypes = new int[names.length];
+      ResultSetMetaData metadata = r.getMetadata();
+      int[] fieldTypes = new int[names.length];
 
-        for (int i = 0; i < names.length; i++) {
-          fieldTypes[i] = metadata.getColumnType(fields.indexOf(names[i]) + 1);
-          //currently only supports 12, 4
-        }
-        return fieldTypes;
-      });
-    });
+      for (int i = 0; i < names.length; i++) {
+        fieldTypes[i] = metadata.getColumnType(fields.indexOf(names[i]) + 1);
+        //currently only supports 12, 4
+      }
+      return fieldTypes;
+    }));
 
     inProcessDbBuilder.transact(dbs -> {
 
@@ -293,27 +292,4 @@ public class Utility {
 
   }
 
-  public static void runCmd(String[] cmds) {
-    try {
-      ProcessBuilder builder = new ProcessBuilder();
-      builder.inheritIO();
-      builder.command(cmds);
-      builder.directory(new File(System.getProperty("user.home")));
-      Process process = builder.start();
-      Writer outWriter = new BufferedWriter(
-          new OutputStreamWriter(System.out, Charset.defaultCharset()));
-
-      StreamGobbler streamGobbler =
-        new StreamGobbler(process.getInputStream(), outWriter);
-      Executors.newSingleThreadExecutor().submit(streamGobbler);
-      int exitCode = process.waitFor();
-      if (0 != exitCode) {
-        log.error("failed to run command" , streamGobbler.getStackTrace());
-      } else {
-        log.info("run command" , streamGobbler.getStackTrace());
-      }
-    } catch (Exception e) {
-      log.error(e.getMessage(),e);
-    }
-  }
 }

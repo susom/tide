@@ -152,7 +152,7 @@ public class DateAnonymizer implements AnonymizerProcessor {
   private Date knownDate;
   private Integer jitter;
 
-  private String anonymizerType;
+  private final String anonymizerType;
   private String defaultReplacement;
 
   /**

@@ -53,7 +53,7 @@ public class NameSurrogate implements AnonymizerProcessor {
   private static final int minFirstNamePopularity = 20;
   private static final int minLastNamePopularity = 500;
 
-  String inProcessDbUrl = "jdbc:hsqldb:mem:data";
+  final String inProcessDbUrl = "jdbc:hsqldb:mem:data";
   DatabaseProvider.Builder inProcessDbBuilder = null;
 
   private static final String searchNameQuery
@@ -207,8 +207,8 @@ public class NameSurrogate implements AnonymizerProcessor {
     }
   }
 
-  static Map<String,Integer> lnCache = new HashMap<>();
-  static Map<String,Integer> fnCache = new HashMap<>();
+  static final Map<String,Integer> lnCache = new HashMap<>();
+  static final Map<String,Integer> fnCache = new HashMap<>();
 
   int getFirstNameRange(String sex, int char1, int char2) throws SQLException {
     String key = "FN_" + sex + "_" + char1 + "_" + char2;
@@ -275,13 +275,12 @@ public class NameSurrogate implements AnonymizerProcessor {
 
       final org.javatuples.Pair<Integer,Integer> charParam = chars;
       final Integer rangeParam = range;
-      String surrogateName = inProcessDbBuilder.transactReturning(db -> {
-        return db.get().toSelect(findLastNameByI12SeqQuery)
-          .argInteger(charParam.getValue0())
-          .argInteger(charParam.getValue1())
-          .argInteger(Utility.getGaussianRandomPositionInRange(rangeParam, 10))
-          .queryFirstOrNull(r -> r.getStringOrNull("name"));
-      });
+      String surrogateName = inProcessDbBuilder.transactReturning(
+          db -> db.get().toSelect(findLastNameByI12SeqQuery)
+        .argInteger(charParam.getValue0())
+        .argInteger(charParam.getValue1())
+        .argInteger(Utility.getGaussianRandomPositionInRange(rangeParam, 10))
+        .queryFirstOrNull(r -> r.getStringOrNull("name")));
 
       if (surrogateName != null) {
         return StringUtils.capitalize(surrogateName.toLowerCase(Locale.ROOT));

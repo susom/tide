@@ -32,16 +32,12 @@ import static org.junit.Assert.assertTrue;
 
 public class GeneralAnonymizerTest {
   private static final Logger log = LoggerFactory.getLogger(GeneralAnonymizerTest.class);
-  String[] textArray = new String[]{
+  private String[] textArray = new String[]{
     "https://www.yahoo.com/testpage http://www.yahoo.com/testpage https://yahoo.com/testpage www.yahoo.com/testpage",
     "my phone is 650-876-9087, (650)356-8890 and 1-650-333-4456 ssn testSet: 345-76-7834 and 234-89-9909-ssn em : wcl@com.com  TEST URL go.com go.gggg and IP: 126.98.0.1 or FE80:0000:0A00:0FE0:0202:B3FF:FE1E:8329 ."
   };
 
-  int[] phiCount = new int[] {3, 8};
-
-  @Before
-  public void setUp() throws Exception {
-  }
+  private int[] phiCount = new int[] {3, 8};
 
   @Test
   public void scrub() {

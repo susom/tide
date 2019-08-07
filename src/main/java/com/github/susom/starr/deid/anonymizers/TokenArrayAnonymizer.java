@@ -42,10 +42,10 @@ public class TokenArrayAnonymizer implements AnonymizerProcessor {
       = Pattern.compile("([^a-zA-Z0-9\\s])");
   private static final Pattern PATTERN_SPACES = Pattern.compile("(\\s+)");
 
-  private String[] tokens;
-  private String replaceWord;
+  private final String[] tokens;
+  private final String replaceWord;
 
-  private String anonymizerType;
+  private final String anonymizerType;
 
   /**
    * constructor.

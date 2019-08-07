@@ -76,8 +76,8 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
   private static final Logger log = LoggerFactory.getLogger(DlpTransform.class);
 
-  public Map<String,String> phiCategoryMap = new HashMap<>();
-  public Map<String,String> phiReplacementMap = new HashMap<>();
+  public final Map<String,String> phiCategoryMap = new HashMap<>();
+  public final Map<String,String> phiReplacementMap = new HashMap<>();
 
   public  String dateJitterField;
 
@@ -98,46 +98,46 @@ public class DlpTransform extends PTransform<PCollection<String>,
     return phiReplacementMap.get(key);
   }
 
-  Likelihood minLikelihood = Likelihood.LIKELY;
-  boolean includeQuote = true;
+  final Likelihood minLikelihood = Likelihood.LIKELY;
+  final boolean includeQuote = true;
 
-  List<InfoType> infoTypes = new ArrayList<>();
+  final List<InfoType> infoTypes = new ArrayList<>();
 
-  CharacterMaskConfig characterMaskConfig =
+  final CharacterMaskConfig characterMaskConfig =
       CharacterMaskConfig.newBuilder()
       //.setMaskingCharacter(maskingCharacter.toString())
       //.setNumberToMask(numberToMask)
       .build();
 
-  ReplaceWithInfoTypeConfig replaceConf = ReplaceWithInfoTypeConfig.newBuilder().build();
+  final ReplaceWithInfoTypeConfig replaceConf = ReplaceWithInfoTypeConfig.newBuilder().build();
   // Create the deidentification transformation configuration
-  PrimitiveTransformation primitiveTransformation =
+  final PrimitiveTransformation primitiveTransformation =
       PrimitiveTransformation.newBuilder().setCharacterMaskConfig(characterMaskConfig)
         .setReplaceWithInfoTypeConfig(replaceConf).build();
 
-  InfoTypeTransformations.InfoTypeTransformation infoTypeTransformationObject =
+  final InfoTypeTransformations.InfoTypeTransformation infoTypeTransformationObject =
       InfoTypeTransformations.InfoTypeTransformation.newBuilder()
         .setPrimitiveTransformation(primitiveTransformation)
         .addAllInfoTypes(infoTypes)
         .build();
 
-  InfoTypeTransformations infoTypeTransformationArray =
+  final InfoTypeTransformations infoTypeTransformationArray =
       InfoTypeTransformations.newBuilder()
         .addTransformations(infoTypeTransformationObject)
         .build();
 
-  DeidentifyConfig deidentifyConfig =
+  final DeidentifyConfig deidentifyConfig =
       DeidentifyConfig.newBuilder()
         .setInfoTypeTransformations(infoTypeTransformationArray)
         .build();
 
-  int maxFindings = 1000;
+  final int maxFindings = 1000;
   InspectConfig.FindingLimits findingLimits =
       InspectConfig.FindingLimits.newBuilder().setMaxFindingsPerItem(maxFindings).build();
 
   private final DeidJob job;
   private final String projectId;
-  private InspectConfig inspectConfig;
+  private final InspectConfig inspectConfig;
 
   //private DlpServiceSettings dlpServiceSettings;
 

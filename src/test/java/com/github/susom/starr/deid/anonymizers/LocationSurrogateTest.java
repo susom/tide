@@ -41,7 +41,7 @@ import static org.junit.Assert.assertEquals;
 public class LocationSurrogateTest {
   private static final Logger log = LoggerFactory.getLogger(LocationSurrogateTest.class);
 
-  String[] textArray = new String[]{
+  private final String[] textArray = new String[]{
     "Kate MD, [ 123 Porter Ave, Palo Alto, CA 89093 ] ",
     "Stanford and Palo Alto ",
     "Starbucks in SF : 5290 Diamond Heights Blvd, San Francisco, CA 94131 ",
@@ -50,7 +50,7 @@ public class LocationSurrogateTest {
     + "730 Ezra Rd  San Jose CA  94304-1503 and San Ramon in US"
   };
 
-  DeidJob job;
+  private DeidJob job;
 
 
   @Before
@@ -60,10 +60,6 @@ public class LocationSurrogateTest {
       .getResourceAsStream("deid_test_config.yaml"), DeidJobs.class);
 
     job = jobs.getDeidJobs()[0];
-  }
-
-  @After
-  public void tearDown() throws Exception {
   }
 
   @Test

@@ -66,8 +66,8 @@ public class AgeAnonymizer implements AnonymizerProcessor {
       }
   };
 
-  private String replaceWord;
-  private String anonymizerType;
+  private final String replaceWord;
+  private final String anonymizerType;
 
   public AgeAnonymizer(String replaceWord, String anonymizerType) {
     this.anonymizerType = anonymizerType;

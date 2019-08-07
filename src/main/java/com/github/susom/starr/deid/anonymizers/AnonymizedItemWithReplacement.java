@@ -19,12 +19,12 @@
 package com.github.susom.starr.deid.anonymizers;
 
 public class AnonymizedItemWithReplacement {
-  String word;
-  Long start;
-  Long end;
-  String type;
+  private String word;
+  private Long start;
+  private Long end;
+  private String type;
   String replacement;
-  String foundBy;
+  private String foundBy;
 
   public AnonymizedItemWithReplacement(String word, String anonymizerType) {
     this.word = word;
@@ -114,7 +114,4 @@ public class AnonymizedItemWithReplacement {
     this.end = end;
   }
 
-  public static String applyChange(String input) {
-    return null;
-  }
 }

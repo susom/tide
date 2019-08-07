@@ -68,7 +68,7 @@ public class DeidTransform
   public static final TupleTag<String> statsPhiTypeTag = new TupleTag<String>() {};
   public static final TupleTag<String> statPhiFoundByTag = new TupleTag<String>() {};
 
-  public static final int MINIMUM_WORD_LENGTH = 3;
+  private static final int MINIMUM_WORD_LENGTH = 3;
 
   private static final String wordIgnoreFile = "wordIgnore.txt";
   private static final HashSet<String> ignoreWords = new HashSet<>();
@@ -82,7 +82,7 @@ public class DeidTransform
 
   private static final Logger log = LoggerFactory.getLogger(DeidTransform.class);
 
-  static StanfordCoreNLP pipeline = null;
+  private static StanfordCoreNLP pipeline = null;
   /*
   static NERClassifierCombiner ncc = null;
   TODO need to compare performance difference between these two methods
@@ -103,7 +103,7 @@ public class DeidTransform
     }
   }
 
-  static StanfordCoreNLP setupCoreNlpPipeline() {
+  private static StanfordCoreNLP setupCoreNlpPipeline() {
     Properties serProps = new Properties();
     serProps.setProperty("loadClassifier","classifiers/english.all.3class.distsim.crf.ser.gz");
     //serProps.setProperty("loadClassifier","classifiers/english.conll.4class.distsim.crf.ser.gz");
@@ -122,7 +122,7 @@ public class DeidTransform
   /**
    * reset CoreNLP pipeline.
    */
-  public static void resetNer() {
+  private static void resetNer() {
     if (pipeline != null) {
       pipeline = setupCoreNlpPipeline();
     }
@@ -189,13 +189,12 @@ public class DeidTransform
 
   @Override
   public PCollection<DeidResult> expand(PCollection<String> input) {
-    PCollection<DeidResult> deidText = input.apply(ParDo.of(new DeidFn()));
-    return deidText;
+    return input.apply(ParDo.of(new DeidFn()));
   }
 
-  public class DeidFn extends DoFn<String, DeidResult> {
+  class DeidFn extends DoFn<String, DeidResult> {
 
-    public DeidFn() {
+    DeidFn() {
 
     }
 

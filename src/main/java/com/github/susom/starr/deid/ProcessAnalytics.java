@@ -24,7 +24,7 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
 
-public class ProcessAnalytics<T> extends PTransform<PCollection<T>, PDone> {
+class ProcessAnalytics<T> extends PTransform<PCollection<T>, PDone> {
 
   private final String itemName;
   private final String[] fields;

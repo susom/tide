@@ -25,9 +25,9 @@ import org.apache.beam.sdk.coders.DefaultCoder;
 import org.apache.beam.sdk.coders.MapCoder;
 
 @DefaultCoder(MapCoder.class)
-public class DeidResult extends HashMap implements Serializable {
+class DeidResult extends HashMap implements Serializable {
 
-  private String[] idFields;
+  private final String[] idFields;
   private String[] textFields;
 
   /**

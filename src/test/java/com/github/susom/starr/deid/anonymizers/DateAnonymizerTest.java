@@ -35,7 +35,7 @@ public class DateAnonymizerTest {
 
   private static final Logger log = LoggerFactory.getLogger(DateAnonymizerTest.class);
 
-  static String[] positiveTests = new String[]{
+  private static String[] positiveTests = new String[]{
       "2088-07-03, 25-NOV-2008 10:17:35 , 04/18/2012, 3/29/2012, 02/10/2006 9:24 a, 09/08/2008 01:26 P CT",
 //      "25-NOV-2008 10:17:35",
 //      "25-11-2008 10:17:35",
@@ -86,7 +86,7 @@ public class DateAnonymizerTest {
 //      "age 38.712 in 2008"
 //  };
 
-  static Map<String, String[]> testSet = new HashMap<>();
+  private static Map<String, String[]> testSet = new HashMap<>();
   static {
     testSet.put("Dates to be detected", positiveTests);
     //testSet.put("Non-dates to be ignored", negativeTests);

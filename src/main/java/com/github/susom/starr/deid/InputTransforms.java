@@ -48,7 +48,7 @@ public class InputTransforms {
   private static final SerializableFunction<SchemaAndRecord, String> bigQueryRowToJsonFn =
       new SerializableFunction<SchemaAndRecord, String>() {
 
-      ObjectMapper mapper = new ObjectMapper();
+      final ObjectMapper mapper = new ObjectMapper();
 
       @Override
       public String apply(SchemaAndRecord schemaAndRecord) {

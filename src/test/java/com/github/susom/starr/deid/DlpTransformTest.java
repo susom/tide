@@ -60,7 +60,7 @@ class DlpTransformTest {
   private static final Logger log = LoggerFactory.getLogger(DlpTransformTest.class);
 
 
-  String[] noteJsonText = new String[]{
+  private String[] noteJsonText = new String[]{
     "{\"note_id\":\"001_J0\",\"jitter\":0,\"note_text\":\"more tests: date test Jan 01, 2018, ssn: 874-98-5739\"}",
     "{\"note_id\":\"001_J1\",\"jitter\":1,\"note_text\":\"Jose's birth day: 2003-09-18, passport: 56521368, pp2: 56985631 credit card number is 4111111111111111 \"}",
     "{\"note_id\":\"001_J2\",\"jitter\":2,\"note_text\":\"i2b2: Record date: 2088-07-03 \"}",
@@ -108,7 +108,7 @@ class DlpTransformTest {
   }
 
   @BeforeAll
-  public static void setUp() throws Exception {
+  static void setUp() throws Exception {
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     DeidJobs jobs = mapper.readValue(DlpTransformTest.class.getClassLoader()
       .getResourceAsStream("deid_test_config_dlp.yaml"), DeidJobs.class);

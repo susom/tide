@@ -101,8 +101,8 @@ public class MrnAnonymizer implements AnonymizerProcessor {
     }
   };
 
-  private String anonymizerType;
-  private String replaceWord;
+  private final String anonymizerType;
+  private final String replaceWord;
 
   public MrnAnonymizer(String replaceWord, String anonymizerType) {
     this.anonymizerType = anonymizerType;

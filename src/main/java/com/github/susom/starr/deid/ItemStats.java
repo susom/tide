@@ -20,11 +20,11 @@ package com.github.susom.starr.deid;
 
 import java.io.Serializable;
 
-public class ItemStats implements Serializable {
-  String anonymizerType;
-  String dataSrc;
-  String word;
-  long count;
+class ItemStats implements Serializable {
+  private String anonymizerType;
+  private String dataSrc;
+  private String word;
+  private long count;
 
   public String getAnonymizerType() {
     return anonymizerType;

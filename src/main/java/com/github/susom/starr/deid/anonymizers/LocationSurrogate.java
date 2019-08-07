@@ -143,7 +143,7 @@ public class LocationSurrogate implements AnonymizerProcessor {
     }
 
     String separater = "[\\s.,]+";
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     sb.append(address.getCity().replaceAll("[^a-zA-Z0-9]","."));
 
@@ -367,25 +367,24 @@ public class LocationSurrogate implements AnonymizerProcessor {
 
       final org.javatuples.Pair<Integer,Integer> charParam = chars;
       final Integer rangeParam = range;
-      String surrogateLocation = inProcessDbBuilder.transactReturning(db -> {
-        return db.get().toSelect(findAddressByI12Query)
-          .argInteger(charParam.getValue0())
-          .argInteger(charParam.getValue1())
-          .argInteger(random.nextInt(Math.min(rangeParam, 10)) + 1)
-          .queryFirstOrNull(r -> {
-            String streetName = r.getStringOrEmpty("street_name");
-            String streetType = r.getStringOrEmpty("street_type");
-            String city = r.getStringOrEmpty("city");
-            String zip = r.getStringOrEmpty("zip");
-            String stateCode = r.getStringOrEmpty("statecode");
-            return format.replaceAll("\\$\\{streetNumber\\}","" + random.nextInt(1000))
-              .replaceAll("\\$\\{streetName\\}",StringUtils.capitalize(streetName))
-              .replaceAll("\\$\\{streetType\\}",StringUtils.capitalize(streetType))
-              .replaceAll("\\$\\{city\\}",StringUtils.capitalize(city))
-              .replaceAll("\\$\\{stateCode\\}",stateCode)
-              .replaceAll("\\$\\{zip\\}",zip);
-          });
-      });
+      String surrogateLocation = inProcessDbBuilder.transactReturning(db ->
+        db.get().toSelect(findAddressByI12Query)
+        .argInteger(charParam.getValue0())
+        .argInteger(charParam.getValue1())
+        .argInteger(random.nextInt(Math.min(rangeParam, 10)) + 1)
+        .queryFirstOrNull(r -> {
+          String streetName = r.getStringOrEmpty("street_name");
+          String streetType = r.getStringOrEmpty("street_type");
+          String city = r.getStringOrEmpty("city");
+          String zip = r.getStringOrEmpty("zip");
+          String stateCode = r.getStringOrEmpty("statecode");
+          return format.replaceAll("\\$\\{streetNumber\\}","" + random.nextInt(1000))
+            .replaceAll("\\$\\{streetName\\}",StringUtils.capitalize(streetName))
+            .replaceAll("\\$\\{streetType\\}",StringUtils.capitalize(streetType))
+            .replaceAll("\\$\\{city\\}",StringUtils.capitalize(city))
+            .replaceAll("\\$\\{stateCode\\}",stateCode)
+            .replaceAll("\\$\\{zip\\}",zip);
+        }));
 
       if (surrogateLocation != null) {
         return surrogateLocation;

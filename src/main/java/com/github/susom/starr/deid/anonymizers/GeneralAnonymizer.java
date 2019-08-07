@@ -85,7 +85,7 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
       typeUrl,
       typeSsn};
 
-  private static Map<String,String> replacementMap = new HashMap<String,String>();
+  private static final Map<String,String> replacementMap = new HashMap<>();
 
   static {
     for (String type : types) {
