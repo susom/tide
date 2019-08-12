@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Locale;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.TextIO;
@@ -85,7 +86,7 @@ public class Main implements Serializable {
 
     if (options.getGoogleDlpEnabled() != null) {
       log.info("overwriting GoogleDlpEnabled property with {}", options.getGoogleDlpEnabled());
-      boolean enableDlp = options.getGoogleDlpEnabled().toLowerCase().equals("true");
+      boolean enableDlp = options.getGoogleDlpEnabled().toLowerCase(Locale.ROOT).equals("true");
       for (int i = 0; i < jobs.deidJobs.length;i++) {
         jobs.deidJobs[i].googleDlpEnabled = enableDlp;
       }
