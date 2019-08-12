@@ -49,6 +49,7 @@ import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,6 +76,8 @@ public class DlpTransform extends PTransform<PCollection<String>,
     PCollection<DeidResult>> {
 
   private static final Logger log = LoggerFactory.getLogger(DlpTransform.class);
+
+  public static final int DLP_CONTENT_LIMIT = 524288;
 
   public final Map<String,String> phiCategoryMap = new HashMap<>();
   public final Map<String,String> phiReplacementMap = new HashMap<>();
@@ -158,7 +161,8 @@ public class DlpTransform extends PTransform<PCollection<String>,
           infoTypes.add(InfoType.newBuilder().setName(f).build());
           phiCategoryMap.put(f,spec.itemName);
           phiReplacementMap.put(f, spec.actionParam != null && spec.actionParam.length > 0
-            ? spec.actionParam[0] : null);
+            ? spec.actionParam[0]
+            : ("[" + f.toLowerCase(Locale.ROOT).replaceAll("_"," ") +  "]"));
           log.info("added infoType: " +  f + " to   " + spec.itemName);
         }
 
@@ -192,11 +196,14 @@ public class DlpTransform extends PTransform<PCollection<String>,
   }
 
   /**
-   * call DLP api.
+   * call DLP request api.
    * @param text input text
    * @param items store findings
+   * @return deided text
    */
-  public void dlpDeidRequest(String text,  List<AnonymizedItemWithReplacement> items) {
+  public String dlpDeidRequest(String text,  List<AnonymizedItemWithReplacement> items) {
+
+    String result = null;
 
     try (DlpServiceClient dlpServiceClient = DlpServiceClient.create()) { //or with dlpServiceSettings
 
@@ -221,12 +228,16 @@ public class DlpTransform extends PTransform<PCollection<String>,
 
           java.util.List<com.google.privacy.dlp.v2.TransformationSummary>
           summaries = response.getOverview().getTransformationSummariesList();
-          //String result = response.getItem().getValue();
+          result = response.getItem().getValue();
 
           summaries.stream().forEach(s -> {
-            AnonymizedItemWithReplacement ai =
-              new AnonymizedItemWithReplacement("",
-                getPhiCategoryByInfoTypeName(s.getInfoType().getName()));
+            AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
+              null,
+              -1, -1,
+              null,
+              "google-dlp",
+              getPhiCategoryByInfoTypeName(s.getInfoType().getName()));
+
             items.add(ai);
           });
 
@@ -239,7 +250,7 @@ public class DlpTransform extends PTransform<PCollection<String>,
             Thread.sleep((long)waitFor * 1000L);
           } else {
             log.error("give up DLP request");
-            return;
+            return null;
           }
         }
 
@@ -249,6 +260,8 @@ public class DlpTransform extends PTransform<PCollection<String>,
     } catch (Exception e) {
       log.info("Failed to call DLP API ",e);
     }
+
+    return result;
   }
 
   /**
@@ -266,10 +279,35 @@ public class DlpTransform extends PTransform<PCollection<String>,
     mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
     try (DlpServiceClient dlpServiceClient = DlpServiceClient.create()) {
+
+      //DLP accepts byte array, and return finding position of the array.
+      //We need to convert array position to character position in the orignal text, otherwise
+      // there will be incorrect offset because of non-utf 8 characters
+      //option one: only support English. replace all non-utf8 characters with placeholder *
+      text = text.replaceAll("[^\\x00-\\x7F]", "*");
+
+      //option two: send orginal text and correct position after
+      ByteString bs = ByteString.copyFromUtf8(text);
+//      boolean needCorrection = text.length() != bs.size();
+
+      //limit the request content size to under 524288, the limit of the DLP api
+      if (bs.size() > DLP_CONTENT_LIMIT ) {
+        bs = bs.substring(0, DLP_CONTENT_LIMIT);
+        //avoid break word
+        int pos = DLP_CONTENT_LIMIT - 1;
+        for (int i = bs.size() - 1; i >= 0; i--) {
+          if (bs.byteAt(i) == (byte) 32) {
+            pos = i;
+            break;
+          }
+        }
+        bs = bs.substring(0, pos + 1);
+      }
+
       ByteContentItem byteContentItem =
         ByteContentItem.newBuilder()
           .setType(ByteContentItem.BytesType.TEXT_UTF8)
-          .setData(ByteString.copyFromUtf8(text))
+          .setData(bs)
           .build();
       ContentItem contentItem = ContentItem.newBuilder().setByteItem(byteContentItem).build();
 

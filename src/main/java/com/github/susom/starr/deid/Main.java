@@ -83,6 +83,14 @@ public class Main implements Serializable {
       System.exit(1);
     }
 
+    if (options.getGoogleDlpEnabled() != null) {
+      log.info("overwriting GoogleDlpEnabled property with {}", options.getGoogleDlpEnabled());
+      boolean enableDlp = options.getGoogleDlpEnabled().toLowerCase().equals("true");
+      for (int i = 0; i < jobs.deidJobs.length;i++) {
+        jobs.deidJobs[i].googleDlpEnabled = enableDlp;
+      }
+    }
+
     if (options.getTextIdFields() != null) {
       //override text field mapping
       for (int i = 0; i < jobs.deidJobs.length;i++) {
@@ -230,6 +238,11 @@ public class Main implements Serializable {
     String getDlpProject();
 
     void setDlpProject(String value);
+
+    @Description("Turn on/off Google DLP")
+    String getGoogleDlpEnabled();
+
+    void setGoogleDlpEnabled(String value);
 
     @Description("override text field, optional.")
     ValueProvider<String> getTextInputFields();
