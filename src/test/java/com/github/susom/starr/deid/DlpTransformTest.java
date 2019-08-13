@@ -61,16 +61,18 @@ class DlpTransformTest {
 
 
   private String[] noteJsonText = new String[]{
-    "{\"note_id\":\"001_J0\",\"jitter\":0,\"note_text\":\"more tests: date test Jan 01, 2018, ssn: 874-98-5739\"}",
-    "{\"note_id\":\"001_J1\",\"jitter\":1,\"note_text\":\"Jose's birth day: 2003-09-18, passport: 56521368, pp2: 56985631 credit card number is 4111111111111111 \"}",
-    "{\"note_id\":\"001_J2\",\"jitter\":2,\"note_text\":\"i2b2: Record date: 2088-07-03 \"}",
-    "{\"note_id\":\"001_J-3\",\"jitter\":-3,\"note_text\":\"Alex has fever on June 4, 2019\\nTeam 1 Intern Admission Note\\nName: Younger, T Eugene\\nMR#: 6381987\\nAtt: Dr. Gilbert\\nCards: Dr. Ullrich\\nNeuro: Dr. Donovan\\nDate of Admission: 7/2/88 CC: Lightheadedness, vertigo, and presyncopal sx x several episodes \"}"
+    "{\"note_id\":\"001_J0\",\"JITTER\":0,\"note_text\":\"more tests: date test Jan 01, 2018, ssn: 874-98-5739\"}",
+    "{\"note_id\":\"001_J1\",\"JITTER\":1,\"note_text\":\"Jose's birth day: 2003-09-18, passport: 56521368, pp2: 56985631 credit card number is 4111111111111111 \"}",
+    "{\"note_id\":\"001_J2\",\"JITTER\":2,\"note_text\":\"i2b2: Record date: 2088-07-03 \"}",
+    "{\"note_id\":\"001_J-3\",\"JITTER\":-3,\"note_text\":\"Alex has fever on June 4, 2019\\nTeam 1 Intern Admission Note\\nName: Younger, T Eugene\\nMR#: 6381987\\nAtt: Dr. Gilbert\\nCards: Dr. Ullrich\\nNeuro: Dr. Donovan\\nDate of Admission: 7/2/88 CC: Lightheadedness, vertigo, and presyncopal sx x several episodes \"}"
   };
 
 
   private static String[] textLines = new String[]{
-    ">>>>>>>>>>>>> more tests: date test Jan 01, 2018, ssn: 874-98-5739",
-    "Jose's birth day: 2003-09-18, passport: 56521368, pp2: 56985631 address: Palo Alto, CA",
+    null, //placeholder for generated large text
+    "\u2d4d 01-01-2018 patient birth day: 2003-09-18 . Today is Jan 01, 2018. patient has experienced pain in the past three months, NUC tomorrow 12/10.  ",
+    "patient ssn: 874-98-5739 mrn:123434123",
+    "Tom's birth day: 2003-09-18 passport: 56521368, pp2: 56985631 address: Palo Alto, CA",
     "i2b2: Record date: 2088-07-03\\\\n\\\\n"
       + "Team 1 Intern Admission Note\\\\n\\\\n\\\\n\\\\nName: Younger, T Eugene\\\\n\\\\n"
       + "MR#: 6381987\\\\n\\\\nAtt: Dr. Gilbert\\\\n\\\\nCards: Dr. Ullrich\\\\n\\\\n"
@@ -90,7 +92,9 @@ class DlpTransformTest {
       + "54 after Chrissy Teigen and singer John Legend named their daughter Luna "
       + "as well as actress Penelope Cruz and Uma Thurman who also chose the name "
       + "for their daughters. Harper continues to rise up the charts "
-      + "(up 17 places to 22) seven years after The Beckham’s chose the name for their daughter."};
+      + "(up 17 places to 22) seven years after The Beckham’s chose the name for their daughter."
+
+  };
 
 
   private static DeidJob job;
@@ -109,6 +113,13 @@ class DlpTransformTest {
 
   @BeforeAll
   static void setUp() throws Exception {
+
+    StringBuilder sb = new StringBuilder(DlpTransform.DLP_CONTENT_LIMIT + 1);
+    for (int i = 0; i < DlpTransform.DLP_CONTENT_LIMIT + 1; i++) {
+      sb.append('0');
+    }
+    textLines[0] =  sb.toString();
+
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     DeidJobs jobs = mapper.readValue(DlpTransformTest.class.getClassLoader()
       .getResourceAsStream("deid_test_config_dlp.yaml"), DeidJobs.class);
@@ -132,14 +143,10 @@ class DlpTransformTest {
     List<AnonymizedItemWithReplacement> items = new ArrayList<>();
 
     for (int i = 0; i < textLines.length; i++) {
-      DeidResult deidResult =
-        new DeidResult(new String[]{"ID"},
-            new String[]{String.format(Locale.ROOT,"note_%d",i)},
-        new String[]{"NOTE"});
-      transform.dlpDeidRequest(String.format(Locale.ROOT,"note_%d",i), items);
+      Assert.assertNotEquals("compare orginal and deided",
+        textLines[i], transform.dlpDeidRequest(textLines[i], items));
     }
-
-    return;
+    Assert.assertTrue(items.size() > 0);
   }
 
   @Test
@@ -148,34 +155,27 @@ class DlpTransformTest {
 
 
     try {
-
-      List<AnonymizedItemWithReplacement> items = new ArrayList<>();
-
       ObjectMapper mapper = new ObjectMapper();
       mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
       for (int i = 0; i < textLines.length; i++) {
-        DeidResult deidResult = new DeidResult(
-          new String[]{"ID"},
-          new String[]{String.format(Locale.ROOT,"note_%d",i)},
-          new String[]{"NOTE"});
-
+        List<AnonymizedItemWithReplacement> items = new ArrayList<>();
         transform.dlpInspectRequest(textLines[i], items, i);
 
         for (AnonymizedItemWithReplacement item : items) {
-          log.info("finding: word:{} star:{} end:{}",
-              item.getWord(),item.getStart(),item.getEnd());
+          log.info("finding[{}]: word:{} star:{} end:{} repl:{}", i,
+              item.getWord(),item.getStart(),item.getEnd(), item.getReplacement());
         }
-        Assert.assertTrue(items.size() > 0);
 
+        if (i != 0) {
+          Assert.assertTrue(items.size() > 0);
+        }
       }
-
     } catch (IOException e) {
       log.error(e.getMessage(),e);
       Assert.fail();
     }
   }
-
 
   @Test
   @EnabledIfEnvironmentVariable(named = "GCP_INTEGRATION_TEST_TOKEN", matches = BASE64REGEX)
