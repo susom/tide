@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,33 +37,34 @@ public class DateAnonymizerTest {
   private static final Logger log = LoggerFactory.getLogger(DateAnonymizerTest.class);
 
   private static String[] positiveTests = new String[]{
+      "THE CHEST: 07/24/2017,CLINICAL HISTORY",
       "2088-07-03, 25-NOV-2008 10:17:35 , 04/18/2012, 3/29/2012, 02/10/2006 9:24 a, 09/08/2008 01:26 P CT",
-//      "25-NOV-2008 10:17:35",
-//      "25-11-2008 10:17:35",
-//      "04/18/2012",
-//      "04/19/2012",
-//      "04/20/2012",
-//      " 3/29/2012",
-//      "Date:7-30-2013 ",
-//      "05/10/2012 18:46:00",
-//      "02/10/2006 9:24 a",
-//      "05/29/200110:31 A",
-//      "09/08/2008 01:26 P CT",
-//      "02/25/2009 4:33PM",
-//      "12/23/05 7/4/20",
-//      "7-30-13",
-//      "10/5/35",
-//      "3/2012",
-//      "4/2009-9/2012 5/2013 7/1999 2/1989 2/5/1989 April 5, 1970",
-//      "MARCH of 2010",
-//      "December 2010",
-//      "April 18, 2012",
-//      "MAY 1st, 2009",
-//      "June 25TH, 2010",
-//      "July 8 2010",
-//      "NOVEMBER 1,\n2004",
-//      "Mar 4, 2014 18:00h",
-//      "4/2/2010 5/2/2014 6-4-14 march 10th, 2010",
+      "25-NOV-2008 10:17:35",
+      "25-11-2008 10:17:35",
+      "04/18/2012",
+      "04/19/2012",
+      "04/20/2012",
+      " 3/29/2012",
+      "Date:7-30-2013 ",
+      "05/10/2012 18:46:00",
+      "02/10/2006 9:24 a",
+      "05/29/200110:31 A",
+      "09/08/2008 01:26 P CT",
+      "02/25/2009 4:33PM",
+      "12/23/05 7/4/20",
+      "7-30-13",
+      "10/5/35",
+      "3/2012",
+      "4/2009-9/2012 5/2013 7/1999 2/1989 2/5/1989 April 5, 1970",
+      "MARCH of 2010",
+      "December 2010",
+      "April 18, 2012",
+      "MAY 1st, 2009",
+      "June 25TH, 2010",
+      "July 8 2010",
+      "NOVEMBER 1,\n2004",
+      "Mar 4, 2014 18:00h",
+      "4/2/2010 5/2/2014 6-4-14 march 10th, 2010",
       "May 10"     // Was not originally handled
   };
 
@@ -119,6 +121,7 @@ public class DateAnonymizerTest {
         jitterAmizer.find(test, items);
         result = DeidResultProc.applyChange(items,test);
         log.info("JitterAmizer " + test + " => " + result);
+        Assert.assertNotEquals("should be altered",test, result );
       }
     });
 
