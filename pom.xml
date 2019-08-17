@@ -11,7 +11,7 @@
 
   <name>Starr Core DeId Pipeline</name>
   <artifactId>deid</artifactId>
-  <version>3.0.1</version>
+  <version>3.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <distributionManagement>
@@ -44,7 +44,7 @@
     <dependency>
       <groupId>com.github.susom.starr.core.integration</groupId>
       <artifactId>gcp</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
@@ -227,7 +227,7 @@
     <dependency>
       <groupId>com.github.susom.starr.core.integration</groupId>
       <artifactId>gcp</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
@@ -318,9 +318,4 @@
       </plugin>
     </plugins>
   </build>
-
-
-  <scm>
-    <tag>v1.0.1</tag>
-  </scm>
 </project>
