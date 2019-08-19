@@ -138,6 +138,11 @@ deidJobs:
         actionParamMap: {"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
         fields: GUARDIAN_NAME
 
+      - itemName: care_provider_name
+        action: surrogate_name
+        actionParamMap: {"format":"L","f_zip":null,"f_gender":"","f_dob":null}
+        fields: EMP_NAME
+
       - itemName: mergency_contact
         action: replace_strictly_with
         actionParam: parent

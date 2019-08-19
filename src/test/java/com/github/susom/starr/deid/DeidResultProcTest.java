@@ -24,8 +24,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
+import java.util.Set;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
@@ -84,8 +86,49 @@ public class DeidResultProcTest {
         StringUtils.countMatches(result, "[REMOVED]"));
   }
 
+  @Test
+  public void testSurrogate() throws IOException {
+    String[] noteTexts = new String[]{
+      "{\"note_id\":\"001\",\"EMP_NAME\":\"Alex\",\"note_text\":\"Alex has fever on June 4, 2019\"}",
+      "{\"note_id\":\"002\",\"EMP_NAME\":\"Tom\",\"note_text\":\"Tom visited on 10/18/2018 2:02 PM\"}"
+    };
+    Set<String> notExpecting = new HashSet<>(Arrays.asList(
+      "Alex has fever on June 4, 2019",
+      "Tom visited on 10/18/2018 2:02 PM"));
 
+    final List<String> notes = Arrays.asList(noteTexts);
 
+    PCollection input = pipeline.apply(Create.of(notes)).setCoder( StringUtf8Coder.of());
+
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+    DeidJobs jobs = mapper.readValue(this.getClass().getClassLoader()
+      .getResourceAsStream("deid_test_config.yaml"), DeidJobs.class);
+
+    DeidTransform transform = new DeidTransform(jobs.getDeidJobs()[0], null);
+
+    PCollection<DeidResult> deidResults = transform.expand(input);
+
+    PCollectionTuple result = deidResults.apply("processResult",
+      ParDo.of(new DeidResultProc())
+        .withOutputTags(DeidTransform.fullResultTag,
+          TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
+            .and(DeidTransform.statsPhiTypeTag)
+            .and(DeidTransform.statPhiFoundByTag)));
+
+    PCollection<String> cleanText = result.get(DeidTransform.fullResultTag)
+      .apply(ParDo.of(new PrintResult()));
+
+    PAssert.that(cleanText).satisfies(it ->{
+      for (String value : it) {
+        Assert.assertFalse(notExpecting.contains(value));
+      }
+      return null;
+    });
+
+    pipeline.run();
+
+  }
   @Test
   public void testDeidFn() throws IOException {
 
