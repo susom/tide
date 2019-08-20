@@ -27,6 +27,7 @@ import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
 import com.github.susom.starr.deid.anonymizers.AnonymizerProcessor;
 import com.github.susom.starr.deid.anonymizers.DateAnonymizer;
 import com.github.susom.starr.deid.anonymizers.GeneralAnonymizer;
+import com.github.susom.starr.deid.anonymizers.GeneralNumberAnonymizer;
 import com.github.susom.starr.deid.anonymizers.LocationSurrogate;
 import com.github.susom.starr.deid.anonymizers.LocationSurrogate.Address;
 import com.github.susom.starr.deid.anonymizers.MrnAnonymizer;
@@ -340,7 +341,11 @@ public class DeidTransform
                 anonymizer = new GeneralAnonymizer();
                 ((GeneralAnonymizer)anonymizer).setReplacementMap(spec.actionParamMap);
                 break;
+              case general_number:
 
+                anonymizer = new GeneralNumberAnonymizer();
+                ((GeneralNumberAnonymizer)anonymizer).setReplacementMap(spec.actionParamMap);
+                break;
               case surrogate_address:
 
                 Address[] address = null;

@@ -69,7 +69,7 @@ public class MrnAnonymizer implements AnonymizerProcessor {
   // Followed by a word boundary
   private static final String FOLLOWING = "(?:\\b)";
 
-  private static final String LABEL = "(?i:MR|MRN|Medical\\s+Record)";
+  private static final String LABEL = "(?i:MR|MRN|Medical\\s+Record|Medical\\s+Rec)";
   private static final String NUMBER = "(?:\\s+(?i:Number|Num|No))?";
   private static final String COLON = "(?:\\s*(?i:is|:|#|#:))?";
   private static final String DIGITS = "(\\d[\\d -]*\\d)";
