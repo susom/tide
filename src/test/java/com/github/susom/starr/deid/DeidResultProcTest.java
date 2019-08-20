@@ -89,7 +89,7 @@ public class DeidResultProcTest {
   @Test
   public void testSurrogate() throws IOException {
     String[] noteTexts = new String[]{
-      "{\"note_id\":\"001\",\"EMP_NAME\":\"Alex\",\"note_text\":\"Alex has fever on June 4, 2019\"}",
+      "{\"note_id\":\"001\",\"EMP_NAME\":\"Alex\",\"note_text\":\"PATIENT Account number 898 , Medical Rec #:  8235455. Alex has fever on June 4, 2019\"}",
       "{\"note_id\":\"002\",\"EMP_NAME\":\"Tom\",\"note_text\":\"Tom visited on 10/18/2018 2:02 PM\"}"
     };
     Set<String> notExpecting = new HashSet<>(Arrays.asList(

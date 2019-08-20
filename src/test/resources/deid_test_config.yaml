@@ -78,8 +78,16 @@ deidJobs:
       - itemName: general
         action: general
         actionParam:
-        actionParamMap: {"general-phone":"999-999-9999","general-email":"99999","general-ip":"000.000.000.000","general-url":"www.example.com","general-ssn":"999-99-9999"}
+        actionParamMap: {"general-phone":"999-999-9999","general-email":"deidentified@example.com","general-ip":"000.000.000.000","general-url":"www.example.com","general-ssn":"999-99-9999"}
         fields:
+
+
+      - itemName: general_number
+        action: general_number
+        actionParam:
+        actionParamMap: {"general-account":"9999999","general-order":"99999"}
+        fields:
+
 
       - itemName: patient_ssn
         action: replace_minimumlengthword_with
