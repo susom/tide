@@ -49,13 +49,11 @@ public class GeneralNumberAnonymizer implements AnonymizerProcessor {
       "\\b((Order|Ord\\.)" + SPACES + NUMBER + SPACES + COLON + SPACES + "\\s*" + ")" + DIGITS + "\\b",
       Pattern.CASE_INSENSITIVE);
 
-
   static final String typeAccession = "general-accession";
   private static final Pattern accessionPattern =
     Pattern.compile(
       "\\b((ACCESSION|ACCE\\.)" + SPACES + NUMBER + SPACES + COLON + SPACES + "\\s*" + ")" + DIGITS_W_PREFIX + "\\b",
       Pattern.CASE_INSENSITIVE);
-
 
   private static final Pattern[] pats = new Pattern[]{
       accountNumberPattern,
