@@ -33,6 +33,7 @@ public class GeneralNumberAnonymizer implements AnonymizerProcessor {
   private static final String NUMBER = "(Number|Num|No|#)?";
   private static final String COLON = "(is|:)?";
   private static final String DIGITS = "(\\d[\\d -]*\\d)";
+  private static final String DIGITS_W_PREFIX = "([a-zA-Z-]{0,5}\\d[\\d -]*\\d)";
   private static final String SPACES = "\\s*";
 
   static final String typeAccount = "general-account";
@@ -48,13 +49,22 @@ public class GeneralNumberAnonymizer implements AnonymizerProcessor {
       "\\b((Order|Ord\\.)" + SPACES + NUMBER + SPACES + COLON + SPACES + "\\s*" + ")" + DIGITS + "\\b",
       Pattern.CASE_INSENSITIVE);
 
+  static final String typeAccession = "general-accession";
+  private static final Pattern accessionPattern =
+    Pattern.compile(
+      "\\b((ACCESSION|ACCE\\.)" + SPACES + NUMBER + SPACES + COLON + SPACES + "\\s*" + ")" + DIGITS_W_PREFIX + "\\b",
+      Pattern.CASE_INSENSITIVE);
+
   private static final Pattern[] pats = new Pattern[]{
       accountNumberPattern,
-      orderPattern};
+      orderPattern,
+      accessionPattern
+  };
 
   private static final String[] types = new String[]{
       typeAccount,
-      typeOrder
+      typeOrder,
+      typeAccession
   };
 
   private static final Map<String,String> replacementMap = new HashMap<>();

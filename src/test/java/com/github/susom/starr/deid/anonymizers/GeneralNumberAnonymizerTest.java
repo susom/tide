@@ -31,7 +31,9 @@ class GeneralNumberAnonymizerTest {
   private String[] textArray = new String[]{
     "process Acc. #: 222222 XYZ",
     "Order #: 22222 XYZ",
-    "Acct#: 22222222 XYZ"
+    "Acct#: 22222222 XYZ",
+    "Accession No: SHS-99-99999",
+    "ACCESSION: VS-99-99999"
   };
 
   @Test

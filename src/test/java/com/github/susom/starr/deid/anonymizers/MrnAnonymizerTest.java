@@ -47,7 +47,8 @@ public class MrnAnonymizerTest {
       "Her Stanford Medical Record number is   16568107.",
       "Medical Record Number:   112 07 38 8    DOB:  1/01/1970",
       "MRN#:   112-07 38    DOB:  ",
-      "Medical Rec #:  8235455"
+      "Medical Rec #:  8235455",
+      "MED REC #: (0000)000099999,"
   };
 
   private String[] negativeTests = new String[]{
