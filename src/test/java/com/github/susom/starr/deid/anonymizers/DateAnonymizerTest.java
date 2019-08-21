@@ -65,7 +65,8 @@ public class DateAnonymizerTest {
       "NOVEMBER 1,\n2004",
       "Mar 4, 2014 18:00h",
       "4/2/2010 5/2/2014 6-4-14 march 10th, 2010",
-      "May 10"     // Was not originally handled
+      "May 10",     // Was not originally handled
+      "DOB: 12/31/2000LOC: ABC" //when connects to surrounding
   };
 
   static String[] negativeTests = new String[]{
@@ -88,12 +89,6 @@ public class DateAnonymizerTest {
 //      "age 38.712 in 2008"
 //  };
 
-  private static Map<String, String[]> testSet = new HashMap<>();
-  static {
-    testSet.put("Dates to be detected", positiveTests);
-    //testSet.put("Non-dates to be ignored", negativeTests);
-    //testSet.put("", sortingByAge);
-  }
 
   @Test
   public void scrub() throws ParseException {
@@ -106,24 +101,43 @@ public class DateAnonymizerTest {
 //      log.info(test);
 //    }
 
-    testSet.forEach((k,v) -> {
-      log.info(String.format(Locale.ROOT,"--------[%s]", k));
-      for (String test : v) {
-        DateAnonymizer bdayAmizer = new DateAnonymizer(bdate,"date");
-        DateAnonymizer jitterAmizer = new DateAnonymizer(15,"date", "");
+    log.info("Non-dates to be ignored");
+    for (String test : positiveTests) {
+      DateAnonymizer bdayAmizer = new DateAnonymizer(bdate,"date");
+      DateAnonymizer jitterAmizer = new DateAnonymizer(15,"date", "");
 
-        List<AnonymizedItemWithReplacement> items = new ArrayList<>();
-        bdayAmizer.find(test, items);
-        String result = DeidResultProc.applyChange(items,test);
-        log.info("BDayAmizer " + test + " => " + result);
+      List<AnonymizedItemWithReplacement> items = new ArrayList<>();
+      bdayAmizer.find(test, items);
+      String result = DeidResultProc.applyChange(items,test);
+      log.info("BirthDay Amizer " + test + " => " + result);
 
-        items.clear();
-        jitterAmizer.find(test, items);
-        result = DeidResultProc.applyChange(items,test);
-        log.info("JitterAmizer " + test + " => " + result);
-        Assert.assertNotEquals("should be altered",test, result );
-      }
-    });
+      items.clear();
+      jitterAmizer.find(test, items);
+      result = DeidResultProc.applyChange(items,test);
+      log.info("Jitter Amizer " + test + " => " + result);
+      Assert.assertNotEquals("should be altered",test, result );
+    }
+
+
+
+    log.info("Dates to be detected");
+    for (String test : negativeTests) {
+      DateAnonymizer bdayAmizer = new DateAnonymizer(bdate,"date");
+      DateAnonymizer jitterAmizer = new DateAnonymizer(15,"date", "");
+
+      List<AnonymizedItemWithReplacement> items = new ArrayList<>();
+      bdayAmizer.find(test, items);
+      String result = DeidResultProc.applyChange(items,test);
+      log.info("BDayAmizer " + test + " => " + result);
+//      Assert.assertEquals("should not be altered",test, result );
+
+      items.clear();
+      jitterAmizer.find(test, items);
+      result = DeidResultProc.applyChange(items,test);
+      log.info("JitterAmizer " + test + " => " + result);
+      Assert.assertEquals("should not be altered",test, result );
+    }
+
 
   }
 }
