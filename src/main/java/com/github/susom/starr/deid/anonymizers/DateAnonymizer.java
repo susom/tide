@@ -55,6 +55,8 @@ public class DateAnonymizer implements AnonymizerProcessor {
   private static final String PRECEDING = "(?:\\b)";
   // Followed by a word boundary
   private static final String FOLLOWING = "(?:\\b)";
+  // Followed by a non-number word boundary
+  private static final String FOLLOWING_TO_CUTOFF_NUM = "(?=(?:[^0-9]*\\b))";
 
   // was ?:
   private static final String
@@ -105,19 +107,19 @@ public class DateAnonymizer implements AnonymizerProcessor {
       // Sept/29/2018
       {
         Pattern.compile(PRECEDING + MONTH + "(/|-)" + DAY + "\\2" + YEAR + "(?:\\s*" + TIME + ")?"
-            + FOLLOWING, Pattern.CASE_INSENSITIVE),
+            + FOLLOWING_TO_CUTOFF_NUM, Pattern.CASE_INSENSITIVE),
           TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : "${month}/${day}/${year}"
       },
       // 4-digit year mm/dd/yyyy hh:mm:ss am
       {
         Pattern.compile(PRECEDING + MON + "(/|-)" + DAY + "\\2" + YEAR + "(?:\\s*" + TIME + ")?"
-            + FOLLOWING, Pattern.CASE_INSENSITIVE),
+            + FOLLOWING_TO_CUTOFF_NUM, Pattern.CASE_INSENSITIVE),
           TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : "${month}/${day}/${year}"
       },
       // 2-digit year mm/dd/yy hh:mm:ss am --> 20yy for yy between 00-29
       {
         Pattern.compile(PRECEDING + MON + "(/|-)" + DAY + "\\2" + "(?<year>[0-2][0-9])"
-            + "(?:\\s*" + TIME + ")?" + FOLLOWING, Pattern.CASE_INSENSITIVE),
+            + "(?:\\s*" + TIME + ")?" + FOLLOWING_TO_CUTOFF_NUM, Pattern.CASE_INSENSITIVE),
           TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : "${month}/${day}/20${year}"
       },
       // 2-digit year mm/dd/yy hh:mm:ss am --> 19yy for yy between 30-99
@@ -176,7 +178,6 @@ public class DateAnonymizer implements AnonymizerProcessor {
     this.jitter = jitter;
     this.defaultReplacement = defaultReplacement;
   }
-
 
   /**
    * main find function.
