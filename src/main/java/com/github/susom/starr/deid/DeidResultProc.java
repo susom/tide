@@ -43,6 +43,8 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
   public static final String STATS_CNT_DEID = "FINDING_CNT_";
   public static final String TEXT_DEID = "TEXT_DEID_";
 
+  private boolean analytics = true;
+
   private final Counter totalPhiCntStage1 =
       Metrics.counter(DeidResultProc.class, "totalPhiCntStage1");
 
@@ -61,7 +63,8 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
   private final Distribution itemPerTextDistributionStage2 =
       Metrics.distribution(DeidResultProc.class, "ItemPerTextDistribution_stage2");
 
-  public DeidResultProc() {
+  public DeidResultProc(boolean analytics) {
+    this.analytics = analytics;
   }
 
   /**
@@ -76,6 +79,10 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
     DeidResult dt = context.element();
     String dtString = mapper.writeValueAsString(dt);
     context.output(DeidTransform.fullResultTag, dtString);
+
+    if (!this.analytics) {
+      return;
+    }
 
     for (String textField : dt.getTextFields()) {
 

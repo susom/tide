@@ -113,7 +113,7 @@ public class Main implements Serializable {
 
         .apply("Deid", new DeidTransform(jobs.deidJobs[0], options.getDlpProject()))
         .apply("processResult",
-          ParDo.of(new DeidResultProc())
+          ParDo.of(new DeidResultProc(jobs.deidJobs[0].analytic))
             .withOutputTags(DeidTransform.fullResultTag,
                 TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
                 .and(DeidTransform.statsPhiTypeTag)
