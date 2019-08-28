@@ -232,19 +232,20 @@ public class DlpNativeRunner {
           GetDlpJobRequest.newBuilder().setName(job.getName()).build();
       DlpJob jobStatus = dlpServiceClient.getDlpJob(getDlpJobRequest);
       int logCnt = 0;
-      while (jobStatus.getStateValue() == JobState.PENDING.getNumber()
-        || jobStatus.getStateValue() == JobState.RUNNING.getNumber()
-        || jobStatus.getStateValue() == JobState.JOB_STATE_UNSPECIFIED.getNumber()) {
+      int resultCode = jobStatus.getStateValue();
+      while (resultCode == JobState.PENDING.getNumber()
+        || resultCode == JobState.RUNNING.getNumber()
+        || resultCode == JobState.JOB_STATE_UNSPECIFIED.getNumber()) {
 
         logCnt ++;
         Thread.sleep(20000);
 
         jobStatus = dlpServiceClient.getDlpJob(getDlpJobRequest);
-
-        if (logCnt == 100) {
+        if (resultCode != jobStatus.getStateValue() || logCnt == 100) {
           logCnt = 0;
           log.info("DlpJob State:{}", jobStatus.getStateValue());
         }
+        resultCode = jobStatus.getStateValue();
       }
     }
   }
