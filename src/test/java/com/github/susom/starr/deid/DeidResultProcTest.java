@@ -110,7 +110,7 @@ public class DeidResultProcTest {
     PCollection<DeidResult> deidResults = transform.expand(input);
 
     PCollectionTuple result = deidResults.apply("processResult",
-      ParDo.of(new DeidResultProc())
+      ParDo.of(new DeidResultProc(true))
         .withOutputTags(DeidTransform.fullResultTag,
           TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
             .and(DeidTransform.statsPhiTypeTag)
@@ -159,7 +159,7 @@ public class DeidResultProcTest {
     PCollection<DeidResult> deidResults = transform.expand(input);
 
     PCollectionTuple result = deidResults.apply("processResult",
-      ParDo.of(new DeidResultProc())
+      ParDo.of(new DeidResultProc(true))
         .withOutputTags(DeidTransform.fullResultTag,
           TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
             .and(DeidTransform.statsPhiTypeTag)

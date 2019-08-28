@@ -201,7 +201,7 @@ class DlpTransformTest {
     PCollection<DeidResult> deidResults = fullTransform.expand(input);
 
     PCollectionTuple result = deidResults.apply("processResult",
-      ParDo.of(new DeidResultProc())
+      ParDo.of(new DeidResultProc(true))
         .withOutputTags(DeidTransform.fullResultTag,
           TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
             .and(DeidTransform.statsPhiTypeTag)
