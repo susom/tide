@@ -37,9 +37,22 @@
     <beam.version>2.14.0</beam.version>
     <jackson.version>2.9.5</jackson.version>
     <junit-jupiter.version>5.1.0</junit-jupiter.version>
+    <version.jopt.simple>5.0.4</version.jopt.simple>
+    <version.gcp.bigquery>1.72.0</version.gcp.bigquery>
   </properties>
 
   <dependencies>
+
+    <dependency>
+      <groupId>net.sf.jopt-simple</groupId>
+      <artifactId>jopt-simple</artifactId>
+      <version>${version.jopt.simple}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-bigquery</artifactId>
+      <version>${version.gcp.bigquery}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.github.susom.starr.core.integration</groupId>
