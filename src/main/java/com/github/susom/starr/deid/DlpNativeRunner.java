@@ -82,7 +82,7 @@ public class DlpNativeRunner {
 
   final List<InfoType> infoTypes = new ArrayList<>();
   final Likelihood minLikelihood = Likelihood.LIKELY;
-  final boolean includeQuote = false;
+  final boolean includeQuote = true;
 
   private static final Logger log = LoggerFactory.getLogger(DlpNativeRunner.class);
 
