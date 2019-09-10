@@ -188,7 +188,7 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
         continue;
       }
 
-      if (item.getEnd() < lastEnd && item.getStart() >= lastEnd) {
+      if (item.getEnd() < lastEnd && item.getStart() >= lastStart) {
         //inside of last change, do nothing
       } else if (item.getEnd() < lastEnd && item.getEnd() >= lastStart) {
         //overlap
