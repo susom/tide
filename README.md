@@ -135,8 +135,25 @@ java -jar 3.0.9-SNAPSHOT.jar \
 --outputResource=local_test2_result \
 
 ```
+## Use Google DLP 
 
-### Run DLP Native Job
+DLP can be integrated with two ways. One way is directly enable DLP in TiDE deid transform, which will call Google DLP API individually for each text row. The second way is to use Google DLP Native job to find PHIs independently from TiDe and merge findings of each parallel result into final deied-text. 
+
+### Option one: enable DLP API Request in TiDE
+
+Enabled Google DLP in TiDE config YAML file
+
+```commandline
+deidJobs:
+  - jobName: stanford_deid_v3
+    ...
+    googleDlpEnabled: true
+```
+
+### Option two: Run DLP Native Job in parallel and merge findings later
+
+#### Start DLP Native Job
+
 ``` 
 java -jar 3.0.9-SNAPSHOT.jar \
 --gcpCredentialsKeyFile=<google_credential.json> \
@@ -150,7 +167,7 @@ java -jar 3.0.9-SNAPSHOT.jar \
 
 ```
 
-### Final deid text generation with TiDE and DLP Native findings 
+#### Final deid text generation with TiDE and DLP Native findings 
 
 Run Bigquery query in 
 
