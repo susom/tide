@@ -162,7 +162,7 @@ public class DeidTransform
       for (CoreEntityMention em : doc.entityMentions()) {
         if (em.entityType().equals("PERSON")) {
           String word = Utility.removeTitleFromName(em.text());
-          if (word.length() == 0) {
+          if (word.length() == 0 || ignoreWords.contains(word.toLowerCase(Locale.ROOT))) {
             continue;
           }
           AnonymizedItemWithReplacement item = new AnonymizedItemWithReplacement(
@@ -174,7 +174,7 @@ public class DeidTransform
           //log.info("\tdetected entity: \t" + em.text() + "\t" + em.entityType());
         } else if (em.entityType().equals("LOCATION")) {
           String word = em.text();
-          if (word.length() == 0) {
+          if (word.length() == 0 || ignoreWords.contains(word.toLowerCase(Locale.ROOT))) {
             continue;
           }
           AnonymizedItemWithReplacement item = new AnonymizedItemWithReplacement(
@@ -221,7 +221,8 @@ public class DeidTransform
         if (node.has(noteIdFields[i])) {
           noteIds[i] = node.get(noteIdFields[i]).asText();
         } else {
-          throw new IOException("input data does not have field " + noteIdFields[i]);
+          noteIds[i] = null;
+          //throw new IOException("input data does not have field " + noteIdFields[i]);
         }
       }
       String[] textFields = job.getTextFields().get()
