@@ -105,10 +105,6 @@ deidJobs:
         actionParam: [family_id] 3
         fields:  mother_pat_id, father_pat_id
 
-      - itemName: general_name
-        action: surrogate_name
-        fields: ''
-
       - itemName: patient_name
         action: surrogate_name
         actionParamMap: {"format":"L,F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
@@ -160,13 +156,10 @@ deidJobs:
         actionParamMap: {"f_address_1":"mother_addr_ln_1","f_address_2":"mother_addr_ln_2", "f_city":"mother_city", "f_zip":"mother_zip"}
         fields: ''
 
-
       - itemName: patient_phone
         action: replace_minimumlengthword_with
         actionParam: [patient_phone] 7
         fields:  home_phone, work_phone, tmp_home_phone, PROXY_PHONE,
-
-
 
       - itemName: mergency_contact_phone
         action: replace_minimumlengthword_with
@@ -177,3 +170,7 @@ deidJobs:
         action: replace_minimumlengthword_with
         actionParam: [accession_number] 5
         fields: accession_num
+
+      - itemName: general_name
+        action: surrogate_name
+        fields: ''

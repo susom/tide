@@ -9,7 +9,7 @@ deidJobs:
     dateJitterRange: 30
     dateJitterSeedField: pat_id
     googleDlpEnabled: false
-    nerEnabled: false
+    nerEnabled: true
     googleDlpInfoTypes:
 #      - itemName: age
 #        infoTypes: AGE
@@ -114,9 +114,6 @@ deidJobs:
         actionParam: 000-000-000 3
         fields:  mother_pat_id, father_pat_id
 
-#      - itemName: general_name
-#        action: surrogate_name
-#        fields: ''
 #
 #      - itemName: patient_name
 #        action: surrogate_name
@@ -189,3 +186,7 @@ deidJobs:
         action: replace_minimumlengthword_with
         actionParam: 9999-9999 5
         fields: accession_num
+
+      - itemName: general_name
+        action: surrogate_name
+        fields: ''

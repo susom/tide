@@ -90,11 +90,14 @@ public class DeidResultProcTest {
   public void testSurrogate() throws IOException {
     String[] noteTexts = new String[]{
       "{\"note_id\":\"001\",\"EMP_NAME\":\"Alex\",\"note_text\":\"PATIENT Account number 898 , Medical Rec #:  8235455. Alex has fever on June 4, 2019\"}",
-      "{\"note_id\":\"002\",\"EMP_NAME\":\"Tom\",\"note_text\":\"Tom visited on 10/18/2018 2:02 PM\"}"
+      "{\"note_id\":\"002\",\"EMP_NAME\":\"Tom\",\"note_text\":\"Tom visited on 10/18/2018 2:02 PM\"}",
+      //Testing whitelist: Huntington exists in UMLS dictionary, we should let it pass through
+      "{\"note_id\":\"003\",\"EMP_NAME\":\"Crohn\",\"note_text\":\"Dr. Huntington is a disease. Crohn should be removed. \"}"
     };
     Set<String> notExpecting = new HashSet<>(Arrays.asList(
       "Alex has fever on June 4, 2019",
-      "Tom visited on 10/18/2018 2:02 PM"));
+      "Tom visited on 10/18/2018 2:02 PM",
+      "Dr. Huntington is a disease. Crohn should be removed. "));
 
     final List<String> notes = Arrays.asList(noteTexts);
 

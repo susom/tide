@@ -114,4 +114,13 @@ public class AnonymizedItemWithReplacement {
     this.end = end;
   }
 
+  @Override
+  public boolean equals(Object obj) {
+
+    if (obj instanceof AnonymizedItemWithReplacement) {
+      return ((AnonymizedItemWithReplacement) obj).start == this.start
+          && ((AnonymizedItemWithReplacement) obj).end == this.end;
+    }
+    return false;
+  }
 }

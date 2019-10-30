@@ -74,6 +74,9 @@ public class DeidTransform
   private static final String wordIgnoreFile = "wordIgnore.txt";
   private static final HashSet<String> ignoreWords = new HashSet<>();
 
+  private static final String nerWhitelistFile = "umls_token_600m.csv";
+  private static final HashSet<String> nerWhitelist = new HashSet<>();
+
   static {
     Utility.loadFileToMemory(wordIgnoreFile, ignoreWords);
   }
@@ -105,6 +108,11 @@ public class DeidTransform
   }
 
   private static StanfordCoreNLP setupCoreNlpPipeline() {
+
+    //load whitelist words to pass NLP
+    Utility.loadFileToMemory(nerWhitelistFile, nerWhitelist);
+
+
     Properties serProps = new Properties();
     serProps.setProperty("loadClassifier","classifiers/english.all.3class.distsim.crf.ser.gz");
     //serProps.setProperty("loadClassifier","classifiers/english.conll.4class.distsim.crf.ser.gz");
@@ -162,7 +170,7 @@ public class DeidTransform
       for (CoreEntityMention em : doc.entityMentions()) {
         if (em.entityType().equals("PERSON")) {
           String word = Utility.removeTitleFromName(em.text());
-          if (word.length() == 0 || ignoreWords.contains(word.toLowerCase(Locale.ROOT))) {
+          if (word.length() == 0 || ignoreWords.contains(word.toLowerCase(Locale.ROOT)) || nerWhitelist.contains(word.toLowerCase(Locale.ROOT)) ) {
             continue;
           }
           AnonymizedItemWithReplacement item = new AnonymizedItemWithReplacement(
@@ -174,7 +182,7 @@ public class DeidTransform
           //log.info("\tdetected entity: \t" + em.text() + "\t" + em.entityType());
         } else if (em.entityType().equals("LOCATION")) {
           String word = em.text();
-          if (word.length() == 0 || ignoreWords.contains(word.toLowerCase(Locale.ROOT))) {
+          if (word.length() == 0 || ignoreWords.contains(word.toLowerCase(Locale.ROOT)) || nerWhitelist.contains(word.toLowerCase(Locale.ROOT)) ) {
             continue;
           }
           AnonymizedItemWithReplacement item = new AnonymizedItemWithReplacement(
@@ -459,9 +467,16 @@ public class DeidTransform
                   }
                   anonymizer = builder.build();
                 } else {
+                  List<AnonymizedItemWithReplacement> filteredNerItems = new ArrayList<>();
+                  for (AnonymizedItemWithReplacement foundItems : foundNerNameItems) {
+                    if (!items.contains(foundItems)) {
+                      filteredNerItems.add(foundItems);
+                    }
+                  }
+
                   NameSurrogate.Builder builder = new NameSurrogate.Builder();
                   builder.withAnonymizerType(spec.itemName)
-                    .withKnownNameItems(foundNerNameItems);
+                    .withKnownNameItems(filteredNerItems);
 
                   anonymizer = builder.build();
                 }

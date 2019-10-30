@@ -105,10 +105,6 @@ deidJobs:
         actionParam: [family_id] 3
         fields:  mother_pat_id, father_pat_id
 
-      - itemName: general_name
-        action: surrogate_name
-        fields: ''
-
       - itemName: patient_name
         action: surrogate_name
         actionParamMap: {"format":"L,F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
@@ -191,3 +187,7 @@ deidJobs:
         action: replace_minimumlengthword_with
         actionParam: [accession_number] 5
         fields: accession_num
+
+      - itemName: general_name
+        action: surrogate_name
+        fields: ''
