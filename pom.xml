@@ -57,7 +57,7 @@
     <dependency>
       <groupId>com.github.susom.starr.core.integration</groupId>
       <artifactId>gcp</artifactId>
-      <version>1.0.9-SNAPSHOT</version>
+      <version>1.0.10-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
@@ -240,7 +240,7 @@
     <dependency>
       <groupId>com.github.susom.starr.core.integration</groupId>
       <artifactId>gcp</artifactId>
-      <version>1.0.9-SNAPSHOT</version>
+      <version>1.0.10-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
