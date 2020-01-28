@@ -1,0 +1,26 @@
+name: note_deid_test_20190715
+deidJobs:
+  - jobName: stanford_deid_v2_strict
+    version: v1.6
+    textFields: note_text
+    textIdFields: note_id
+    analytic: false
+    dateJitter: local
+    dateJitterRange: 30
+    dateJitterSeedField: pat_id
+    googleDlpEnabled: false
+    nerEnabled: false
+    googleDlpInfoTypes:
+
+    spec:
+
+      - itemName: test_word_token
+        action: replace_minimumlengthword_with
+        actionParam: 99999999 3
+        fields:  phi_w
+
+
+      - itemName: test_any_word_part
+        action: replace_strictly_with
+        actionParam: "[removed]"
+        fields: phi_a

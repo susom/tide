@@ -145,8 +145,8 @@ deidJobs:
         fields: EMP_NAME
 
       - itemName: mergency_contact
-        action: replace_strictly_with
-        actionParam: parent
+        action: surrogate_name
+        actionParamMap: {"format":"L","f_zip":null,"f_gender":"","f_dob":null}
         fields: father_name, mother_name
 
       - itemName: other_address

@@ -170,7 +170,8 @@ public class DeidTransform
       for (CoreEntityMention em : doc.entityMentions()) {
         if (em.entityType().equals("PERSON")) {
           String word = Utility.removeTitleFromName(em.text());
-          if (word.length() == 0 || ignoreWords.contains(word.toLowerCase(Locale.ROOT)) || nerWhitelist.contains(word.toLowerCase(Locale.ROOT)) ) {
+          if (word.length() == 0 || ignoreWords.contains(word.toLowerCase(Locale.ROOT))
+              || nerWhitelist.contains(word.toLowerCase(Locale.ROOT))) {
             continue;
           }
           AnonymizedItemWithReplacement item = new AnonymizedItemWithReplacement(
@@ -182,7 +183,8 @@ public class DeidTransform
           //log.info("\tdetected entity: \t" + em.text() + "\t" + em.entityType());
         } else if (em.entityType().equals("LOCATION")) {
           String word = em.text();
-          if (word.length() == 0 || ignoreWords.contains(word.toLowerCase(Locale.ROOT)) || nerWhitelist.contains(word.toLowerCase(Locale.ROOT)) ) {
+          if (word.length() == 0 || ignoreWords.contains(word.toLowerCase(Locale.ROOT))
+              || nerWhitelist.contains(word.toLowerCase(Locale.ROOT))) {
             continue;
           }
           AnonymizedItemWithReplacement item = new AnonymizedItemWithReplacement(
@@ -291,26 +293,28 @@ public class DeidTransform
 
             AnonymizerProcessor anonymizer = null;
             boolean scanCommonWord = false;
-            boolean matchWholeWord = false;
+            boolean matchAnyWord = false;
             int minimumWordLength = 0;
             switch (spec.action) {
               case replace_strictly_with:
                 scanCommonWord = true;
-                matchWholeWord = false;
+                matchAnyWord = true;
+                minimumWordLength = 1;
                 // fallthru
                 // fall through
               case replace_minimumlengthword_with:
-                try {
-                  if (spec.actionParam != null && spec.actionParam.length > 1) {
-                    minimumWordLength = Integer.parseInt(spec.actionParam[1]);
-                  } else {
+                if (minimumWordLength == 0) {
+                  try {
+                    if (spec.actionParam != null && spec.actionParam.length > 1) {
+                      minimumWordLength = Integer.parseInt(spec.actionParam[1]);
+                    } else {
+                      minimumWordLength = MINIMUM_WORD_LENGTH;
+                    }
+                  } catch (Exception e) {
+                    log.warn(e.getMessage(),e);
                     minimumWordLength = MINIMUM_WORD_LENGTH;
                   }
-                } catch (Exception e) {
-                  log.warn(e.getMessage(),e);
-                  minimumWordLength = MINIMUM_WORD_LENGTH;
                 }
-                matchWholeWord = true;
                 // fallthru
                 // fall through
               case replace_with:
@@ -318,23 +322,21 @@ public class DeidTransform
 
                 for (String field : spec.fields) {
                   if (node.has(field)) {
-                    if (matchWholeWord) {
-                      String v = node.get(field).asText();
+                    String[] fieldValues;
+                    if (matchAnyWord) {
+                      fieldValues = node.get(field).asText().split(" |,|-");
+                    } else {
+                      fieldValues = node.get(field).asText().split(" |,");
+                    }
+
+                    for (String v : fieldValues) {
                       if (v != null && !v.toLowerCase(Locale.ROOT).equals("null")
                           && (scanCommonWord || !ignoreWords.contains(v.toLowerCase(Locale.ROOT)))
                           && (v.length() >= minimumWordLength)) {
                         words.add(v);
                       }
-                    } else {
-                      String[] fieldValues = node.get(field).asText().split(" |,|-");
-                      for (String v : fieldValues) {
-                        if (v != null && !v.toLowerCase(Locale.ROOT).equals("null")
-                            && (scanCommonWord || !ignoreWords.contains(v.toLowerCase(Locale.ROOT)))
-                            && (v.length() >= minimumWordLength)) {
-                          words.add(v);
-                        }
-                      }
                     }
+
                   }
                 }
                 if (words.size() == 0) {

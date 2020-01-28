@@ -122,8 +122,8 @@ deidJobs:
 
 
       - itemName: other_name
-        action: replace_with
-        actionParam: [name]
+        action: replace_minimumlengthword_with
+        actionParam: [name] 1
         fields: GUARDIAN_NAME
 
       - itemName: mergency_contact

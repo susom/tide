@@ -132,6 +132,7 @@ public class DeidResultProcTest {
     pipeline.run();
 
   }
+
   @Test
   public void testDeidFn() throws IOException {
 
@@ -183,6 +184,44 @@ public class DeidResultProcTest {
         "Alex has fever on [DATE_TESTING]",//jitter is zero
         "Bob's birthday is [DATE_TESTING]",//jitter is null
         "Tom visited on 10/19/2018"
+      );
+
+    pipeline.run();
+  }
+
+  @Test
+  public void testTokenArrayDeidFn() throws IOException {
+
+    String[] noteTexts = new String[]{
+      "{\"note_id\":\"001_J0\",\"phi_a\":\"123-45-6789 22-334-5555, 4785-9876\",\"phi_w\":\"555-66-7777 888-99-0000,uuuoooppp\",\"note_text\":\"Alex phone number is 123-6789-45 (should be removed) and 555-66-7777 (should be removed) and 66-555-7777 (should not be removed)\"}"
+    };
+
+    final List<String> notes = Arrays.asList(noteTexts);
+
+    PCollection input = pipeline.apply(Create.of(notes)).setCoder( StringUtf8Coder.of());
+
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+    DeidJobs jobs = mapper.readValue(this.getClass().getClassLoader()
+      .getResourceAsStream("deid_test_config_tokens.yaml"), DeidJobs.class);
+
+    DeidTransform transform = new DeidTransform(jobs.getDeidJobs()[0], null);
+
+    PCollection<DeidResult> deidResults = transform.expand(input);
+
+    PCollectionTuple result = deidResults.apply("processResult",
+      ParDo.of(new DeidResultProc(true))
+        .withOutputTags(DeidTransform.fullResultTag,
+          TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
+            .and(DeidTransform.statsPhiTypeTag)
+            .and(DeidTransform.statPhiFoundByTag)));
+
+    PCollection<String> cleanText = result.get(DeidTransform.fullResultTag)
+      .apply(ParDo.of(new PrintResult()));
+
+    PAssert.that(cleanText)
+      .containsInAnyOrder(
+        "Alex phone number is [removed]-[removed]-[removed] (should be removed) and 99999999 (should be removed) and 66-555-7777 (should not be removed)"
       );
 
     pipeline.run();

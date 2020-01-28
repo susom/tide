@@ -127,10 +127,10 @@ deidJobs:
 #        actionParam: care_provider
 #        fields: EMP_NAME, PROV_NAME
 
-      - itemName: other_name
-        action: replace_with
-        actionParam: [name]
-        fields: GUARDIAN_NAME
+#      - itemName: other_name
+#        action: replace_with
+#        actionParam: [name]
+#        fields: GUARDIAN_NAME
 
       - itemName: mergency_contact
         action: replace_strictly_with
