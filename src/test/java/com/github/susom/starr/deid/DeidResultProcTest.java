@@ -193,7 +193,7 @@ public class DeidResultProcTest {
   public void testTokenArrayDeidFn() throws IOException {
 
     String[] noteTexts = new String[]{
-      "{\"note_id\":\"001_J0\",\"phi_a\":\"123-45-6789 22-334-5555, 4785-9876\",\"phi_w\":\"555-66-7777 888-99-0000,uuuoooppp\",\"note_text\":\"Alex phone number is 123-6789-45 (should be removed) and 555-66-7777 (should be removed) and 66-555-7777 (should not be removed)\"}"
+      "{\"note_id\":\"001_J0\",\"phi_a\":\"123-45-6789 22-334-5555, 4785-9876\",\"phi_w\":\"SHC-555-66-7777 888-99-0000,uuuoooppp\",\"note_text\":\"Alex phone number is 123-6789-45 (should be removed) and SHC 555-66-7777 (should be removed) and 66-555-7777 (should not be removed)\"}"
     };
 
     final List<String> notes = Arrays.asList(noteTexts);
