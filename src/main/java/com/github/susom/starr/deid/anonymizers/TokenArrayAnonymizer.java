@@ -74,8 +74,8 @@ public class TokenArrayAnonymizer implements AnonymizerProcessor {
 
       // Escape all non-alphanumeric and non-space characters in the name
       token = PATTERN_NON_ALPHANUMERIC_SPACE.matcher(token).replaceAll("\\\\$1");
-      // Replace all space sequences with \s in the name
-      token = PATTERN_SPACES.matcher(token).replaceAll("\\\\s");
+      // Replace all space sequences with \s in the name, and treat dash as match all character
+      token = PATTERN_SPACES.matcher(token).replaceAll("\\\\s").replaceAll("\\\\-",".");
 
       sb.append("|" + token);
     }
