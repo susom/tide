@@ -45,14 +45,17 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Ignore
 @ExtendWith(PipelineExtension.class)
+// NOTE: If you are going to enable this again, enable the EnabledIfEnvironmentVariable lines below also
+@Ignore
+@Disabled
 class DlpTransformTest {
 
 
@@ -140,7 +143,7 @@ class DlpTransformTest {
 
 
   @Test
-  @EnabledIfEnvironmentVariable(named = "GCP_INTEGRATION_TEST_TOKEN", matches = BASE64REGEX)
+//  @EnabledIfEnvironmentVariable(named = "GCP_INTEGRATION_TEST_TOKEN", matches = BASE64REGEX)
   void testDlpDeidRequest() {
     List<AnonymizedItemWithReplacement> items = new ArrayList<>();
 
@@ -152,7 +155,7 @@ class DlpTransformTest {
   }
 
   @Test
-  @EnabledIfEnvironmentVariable(named = "GCP_INTEGRATION_TEST_TOKEN", matches = BASE64REGEX)
+//  @EnabledIfEnvironmentVariable(named = "GCP_INTEGRATION_TEST_TOKEN", matches = BASE64REGEX)
   void testDlpInspectRequest() {
 
 
@@ -180,7 +183,7 @@ class DlpTransformTest {
   }
 
   @Test
-  @EnabledIfEnvironmentVariable(named = "GCP_INTEGRATION_TEST_TOKEN", matches = BASE64REGEX)
+//  @EnabledIfEnvironmentVariable(named = "GCP_INTEGRATION_TEST_TOKEN", matches = BASE64REGEX)
   void testPipelineWithDlp() {
     final List<String> notes = Arrays.asList(noteJsonText);
 
