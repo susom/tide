@@ -254,6 +254,8 @@ public class DeidTransform
 
           if (orginalText == null || orginalText.length() == 0) {
             deidResult.addData(DeidResultProc.STATS_CNT_DEID + textFields[textIndex],0);
+            deidResult.addData(DeidResultProc.TEXT_ORGINAL + textFields[textIndex],null);
+            deidResult.addData(DeidResultProc.TEXT_DEID + textFields[textIndex], null);
             continue;
           }
           //clean risky characters: � "\ufffd"
