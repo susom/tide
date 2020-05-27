@@ -156,7 +156,7 @@ public class DeidResultProcTest {
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     DeidJobs jobs = mapper.readValue(this.getClass().getClassLoader()
-      .getResourceAsStream("deid_test_config.yaml"), DeidJobs.class);
+      .getResourceAsStream("deid_test_config_no_ner.yaml"), DeidJobs.class);
 
     DeidTransform transform = new DeidTransform(jobs.getDeidJobs()[0], null);
 
