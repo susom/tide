@@ -119,6 +119,7 @@ public class InputTransforms {
       return pipeline.apply(
         BigQueryIO
           .read(bigQueryRowToJsonFn)
+          .withMethod(Method.DIRECT_READ)
           .withCoder(StringUtf8Coder.of())
           .from(resourceLink)); //projectId:dataSet.table
     }
