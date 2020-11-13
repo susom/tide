@@ -127,7 +127,7 @@ deidJobs:
       - itemName: patient_name
         action: surrogate_name
         actionParamMap: {"format":"F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-        fields:  PAT_FIRST_NAME
+        fields:  PAT_FIRST_NAME, preferred_name
 
       - itemName: patient_name
         action: surrogate_name
