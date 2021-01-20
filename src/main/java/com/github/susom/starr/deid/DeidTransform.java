@@ -46,6 +46,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -298,6 +299,19 @@ public class DeidTransform
             boolean matchAnyWord = false;
             int minimumWordLength = 0;
             switch (spec.action) {
+              case replace_ner_name:
+                HashSet<String> tokens = new HashSet<>();
+                for (AnonymizedItemWithReplacement foundItems : foundNerNameItems) {
+                  tokens.add(foundItems.getWord().toLowerCase());
+                }
+
+                if (tokens.size() == 0) {
+                  continue;
+                }
+                String[] tokenArray = new String[tokens.size()];
+                anonymizer = new TokenArrayAnonymizer(tokens.toArray(tokenArray),
+                    spec.actionParam[0], spec.itemName);
+                break;
               case replace_strictly_with:
                 scanCommonWord = true;
                 matchAnyWord = true;
@@ -320,7 +334,7 @@ public class DeidTransform
                 // fallthru
                 // fall through
               case replace_with:
-                List<String> words = new ArrayList<>();
+                HashSet<String> _tokens = new HashSet<>();
 
                 for (String field : spec.fields) {
                   if (node.has(field)) {
@@ -335,20 +349,21 @@ public class DeidTransform
                       if (v != null && !v.toLowerCase(Locale.ROOT).equals("null")
                           && (scanCommonWord || !ignoreWords.contains(v.toLowerCase(Locale.ROOT)))
                           && (v.length() >= minimumWordLength)) {
-                        words.add(v);
+                        _tokens.add(v.toLowerCase());
                       }
                     }
-
                   }
                 }
-                if (words.size() == 0) {
+
+                if (_tokens.size() == 0) {
                   continue;
                 }
-                String[] wordArray = new String[words.size()];
-                anonymizer = new TokenArrayAnonymizer(words.toArray(wordArray),
+                String[] _tokenArray = new String[_tokens.size()];
+                anonymizer = new TokenArrayAnonymizer(_tokens.toArray(_tokenArray),
                   spec.actionParam[0], spec.itemName);
 
                 break;
+
               case general:
 
                 anonymizer = new GeneralAnonymizer();
@@ -401,7 +416,7 @@ public class DeidTransform
                 if (spec.actionParamMap != null) {
                   //{"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
                   String[] nameF = spec.actionParamMap.get("format").split(" |,|-");
-                  words = new ArrayList<>();
+                  ArrayList<String> surrogateWords = new ArrayList<>();
                   List<NameType> nameTypes = new ArrayList<>();
                   for (String field : spec.fields) {
                     if (node.has(field)) {
@@ -412,7 +427,7 @@ public class DeidTransform
                         if (v != null && !v.toLowerCase(Locale.ROOT).equals("null")
                             && (!ignoreWords.contains(v.toLowerCase(Locale.ROOT)))
                             && (v.length() >= minimumWordLength)) {
-                          words.add(v);
+                          surrogateWords.add(v);
                           if (pos < nameF.length) {
                             switch (nameF[pos].toUpperCase(Locale.ROOT)) {
                               case "L":
@@ -435,13 +450,13 @@ public class DeidTransform
                       }
                     }
                   }
-                  if (words.size() == 0) {
+                  if (surrogateWords.size() == 0) {
                     continue;
                   }
-                  wordArray = new String[words.size()];
+                  String[] wordArray = new String[surrogateWords.size()];
                   NameType[] dictionary = new NameType[nameTypes.size()];
                   NameSurrogate.Builder builder = new NameSurrogate.Builder();
-                  builder.withNames(words.toArray(wordArray))
+                  builder.withNames(surrogateWords.toArray(wordArray))
                     .withAnonymizerType(spec.itemName)
                     .withDic(nameTypes.toArray(dictionary));
 

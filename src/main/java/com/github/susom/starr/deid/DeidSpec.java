@@ -122,6 +122,7 @@ public class DeidSpec implements Serializable {
     jitter_date_randomly, //randomly generate jitter using hash function
     remove_age, //AgeAnonymizer
     remove_mrn, //MrnAnonymizer
+    replace_ner_name, //replace ner findings directly
 
     /* ActualNameAnonymizer for words with minimum word length of 5 */
     replace_minimumlengthword_with,

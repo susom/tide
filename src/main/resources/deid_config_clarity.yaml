@@ -132,7 +132,7 @@ deidJobs:
 #        actionParam: [name]
 #        fields: GUARDIAN_NAME
 
-      - itemName: mergency_contact
+      - itemName: emergency_contact
         action: replace_strictly_with
         actionParam: emergency_contact
         fields: [father_name], mother_name
@@ -152,17 +152,17 @@ deidJobs:
         fields: ''
 
 
-      - itemName: mergency_contact_address
+      - itemName: emergency_contact_address
         action: surrogate_address
         actionParamMap: {"f_address_1":"father_addr_ln_1","f_address_2":"father_addr_ln_2", "f_city":"father_city", "f_zip":"father_zip"}
         fields: ''
 
-      - itemName: mergency_contact_address
+      - itemName: emergency_contact_address
         action: surrogate_address
         actionParamMap: {"f_address_1":"mother_addr_ln_1","f_address_2":"mother_addr_ln_2", "f_city":"mother_city", "f_zip":"mother_zip"}
         fields: ''
 
-#      - itemName: mergency_contact_address
+#      - itemName: emergency_contact_address
 #        action: replace_with
 #        actionParam: emergency_contact_address
 #        fields: father_addr_ln_1, father_addr_ln_2, father_city, father_zip, mother_addr_ln_1, mother_addr_ln_2, mother_city, mother_zip
@@ -178,7 +178,7 @@ deidJobs:
 #        fields:
 
 
-      - itemName: mergency_contact_phone
+      - itemName: emergency_contact_phone
         action: replace_minimumlengthword_with
         actionParam: [mergency_contact_phone] 7
         fields: father_cell_phone, mother_cell_phone

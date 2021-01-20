@@ -1,8 +1,10 @@
-name: note_deid_20180831
+name: note_deid_test_20190715
 deidJobs:
-  - jobName: stanford_deid_v1_strict
-    version: v1.5
-    analytic: true
+  - jobName: stanford_deid_v2_strict
+    version: v1.6
+    textFields: note_text
+    textIdFields: note_id
+    analytic: false
     dateJitter: local
     dateJitterRange: 30
     dateJitterSeedField: pat_id
@@ -47,33 +49,8 @@ deidJobs:
         infoTypes: IP_ADDRESS,MAC_ADDRESS,URL
 
     spec:
-      - itemName: phi_date
-        action: jitter_date
-        actionParam: gf2jKlYrX6
-        fields: ''
 
-      - itemName: age
-        action: remove_age
-        fields: ''
-
-      - itemName: mrn
-        action: remove_mrn
-        fields: ''
-
-      - itemName: general
-        action: general
-        actionParam:
-        actionParamMap: {"general-phone":"999-999-9999","general-email":"99999","general-ip":"000.000.000.000","general-url":"www.example.com","general-ssn":"999-99-9999"}
-
-        fields:
-
-      - itemName: general_name
-        action: surrogate_name
-        fields: ''
-
-      - itemName: other_address
-        action: surrogate_address
-        fields:  ''
       - itemName: replace_ner_name
         action: replace_ner_name
         actionParam: '[NAME]'
+

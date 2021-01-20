@@ -189,6 +189,47 @@ public class DeidResultProcTest {
     pipeline.run();
   }
 
+
+  @Test
+  public void testNerReplaceDeidFn() throws IOException {
+
+    String[] noteTexts = new String[]{
+        "{\"note_id\":\"001_J0\",\"jitter\":0,\"note_text\":\"Alex has fever on June 4, 2019\"}",
+        "{\"note_id\":\"007_J1\",\"jitter\":1,\"note_text\":\"Tom visited on 10/18/2018 2:02 PM\"}"
+    };
+
+    final List<String> notes = Arrays.asList(noteTexts);
+
+    PCollection input = pipeline.apply(Create.of(notes)).setCoder( StringUtf8Coder.of());
+
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+    DeidJobs jobs = mapper.readValue(this.getClass().getClassLoader()
+        .getResourceAsStream("deid_test_config_with_ner.yaml"), DeidJobs.class);
+
+    DeidTransform transform = new DeidTransform(jobs.getDeidJobs()[0], null);
+
+    PCollection<DeidResult> deidResults = transform.expand(input);
+
+    PCollectionTuple result = deidResults.apply("processResult",
+        ParDo.of(new DeidResultProc(true))
+            .withOutputTags(DeidTransform.fullResultTag,
+                TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
+                    .and(DeidTransform.statsPhiTypeTag)
+                    .and(DeidTransform.statPhiFoundByTag)));
+
+    PCollection<String> cleanText = result.get(DeidTransform.fullResultTag)
+        .apply(ParDo.of(new PrintResult()));
+
+    PAssert.that(cleanText)
+        .containsInAnyOrder(
+            "[NAME] visited on 10/18/2018 2:02 PM",
+            "[NAME] has fever on June 4, 2019"
+        );
+
+    pipeline.run();
+  }
+
   @Test
   public void testTokenArrayDeidFn() throws IOException {
 
