@@ -1,0 +1,199 @@
+name: pedsnet_deid_20201207
+deidJobs:
+  - jobName: stanford_deid_v3
+    version: v3.0
+    textFields: note_text
+    textIdFields: note_id
+    analytic: false
+    dateJitter: local
+    dateJitterRange: 0
+    dateJitterSeedField: pat_id
+    googleDlpEnabled: false
+    nerEnabled: true
+    googleDlpInfoTypes:
+#      - itemName: age
+#        infoTypes: AGE
+      - itemName: date
+        infoTypes: DATE
+        actionParam: 10/10/2100
+        fields: 'JITTER'
+      - itemName: phi_date
+        infoTypes: DATE_OF_BIRTH
+        actionParam: 10/10/2100
+        fields: 'JITTER'
+      - itemName: payment_id
+        infoTypes: CREDIT_CARD_NUMBER,CREDIT_CARD_TRACK_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE
+        actionParam: 999999999999999
+      - itemName: public_id
+        infoTypes: US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT,SWIFT_CODE
+        actionParam: 999999999
+      - itemName: patient_ssn
+        infoTypes: US_SOCIAL_SECURITY_NUMBER
+        actionParam: 999-99-9999
+      - itemName: other_id
+        infoTypes: US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER,IMEI_HARDWARE_ID
+        actionParam: 999999999
+      - itemName: other_email
+        infoTypes: EMAIL_ADDRESS
+        actionParam: deidentified@example.com
+      - itemName: other_name
+        infoTypes: PERSON_NAME
+      - itemName: other_phone
+        infoTypes: PHONE_NUMBER,US_TOLLFREE_PHONE_NUMBER
+        actionParam: 999-999-9999
+      - itemName: care_provider_id
+        infoTypes: US_HEALTHCARE_NPI,US_DEA_NUMBER
+        actionParam: 9999999999999
+      - itemName: other_address
+        infoTypes: LOCATION,STREET_ADDRESS
+      - itemName: internet_locator
+        infoTypes: IP_ADDRESS
+        actionParam: 000.000.000.000
+      - itemName: internet_locator
+        infoTypes: MAC_ADDRESS
+        actionParam: 00-00-00-00-00-00
+      - itemName: internet_locator
+        infoTypes: URL
+        actionParam: www.example.com
+
+    spec:
+
+      - itemName: phi_date
+        action: keep
+        actionParam:
+        fields: '*'
+
+#      - itemName: age
+#        action: remove_age
+#        fields: ''
+
+      - itemName: mrn
+        action: remove_mrn
+        actionParam: "[MRN]"
+        fields: ''
+
+      - itemName: patient_mrn
+        action: replace_with
+        actionParam: "[MRN]"
+        fields:  PAT_MRN_ID
+
+      - itemName: other_id
+        action: replace_with
+        actionParam: "[OTHER_ID]"
+        fields:  pat_id, birth_wrist_band, epic_pat_id, PRIM_CVG_ID, PRIM_EPP_ID, EMPLOYER_ID
+
+      - itemName: general
+        action: general
+        actionParam:
+        actionParamMap: {"general-phone":"[PHONE_NUMBER]","general-email":"[EMAIL]","general-ip":"[IP_ADDRESS]","general-url":"[URL]","general-ssn":"[SSN]"}
+        fields:
+
+      - itemName: general_number
+        action: general_number
+        actionParam:
+        actionParamMap: {"general-account":"[OTHER_ID]","general-order":"[OTHER_ID]"}
+        fields:
+
+      - itemName: patient_ssn
+        action: replace_with
+        actionParam: "[SSN]"
+        fields:  ssn
+
+      - itemName: patient_email
+        action: replace_with
+        actionParam: "[EMAIL]"
+        fields:  email_address
+
+      - itemName: other_email
+        action: replace_with
+        actionParam: "[EMAIL]"
+        fields:
+
+      - itemName: public_id
+        action: replace_with
+        actionParam: "[OTHER_ID]"
+        fields:  medicare_num, medicaid_num
+
+      - itemName: family_id
+        action: replace_with
+        actionParam: "[MRN]"
+        fields:  mother_pat_id, father_pat_id
+
+      - itemName: patient_name
+        action: replace_with
+        actionParam: "[NAME]"
+        fields:  pat_name, PROXY_NAME
+
+      - itemName: patient_name
+        action: replace_with
+        actionParam: "[NAME]"
+        fields:  PAT_FIRST_NAME, preferred_name
+
+      - itemName: patient_name
+        action: replace_with
+        actionParam: "[NAME]"
+        fields:  PAT_LAST_NAME, PAT_MIDDLE_NAME
+
+      - itemName: other_name
+        action: replace_with
+        actionParam: "[NAME]"
+        fields: GUARDIAN_NAME
+
+      - itemName: care_provider_name
+        action: replace_with
+        actionParam: "[NAME]"
+        fields: EMP_NAME
+
+      - itemName: mergency_contact
+        action: replace_with
+        actionParam: "[NAME]"
+        fields: father_name, mother_name
+
+      - itemName: other_address
+        action: replace_with
+        actionParam: "[ADDRESS]"
+        fields:
+
+      - itemName: patient_address
+        action: replace_with
+        actionParam: "[ADDRESS]"
+        fields:
+
+      - itemName: patient_address
+        action: replace_with
+        actionParam: "[ADDRESS]"
+        fields:
+
+      - itemName: emergency_contact_address
+        action: replace_minimumlengthword_with
+        actionParam: "[ADDRESS]"
+        fields:
+
+      - itemName: emergency_contact_address
+        action: replace_minimumlengthword_with
+        actionParam: "[ADDRESS]"
+        fields:
+
+      - itemName: patient_phone
+        action: replace_minimumlengthword_with
+        actionParam: "[PHONE_NUMBER]"
+        fields:  home_phone, work_phone, tmp_home_phone, PROXY_PHONE,
+
+      - itemName: mergency_contact_phone
+        action: replace_minimumlengthword_with
+        actionParam: "[PHONE_NUMBER]"
+        fields: father_cell_phone, mother_cell_phone
+
+      - itemName: accession_num
+        action: replace_minimumlengthword_with
+        actionParam: "[OTHER_ID]"
+        fields: accession_num
+
+      - itemName: general_name
+        action: replace_with
+        actionParam: "[NAME]"
+        fields:
+
+      - itemName: replace_ner_name
+        action: replace_ner
+        actionParam: '[NAME]'
