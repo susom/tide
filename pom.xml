@@ -11,7 +11,7 @@
 
   <name>Starr Core DeId Pipeline</name>
   <artifactId>deid</artifactId>
-  <version>3.0.18-SNAPSHOT</version>
+  <version>3.0.19-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <distributionManagement>
