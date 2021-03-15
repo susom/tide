@@ -246,6 +246,28 @@
 
   </dependencies>
 
+  <profiles>
+    <profile>
+      <!-- Deploy is disabled by default, to deploy unset this profile with -P !deid-disable-deploy -->
+      <id>deid-disable-deploy</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.7</version>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <build>
     <plugins>
       <plugin>
