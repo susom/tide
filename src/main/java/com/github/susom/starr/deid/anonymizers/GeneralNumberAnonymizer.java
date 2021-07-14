@@ -67,23 +67,21 @@ public class GeneralNumberAnonymizer implements AnonymizerProcessor {
       typeAccession
   };
 
-  private static final Map<String,String> replacementMap = new HashMap<>();
+  private final Map<String,String> replacementMap = new HashMap<>();
 
-  static {
-    for (String type : types) {
-      replacementMap.put(type, "[" + type + "]");
-    }
-  }
+  private boolean typesInMapOnly = false;
 
   public void setReplacementMap(Map<String,String> actionParamMap) {
     if (actionParamMap == null || actionParamMap.size() == 0) {
       return;
     }
     actionParamMap.forEach((k,v) -> {
-      if (replacementMap.containsKey(k)) {
-        replacementMap.put(k,v);
-      }
+      replacementMap.put(k,v);
     });
+  }
+
+  public void includeTypesInMapOnly(boolean typesInMapOnly) {
+    this.typesInMapOnly = typesInMapOnly;
   }
 
   @Override
@@ -92,12 +90,18 @@ public class GeneralNumberAnonymizer implements AnonymizerProcessor {
     for (int i = 0;i < pats.length;i++) {
       Pattern p = pats[i];
       String type = types[i];
+      if (typesInMapOnly && !replacementMap.containsKey(type)) {
+        continue;
+      }
+
       Matcher matcher = p.matcher(text);
 
       while (matcher.find()) {
         String word = text.substring(matcher.start(),matcher.end());
+        String replacement = replacementMap.containsKey(type)
+            ? replacementMap.get(type) : ("[" + type + "]");
         AnonymizedItemWithReplacement ai = new AnonymizedItemWithReplacement(
-            word, matcher.start(), matcher.end(), replacementMap.get(type),
+            word, matcher.start(), matcher.end(), replacement,
             "deid-number-general", type);
 
         findings.add(ai);

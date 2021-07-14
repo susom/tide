@@ -30,13 +30,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.Assert.assertEquals;
 
 public class LocationSurrogateTest {
   private static final Logger log = LoggerFactory.getLogger(LocationSurrogateTest.class);
@@ -47,7 +45,7 @@ public class LocationSurrogateTest {
     "Starbucks in SF : 5290 Diamond Heights Blvd, San Francisco, CA 94131 ",
     "Starbucks at 5290 Diamond Heights, San Francisco ",
     "LOCATION OF OUTPATIENT CONSULTATION: San Ramon pediatric cardiology office."
-    + "730 Ezra Rd  San Jose CA  94304-1503 and San Ramon in US"
+    + "730 Ezra Rd  San Jose CA  94304-1503 and San Ramon in US", "bloody mucus \"trap\" specimen"
   };
 
   private DeidJob job;
@@ -65,9 +63,16 @@ public class LocationSurrogateTest {
   @Test
   public void scrub() throws IOException, ClassNotFoundException, SQLException {
 
-
-
-    Address[] knownAddr = new Address[]{ new Address("Porter", "room 2", "123", "Ave", "Palo Alto","89093", "CA"), new Address("Stanford","building Y", "456", "Ave", "Palo Alto", "98739", "CA")};
+    Address[] knownAddr = new Address[]{
+        new Address("Porter", "room 2", "123",
+            "Ave", "Palo Alto","89093", "CA"),
+        new Address("Stanford","building Y", "456",
+            "Ave", "Palo Alto", "98739", "CA"),
+        new Address("returned mail, no forward address",null, null,
+            null, " ", null, null),
+        new Address("234 ABC RD#2L",null, null,
+            null, null, null, null)
+    };
 
     for(String text : textArray){
 
@@ -111,11 +116,7 @@ public class LocationSurrogateTest {
 
         System.out.println("INPUT:" + text);
         System.out.println("OUTPUT:" + text.replaceAll(patternStr, "[replaced]"));
-
       }
-
     }
-
-
   }
 }

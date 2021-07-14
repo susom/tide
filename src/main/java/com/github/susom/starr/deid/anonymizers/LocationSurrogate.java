@@ -25,17 +25,14 @@ import com.github.susom.starr.Utility;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import org.apache.commons.lang3.StringUtils;
 import org.javatuples.Quintet;
 import org.slf4j.Logger;
@@ -178,7 +175,7 @@ public class LocationSurrogate implements AnonymizerProcessor {
 
         //address without street
         String patternStr = LocationSurrogate.getCityLevelLocationRegex(addr);
-        if (patternStr == null) {
+        if (patternStr == null || patternStr.length() <= 2 ) {
           continue;
         }
 

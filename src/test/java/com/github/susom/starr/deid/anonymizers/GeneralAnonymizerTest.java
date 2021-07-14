@@ -18,17 +18,20 @@
 
 package com.github.susom.starr.deid.anonymizers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.susom.starr.deid.DeidResultProc;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class GeneralAnonymizerTest {
   private static final Logger log = LoggerFactory.getLogger(GeneralAnonymizerTest.class);
@@ -42,19 +45,17 @@ public class GeneralAnonymizerTest {
   @Test
   public void scrub() {
 
-    GeneralAnonymizer ga = new GeneralAnonymizer();
+    GeneralAnonymizer generalAnonymizer = new GeneralAnonymizer();
 
     IntStream.range(0, textArray.length).forEach(i->{
       List<AnonymizedItemWithReplacement> items = new ArrayList<>();
-      ga.find(textArray[i], items);
+      generalAnonymizer.find(textArray[i], items);
       String result = DeidResultProc.applyChange(items,textArray[i]);
       log.info("INPUT:" + textArray[i]);
       log.info("OUTPUT:" + result);
 
       for (AnonymizedItemWithReplacement item : items) {
         String clipFromOriginal = textArray[i].substring(Math.toIntExact(item.getStart()), Math.toIntExact(item.getEnd()));
-//        log.info(String.format("item words:%s type:%s span from:%s to:%s verify word:%s",
-//          item.getWord(), item.getType(), item.getStart(), item.getEnd(), clipFromOriginal));
         assertEquals("span start and end should be based on original, not on processed text with offset", item.getWord(), clipFromOriginal );
       }
 
@@ -63,14 +64,37 @@ public class GeneralAnonymizerTest {
 
     for(String text : textArray){
       List<AnonymizedItemWithReplacement > items = new ArrayList<>();
-      ga.find(text, items);
+      generalAnonymizer.find(text, items);
       String result = DeidResultProc.applyChange(items,text);
       log.info("INPUT:" + text);
       log.info("OUTPUT:" + result);
 
       for (AnonymizedItemWithReplacement item : items) {
-//        log.info(String.format("item words:%s type:%s span from:%s to:%s verify word:%s",
-//          item.getWord(), item.getType(), item.getStart(), item.getEnd(), text.substring(item.getStart(), item.getEnd())));
+        Assert.assertNotEquals("text should be replaced", item.getWord(), item.replacement );
+      }
+    }
+
+  }
+
+
+
+  @Test
+  public void scrubWithReplacementMap() throws JsonProcessingException {
+    String configStr = "{\"general-phone\":\"999-999-9999\",\"general-ip\":\"000.000.000.000\",\"general-url\":\"www.example.com\"}";
+    GeneralAnonymizer generalAnonymizer = new GeneralAnonymizer();
+    HashMap replacementMap = new ObjectMapper().readValue(configStr, HashMap.class);
+    generalAnonymizer.setReplacementMap(replacementMap);
+    generalAnonymizer.includeTypesInMapOnly(true);
+
+    for(String text : textArray){
+      List<AnonymizedItemWithReplacement > items = new ArrayList<>();
+      generalAnonymizer.find(text, items);
+      String result = DeidResultProc.applyChange(items,text);
+      log.info("INPUT:" + text);
+      log.info("OUTPUT:" + result);
+
+      for (AnonymizedItemWithReplacement item : items) {
+        Assert.assertTrue("only process types in provided map", replacementMap.containsKey(item.getType()));
         Assert.assertNotEquals("text should be replaced", item.getWord(), item.replacement );
       }
     }

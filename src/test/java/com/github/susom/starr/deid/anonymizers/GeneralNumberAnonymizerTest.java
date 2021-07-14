@@ -18,9 +18,10 @@
 
 package com.github.susom.starr.deid.anonymizers;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -47,5 +48,23 @@ class GeneralNumberAnonymizerTest {
           log.info("orginal text :{}  found: {} replace:{}", text, item.getWord(), item.getReplacement());
         }
       }
+  }
+
+  @Test
+  void findWithReplacementMap() throws JsonProcessingException {
+    String configStr = "{\"general-account\":\"9999999\",\"general-order\":\"99999\"}";
+    GeneralNumberAnonymizer gna = new GeneralNumberAnonymizer();
+    HashMap replacementMap = new ObjectMapper().readValue(configStr, HashMap.class);
+    gna.setReplacementMap(replacementMap);
+    gna.includeTypesInMapOnly(true);
+
+    for (String text : textArray) {
+      List<AnonymizedItemWithReplacement> items = new ArrayList<>();
+      gna.find(text, items);
+
+      for ( AnonymizedItemWithReplacement item : items) {
+        log.info("orginal text :{}  found: {} replace:{}", text, item.getWord(), item.getReplacement());
+      }
+    }
   }
 }

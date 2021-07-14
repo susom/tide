@@ -114,7 +114,7 @@ public class DeidSpec implements Serializable {
 
   enum Action {
     general, // general pattern matching deid with GeneralAnonymizer
-    general_number, //general order and account number
+    general_number, //general order, account number and general-accession
     surrogate_name, //surrogate name using NameSurrogate
     surrogate_address, //surrogate address using LocationSurrogate
     jitter_date_from_field, //DateAnonymizer with jitter provided in a field

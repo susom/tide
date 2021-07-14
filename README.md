@@ -50,7 +50,7 @@ Deid spec can be grouped into PHI categories.
 Configure General Regex pattern matching, or find known PHI of the patient associated with the text. 
 
 - general : for Phone/Fax, Email, URL, IP address, SSN
-- general_number: general order and account number
+- general_number: general order, account number and general-accession
 - surrogate_name : surrogate name using NameSurrogate
 - surrogate_address : surrogate address using LocationSurrogate
 - jitter_date_from_field : Date Anonymizer with jitter value provided in an input field

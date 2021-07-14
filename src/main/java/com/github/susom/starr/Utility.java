@@ -21,21 +21,10 @@ package com.github.susom.starr;
 import com.github.susom.database.Database;
 import com.github.susom.database.DatabaseProvider;
 import com.github.susom.database.SqlInsert;
-
-import com.google.common.base.Charsets;
-import edu.stanford.nlp.util.StreamGobbler;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -44,11 +33,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.CharSet;
 import org.javatuples.Pair;
 import org.javatuples.Quintet;
 import org.javatuples.Triplet;
@@ -85,7 +71,7 @@ public class Utility {
   }
 
   public static String regexStr(String in) {
-    return Pattern.quote(in);
+    return Pattern.quote(String.valueOf(in));
   }
 
   private static final String titlePatternString1

@@ -85,7 +85,7 @@ deidJobs:
       - itemName: general_number
         action: general_number
         actionParam:
-        actionParamMap: {"general-account":"9999999","general-order":"99999"}
+        actionParamMap: {"general-account":"9999999","general-order":"99999","general-accession":"999-999999"}
         fields:
 
 

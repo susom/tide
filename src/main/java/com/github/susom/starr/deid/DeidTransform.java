@@ -34,7 +34,6 @@ import com.github.susom.starr.deid.anonymizers.MrnAnonymizer;
 import com.github.susom.starr.deid.anonymizers.NameSurrogate;
 import com.github.susom.starr.deid.anonymizers.NameSurrogate.NameType;
 import com.github.susom.starr.deid.anonymizers.TokenArrayAnonymizer;
-
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.CoreEntityMention;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
@@ -46,7 +45,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -302,7 +300,7 @@ public class DeidTransform
               case replace_ner_name:
                 HashSet<String> tokens = new HashSet<>();
                 for (AnonymizedItemWithReplacement foundItems : foundNerNameItems) {
-                  tokens.add(foundItems.getWord().toLowerCase());
+                  tokens.add(foundItems.getWord().toLowerCase(Locale.ROOT));
                 }
 
                 if (tokens.size() == 0) {
@@ -334,7 +332,7 @@ public class DeidTransform
                 // fallthru
                 // fall through
               case replace_with:
-                HashSet<String> _tokens = new HashSet<>();
+                HashSet<String> hashTokens = new HashSet<>();
 
                 for (String field : spec.fields) {
                   if (node.has(field)) {
@@ -349,17 +347,17 @@ public class DeidTransform
                       if (v != null && !v.toLowerCase(Locale.ROOT).equals("null")
                           && (scanCommonWord || !ignoreWords.contains(v.toLowerCase(Locale.ROOT)))
                           && (v.length() >= minimumWordLength)) {
-                        _tokens.add(v.toLowerCase());
+                        hashTokens.add(v.toLowerCase(Locale.ROOT));
                       }
                     }
                   }
                 }
 
-                if (_tokens.size() == 0) {
+                if (hashTokens.size() == 0) {
                   continue;
                 }
-                String[] _tokenArray = new String[_tokens.size()];
-                anonymizer = new TokenArrayAnonymizer(_tokens.toArray(_tokenArray),
+                String[] hashTokenArray = new String[hashTokens.size()];
+                anonymizer = new TokenArrayAnonymizer(hashTokens.toArray(hashTokenArray),
                   spec.actionParam[0], spec.itemName);
 
                 break;
@@ -368,11 +366,15 @@ public class DeidTransform
 
                 anonymizer = new GeneralAnonymizer();
                 ((GeneralAnonymizer)anonymizer).setReplacementMap(spec.actionParamMap);
+                ((GeneralAnonymizer)anonymizer).includeTypesInMapOnly(
+                    Arrays.stream(spec.actionParam).anyMatch(t -> t.equals("include-types-in-map-only")));
                 break;
               case general_number:
 
                 anonymizer = new GeneralNumberAnonymizer();
                 ((GeneralNumberAnonymizer)anonymizer).setReplacementMap(spec.actionParamMap);
+                ((GeneralNumberAnonymizer)anonymizer).includeTypesInMapOnly(
+                    Arrays.stream(spec.actionParam).anyMatch(t -> t.equals("include-types-in-map-only")));
                 break;
               case surrogate_address:
 
@@ -518,7 +520,8 @@ public class DeidTransform
                 break;
 
               case jitter_date_from_field:
-                int jitter = 0;
+                int jitter = Utility.jitterHash(jitterSeed, spec.actionParam[0],
+                    job.getDateJitterRange()); // non-zero initial value
                 for (String field : spec.fields) { //take only the first field
                   if (node.has(field)) {
                     jitter = node.get(field).asInt();

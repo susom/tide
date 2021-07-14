@@ -268,6 +268,50 @@ public class DeidResultProcTest {
     pipeline.run();
   }
 
+  @Test
+  public void testGeneralAnonymizer() throws IOException {
+    String[] noteTexts = new String[]{
+        "{\"note_id\":\"001\",\"EMP_NAME\":\"Alex\",\"note_text\":\"PATIENT Account number 898 , SSN: 345-76-7834, Medical Rec #:  8235455. Email: wcl@com.com, Website: https://www.websit.com/testpage  \"}"
+    };
+    Set<String> notExpecting = new HashSet<>(Arrays.asList(
+        "wcl@com.com",
+        "https://www.websit.com/testpage",
+        "345-76-7834"));
+
+    final List<String> notes = Arrays.asList(noteTexts);
+
+    PCollection input = pipeline.apply(Create.of(notes)).setCoder( StringUtf8Coder.of());
+
+    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+
+    DeidJobs jobs = mapper.readValue(this.getClass().getClassLoader()
+        .getResourceAsStream("deid_test_config.yaml"), DeidJobs.class);
+
+    DeidTransform transform = new DeidTransform(jobs.getDeidJobs()[0], null);
+
+    PCollection<DeidResult> deidResults = transform.expand(input);
+
+    PCollectionTuple result = deidResults.apply("processResult",
+        ParDo.of(new DeidResultProc(true))
+            .withOutputTags(DeidTransform.fullResultTag,
+                TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
+                    .and(DeidTransform.statsPhiTypeTag)
+                    .and(DeidTransform.statPhiFoundByTag)));
+
+    PCollection<String> cleanText = result.get(DeidTransform.fullResultTag)
+        .apply(ParDo.of(new PrintResult()));
+
+    PAssert.that(cleanText).satisfies(it ->{
+      for (String value : it) {
+        Assert.assertFalse(notExpecting.contains(value));
+      }
+      return null;
+    });
+
+    pipeline.run();
+
+  }
+
   private static class PrintResult extends   DoFn<String,String> {
     final static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 

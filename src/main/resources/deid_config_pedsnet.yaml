@@ -91,7 +91,7 @@ deidJobs:
       - itemName: general_number
         action: general_number
         actionParam:
-        actionParamMap: {"general-account":"[OTHER_ID]","general-order":"[OTHER_ID]"}
+        actionParamMap: {"general-account":"[OTHER_ID]","general-order":"[OTHER_ID]","general-accession":"[OTHER_ID]"}
         fields:
 
       - itemName: patient_ssn
