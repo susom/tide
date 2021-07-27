@@ -59,6 +59,11 @@ import joptsimple.OptionSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Use DLP native runner rather than calling DLP api.
+ * @author wenchengl
+ */
+
 public class DlpNativeRunner {
   public static final String OPTION_NAME_GCP_CREDENTIALS_KEY_FILE = "gcpCredentialsKeyFile";
   public static final String OPTION_NAME_PROJECT_ID               = "projectId";

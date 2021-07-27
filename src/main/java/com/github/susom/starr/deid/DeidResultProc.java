@@ -34,6 +34,11 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * generate analytic results.
+ * @author wenchengl
+ */
+
 public class DeidResultProc extends DoFn<DeidResult,String> {
 
   private static final Logger log = LoggerFactory.getLogger(DeidResultProc.class);

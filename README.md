@@ -1,50 +1,57 @@
-# TiDE 
+# TiDE Overview
+
+TiDE is a free text deidentification tool that can identify and deid PHI in clinical note text and other free text in medical data. It uses pattern matching, known PHI matching and NER to search for PHI, and use geenral replacement or hide-in-plain-sight to replace PHI with safe text.
 
 
-## PHI and InfoTypes
+## Safe Harbor 18 identifiers
+TiDE identify the following HIPAA identifiers:
 
-This deid tool try to identify and handles Safe Harbor 18 identifiers
+```
+  Name, Address, dates,phone,fax,Email,SSN,MRN,Health plan beneficiary number,Account number,Certificate or license number,vehicle number,URL,IP,Finger/Voice print,photo,Any other characteristic that could uniquely identify the individual
+```
 
-      Name, Address, dates,phone,fax,Email,SSN,MRN,Health plan beneficiary number,Account number,Certificate or license number,vehicle number,URL,IP,Finger/Voice print,photo,Any other characteristic that could uniquely identify the individual
-
-
-Optionally Google DLP API identify the following DLP infoTypes: 
-
-    AGE,DATE,DATE_OF_BIRTH,CREDIT_CARD_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE,US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT,US_SOCIAL_SECURITY_NUMBER,US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER,EMAIL_ADDRESS,PERSON_NAME,PHONE_NUMBER,US_HEALTHCARE_NPI,US_DEA_NUMBER,LOCATION,IP_ADDRESS,MAC_ADDRESS,URL
-
-
-
-## Prepare data to be deid-ed
-
-* Step one: 
-
-First join both text table and knwon phi table to get data table with both text and known phi in each row. Please refer to the scripts under dev-ops which contains queries to prepare input data for note, impression, narrative, flowsheet etc. 
-
-* Step two:
-
-Export table to Google Cloud Storage bucket as newline delimited JSON file. 
+## Optionally use Google DLP API to identify the following DLP infoTypes: 
+```
+  AGE,DATE,DATE_OF_BIRTH,CREDIT_CARD_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE,US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT,US_SOCIAL_SECURITY_NUMBER,US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER,EMAIL_ADDRESS,PERSON_NAME,PHONE_NUMBER,US_HEALTHCARE_NPI,US_DEA_NUMBER,LOCATION,IP_ADDRESS,MAC_ADDRESS,URL
+```
 
 
-### Modification options: 
- 
+# Data Preparation for TiDE
+
+## Directly use BigQuery table as input 
+
+You can directly use BigQuery table that contains the free text column as input if you only need to use NER or general patten matching. If you have known PHI associated with text, you can join free text with knwon phi, and create a final input table with both text and known phi in each row. 
+
+## Use JSON files on Google Cloud Storage or local disk
+
+If you prefer to work with files, you can export table to Google Cloud Storage bucket as newline delimited JSON files. Then use these GCS files as input.
+
+
+# Options to Replace PHI 
+
+Options to replace PHI discovered by TiDE:
+
 * Masking (everything except name and location)
 * Jittering (date, age) with provided jitter value
 * Surrogate name and location
 * General Replacement with common patterns of each type of PHIs
 
+# Build the project
 
+Run Maven repo root.
+```
+mvn clean install -DskipTests=true
+```
 
-### TiDE identify PHIs in three ways. 
+# Run TiDE Pipeline
 
-1. General pattern matching with regex searches for known patterns. For example url, email, date and US address.
-2. Based on known PHI, TiDE removed them from the text.
-3. use NLP or DLP tools to find entities such as name, location
- 
+##  Configure Deid job spec
 
-###  Configure Deid job spec
+TiDE has some embedded job specifications that fit for most common use cases. 
 
-To customize the configuration, create a new config file, and use the file path as argument value of --deidConfigFile when run the utility.
+If need to customize the configuration, create a new config yaml file, and use the file path as argument value of --deidConfigFile when run the utility.
 
+## Deid Config YAML file
 Deid spec can be grouped into PHI categories. 
 
 Configure General Regex pattern matching, or find known PHI of the patient associated with the text. 
@@ -61,6 +68,8 @@ Configure General Regex pattern matching, or find known PHI of the patient assoc
 - replace_minimumlengthword_with : find words with minimum word length
 - replace_with : find word longer than 2 characters, and not in common vocabulary
 - replace_strictly_with : applied strictly regardless word length, and if in common vocabulary
+
+Configuration Example:
 
 
 ```yaml
@@ -88,9 +97,9 @@ deidJobs:
 ```
 
 
-### Set up environment
+## Set up runtime environment
 
-Configure Google credential file location
+For running TiDE on Dataflow, you need to configure Google Cloud credential
 
 ```
 export GOOGLE_APPLICATION_CREDENTIALS=<gcp service account credential json file>
@@ -98,12 +107,45 @@ export GOOGLE_APPLICATION_CREDENTIALS=<gcp service account credential json file>
 ```
 
 
-### Run Deid jobs
+## Run Deid jobs
+
+TiDE was created using Apache Beam programming model. So you can run TiDE on many technolgies using appropriate runners on https://beam.apache.org/documentation/runners/capability-matrix/
+
+## Pipeline Runtime Configurations
+
+Three types of parameters are needed for running TiDE:
+
+1. for TiDE itself, for example, specify deid configuration
+2. for Apache Beam runners
+3. for running TiDE on Google Cloud Dataflow
+
+### Pipeline runtime parameters for TiDE
+
+|parameter|description| sample value |
+|--|--|--|
+|textInputFields |field name in input that contains free text | note_text| 
+|textIdFields |field name in input that contains row id(s) | note_id,note_csn_id| 
+| runner | type of the Apache Beam runner | DirectRunner, DataflowRunner |
+|inputType    | type of the input souce. Currently supports Google Cloud Storage, Google BigQuery and local files  | gcp_gcs , gcp_bq , local |
+|inputResource | Path of the file to read from | gs://mybucket/path/to/json/files/*.json|
+|outputResource | Path of the output files | |
+|DeidConfigFile | Name of the Deid configuration. Can use the provided configurations or external config file | deid_config_clarity.yaml |
+|dlpProject   | GCP project id, if use GCP DLP service | | 
+|googleDlpEnabled | Turn on/off Google DLP | true or false|
 
 
+### Pipeline runtime parameters for Apache Beam runners
+https://beam.apache.org/documentation/runners/dataflow/
+
+### Pipeline runtime parameters for  Google Cloud Dataflow
+https://cloud.google.com/dataflow/docs/guides/setting-pipeline-options
+
+
+
+## Run TiDE as regular Java application
 Deid jobs can be run either with Maven or Java jar.
 
-Read from Google Cloud Storage and store result to BigQuery:
+Here is an example for reading from Google Cloud Storage and storing result to Google Cloud Storage:
 
 ```
 mvn -Pdataflow-runner compile exec:java -Dexec.mainClass=com.github.susom.starr.deid.Main \
@@ -124,17 +166,18 @@ mvn -Pdataflow-runner compile exec:java -Dexec.mainClass=com.github.susom.starr.
 
 
 
-Read from local file
-```
+An example of reading from local file and produce result at local
 
+```
 java -jar deid-3.0.9-SNAPSHOT.jar \
 --deidConfigFile=deid_config_clarity.yaml \
 --textIdFields="note_id" \
 --textInputFields="note_text" \
---inputResource=/Users/wenchengli/dev/servers/clarity/lpch \/NOTE_FULL_PHI_PROV_test1_1000row.json
+--inputResource=/Users/wenchengli/dev/NOTE_FULL_PHI_PROV_test1_1000row.json
 --outputResource=local_test2_result \
 
 ```
+
 ## Use Google DLP 
 
 DLP can be integrated with two ways. One way is directly enable DLP in TiDE deid transform, which will call Google DLP API individually for each text row. The second way is to use Google DLP Native job to find PHIs independently from TiDe and merge findings of each parallel result into final deied-text. 
@@ -150,9 +193,7 @@ deidJobs:
     googleDlpEnabled: true
 ```
 
-### Option two: Run DLP Native Job in parallel and merge findings later
-
-#### Start DLP Native Job
+### Option two: Run DLP Native Job to find PHI 
 
 ``` 
 java -jar deid-3.0.9-SNAPSHOT.jar \
@@ -164,21 +205,4 @@ java -jar deid-3.0.9-SNAPSHOT.jar \
 --idFields=note_id
 --inspectFields=note_text
 
-
-```
-
-#### Final deid text generation with TiDE and DLP Native findings 
-
-Run Bigquery query in 
-
-./dev-ops/bigquery-sql/deid-merge-findings.sql
-
-
-
-### build the project
-
-Run Maven at deid module root.
-
-```
-mvn clean install -DskipTests=true
 ```
