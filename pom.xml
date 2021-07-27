@@ -3,29 +3,11 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>com.github.susom</groupId>
-    <artifactId>library-parent</artifactId>
-    <version>1.0.2</version>
-  </parent>
-
   <name>Starr Core DeId Pipeline</name>
+  <groupId>com.github.susom</groupId>
   <artifactId>deid</artifactId>
   <version>3.0.21-SNAPSHOT</version>
   <packaging>jar</packaging>
-
-  <distributionManagement>
-    <repository>
-      <id>io.cloudrepo.rit-private</id>
-      <name>io.cloudrepo.rit-private</name>
-      <url>https://susom.mycloudrepo.io/repositories/rit-private</url>
-    </repository>
-    <snapshotRepository>
-      <id>io.cloudrepo.rit-private-snapshot</id>
-      <name>io.cloudrepo.rit-private-snapshot</name>
-      <url>https://susom.mycloudrepo.io/repositories/rit-private-snapshot</url>
-    </snapshotRepository>
-  </distributionManagement>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -52,13 +34,6 @@
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-bigquery</artifactId>
       <version>${version.gcp.bigquery}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.susom.starr.core.integration</groupId>
-      <artifactId>gcp</artifactId>
-      <version>1.0.17-SNAPSHOT</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -234,14 +209,6 @@
       <artifactId>database</artifactId>
       <version>3.0</version>
       <scope>compile</scope>
-    </dependency>
-
-
-    <dependency>
-      <groupId>com.github.susom.starr.core.integration</groupId>
-      <artifactId>gcp</artifactId>
-      <version>1.0.17-SNAPSHOT</version>
-      <scope>test</scope>
     </dependency>
 
   </dependencies>

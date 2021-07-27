@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.github.susom.starr.core.integration.gcp.GcpIntegration;
 import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -131,13 +130,6 @@ class DlpTransformTest {
 
     job = jobs.deidJobs[0];
 
-    try {
-      transform = new DlpTransform(job,
-        GcpIntegration.getDefaultIntegrationTestProject());
-    } catch (IOException e) {
-      Assert.fail();
-    }
-
   }
 
 
@@ -180,50 +172,6 @@ class DlpTransformTest {
       log.error(e.getMessage(),e);
       Assert.fail();
     }
-  }
-
-  @Test
-//  @EnabledIfEnvironmentVariable(named = "GCP_INTEGRATION_TEST_TOKEN", matches = BASE64REGEX)
-  void testPipelineWithDlp() {
-    final List<String> notes = Arrays.asList(noteJsonText);
-
-    PCollection input = pipeline.apply(Create.of(notes)).setCoder( StringUtf8Coder.of());
-
-    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-
-    DeidJobs jobs = null;
-    DeidTransform fullTransform = null;
-    try {
-      jobs = mapper.readValue(this.getClass().getClassLoader()
-        .getResourceAsStream("deid_test_config_dlp.yaml"), DeidJobs.class);
-      fullTransform = new DeidTransform(jobs.getDeidJobs()[0], GcpIntegration.getDefaultIntegrationTestProject());
-    } catch (IOException e) {
-      log.error(e.getMessage());
-      Assert.fail();
-    }
-
-
-    PCollection<DeidResult> deidResults = fullTransform.expand(input);
-
-    PCollectionTuple result = deidResults.apply("processResult",
-      ParDo.of(new DeidResultProc(true))
-        .withOutputTags(DeidTransform.fullResultTag,
-          TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
-            .and(DeidTransform.statsPhiTypeTag)
-            .and(DeidTransform.statPhiFoundByTag)));
-
-    PCollection<String> cleanText = result.get(DeidTransform.fullResultTag)
-      .apply(ParDo.of(new PrintResult()));
-
-      PAssert.that(cleanText)
-        .containsInAnyOrder(
-          "more tests: date test 10/10/2100, ssn: 999-99-9999",
-          "Alex has fever on 06/01/2019\nTeam 1 Intern Admission Note\nName: Younger, T Eugene\nMR#: 6381987\nAtt: Dr. Gilbert\nCards: Dr. Ullrich\nNeuro: Dr. Donovan\nDate of Admission: 06/29/1988 CC: Lightheadedness, vertigo, and presyncopal sx x several episodes ",
-          "i2b2: Record date: 07/05/2088 ",
-          "Jose's birth day: 09/19/2003, passport: 56521368, pp2: 56985631 credit card number is 999999999999999 "
-        );
-
-    pipeline.run();
   }
 
 
