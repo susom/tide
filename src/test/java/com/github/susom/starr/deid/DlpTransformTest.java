@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.github.susom.starr.core.integration.gcp.GcpIntegration;
+//import com.github.susom.starr.core.integration.gcp.GcpIntegration;
 import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -130,14 +130,14 @@ class DlpTransformTest {
       .getResourceAsStream("deid_test_config_dlp.yaml"), DeidJobs.class);
 
     job = jobs.deidJobs[0];
-
+/*
     try {
       transform = new DlpTransform(job,
         GcpIntegration.getDefaultIntegrationTestProject());
     } catch (IOException e) {
       Assert.fail();
     }
-
+*/
   }
 
 
@@ -182,8 +182,9 @@ class DlpTransformTest {
     }
   }
 
-  @Test
+//  @Test
 //  @EnabledIfEnvironmentVariable(named = "GCP_INTEGRATION_TEST_TOKEN", matches = BASE64REGEX)
+/*
   void testPipelineWithDlp() {
     final List<String> notes = Arrays.asList(noteJsonText);
 
@@ -225,7 +226,7 @@ class DlpTransformTest {
 
     pipeline.run();
   }
-
+*/
 
   private static class PrintResult extends DoFn<String,String> {
     final static ObjectMapper mapper = new ObjectMapper(new YAMLFactory());

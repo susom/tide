@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ class GeneralNumberAnonymizerTest {
   }
 
   @Test
-  void findWithReplacementMap() throws JsonProcessingException {
+  void findWithReplacementMap() throws JsonProcessingException, IOException {
     String configStr = "{\"general-account\":\"9999999\",\"general-order\":\"99999\"}";
     GeneralNumberAnonymizer gna = new GeneralNumberAnonymizer();
     HashMap replacementMap = new ObjectMapper().readValue(configStr, HashMap.class);

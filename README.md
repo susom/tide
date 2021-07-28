@@ -4,13 +4,20 @@ TiDE is a free text deidentification tool that can identify and deid PHI in clin
 
 
 ## Safe Harbor 18 identifiers
-TiDE identify the following HIPAA identifiers:
+TiDE can identify the following HIPAA identifiers either by pattern matching or known PHI matching:
 
 ```
-  Name, Address, dates,phone,fax,Email,SSN,MRN,Health plan beneficiary number,Account number,Certificate or license number,vehicle number,URL,IP,Finger/Voice print,photo,Any other characteristic that could uniquely identify the individual
+  Name, Address, dates,phone,fax,Email,SSN,MRN,Health plan beneficiary number,Account number,Certificate or license number,vehicle number,URL,IP, Any other characteristic that could uniquely identify the individual
+```
+
+TiDE does not process non-text information such as these two identifiers
+```
+Finger/Voice print,photo
 ```
 
 ## Optionally use Google DLP API to identify the following DLP infoTypes: 
+https://cloud.google.com/dlp/docs/infotypes-reference
+
 ```
   AGE,DATE,DATE_OF_BIRTH,CREDIT_CARD_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE,US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT,US_SOCIAL_SECURITY_NUMBER,US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER,EMAIL_ADDRESS,PERSON_NAME,PHONE_NUMBER,US_HEALTHCARE_NPI,US_DEA_NUMBER,LOCATION,IP_ADDRESS,MAC_ADDRESS,URL
 ```
@@ -29,7 +36,7 @@ If you prefer to work with files, you can export table to Google Cloud Storage b
 
 # Options to Replace PHI 
 
-Options to replace PHI discovered by TiDE:
+Options to deid PHI discovered by TiDE:
 
 * Masking (everything except name and location)
 * Jittering (date, age) with provided jitter value
@@ -38,7 +45,7 @@ Options to replace PHI discovered by TiDE:
 
 # Build the project
 
-Run Maven repo root.
+Run Maven commands at repo root directory.
 ```
 mvn clean install -DskipTests=true
 ```
@@ -47,12 +54,21 @@ mvn clean install -DskipTests=true
 
 ##  Configure Deid job spec
 
-TiDE has some embedded job specifications that fit for most common use cases. 
+TiDE has some embedded job specifications ([resource folder](src/main/resources)) that fit for most common use cases. 
 
-If need to customize the configuration, create a new config yaml file, and use the file path as argument value of --deidConfigFile when run the utility.
+If need to customize the configuration, create a new config yaml file, and use the file path as argument value of --deidConfigFile when run the tool.
 
 ## Deid Config YAML file
-Deid spec can be grouped into PHI categories. 
+
+Sample configuration to switch on/off features
+
+```yaml
+    analytic: false
+    googleDlpEnabled: false
+    nerEnabled: true
+```
+
+Multiple deid actions can be grouped into same PHI category by using same __itemName__. Grouping is useful for deid quality analytics if analytic is enabled. 
 
 Configure General Regex pattern matching, or find known PHI of the patient associated with the text. 
 
@@ -68,6 +84,7 @@ Configure General Regex pattern matching, or find known PHI of the patient assoc
 - replace_minimumlengthword_with : find words with minimum word length
 - replace_with : find word longer than 2 characters, and not in common vocabulary
 - replace_strictly_with : applied strictly regardless word length, and if in common vocabulary
+
 
 Configuration Example:
 
@@ -88,6 +105,16 @@ deidJobs:
         action: keep
         fields: '*'
 
+      - itemName: patient_name
+        action: surrogate_name
+        actionParamMap: {"format":"L,F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
+        fields:  pat_name, PROXY_NAME
+
+      - itemName: patient_name
+        action: surrogate_name
+        actionParamMap: {"format":"F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
+        fields:  PAT_FIRST_NAME, preferred_name
+
       - itemName: patient_mrn
         action: tag
         actionParam: mrn
@@ -99,7 +126,9 @@ deidJobs:
 
 ## Set up runtime environment
 
-For running TiDE on Dataflow, you need to configure Google Cloud credential
+You need to configure Google Cloud credential if run TiDE on Dataflow.
+https://cloud.google.com/docs/authentication/getting-started
+
 
 ```
 export GOOGLE_APPLICATION_CREDENTIALS=<gcp service account credential json file>

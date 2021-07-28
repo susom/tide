@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.susom.starr.deid.DeidResultProc;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +80,7 @@ public class GeneralAnonymizerTest {
 
 
   @Test
-  public void scrubWithReplacementMap() throws JsonProcessingException {
+  public void scrubWithReplacementMap() throws JsonProcessingException, IOException {
     String configStr = "{\"general-phone\":\"999-999-9999\",\"general-ip\":\"000.000.000.000\",\"general-url\":\"www.example.com\"}";
     GeneralAnonymizer generalAnonymizer = new GeneralAnonymizer();
     HashMap replacementMap = new ObjectMapper().readValue(configStr, HashMap.class);

@@ -22,5 +22,6 @@ enum ResourceType {
   gcp_bq,
   gcp_gcs,
   db_sql,
-  local
+  local,
+  txt
 }
