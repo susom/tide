@@ -16,7 +16,7 @@
 
     <main.class>com.github.susom.starr.deid.Main</main.class>
 
-    <beam.version>2.24.0</beam.version>
+    <beam.version>2.29.0</beam.version>
     <jackson.version>2.9.5</jackson.version>
     <junit-jupiter.version>5.1.0</junit-jupiter.version>
     <version.jopt.simple>5.0.4</version.jopt.simple>
@@ -207,7 +207,7 @@
     <dependency>
       <groupId>com.github.susom</groupId>
       <artifactId>database</artifactId>
-      <version>3.0</version>
+      <version>3.1</version>
       <scope>compile</scope>
     </dependency>
 
@@ -309,7 +309,7 @@
                 </filter>
               </filters>
               <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>${main.class}</mainClass>
                 </transformer>
