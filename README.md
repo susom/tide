@@ -168,19 +168,16 @@ Steps
 
 ```
 docker build -f JavaDockerFile .
-
 docker image tag <Name of the image> gcr.io/stanford-r/tide:latest 
-
 ```
 
-* I have pushed this to gcr so the tagged named accordingly)
-* Once image created from java process you can push the file to docker and then refer or you can use the iamge stored on the local.
+* I have pushed this to gcr so the tagged named accordingly.
+* Once image created you can push the file to dockerhub or any container registry and then refer the image in your next Dockerfile or you can use the image stored on your local.
 * Go to the Dockerfile and give the tag generated above.
   
 The final Dockerfile from the steps above will look like
 
 ```Dockerfile
-
 FROM gcr.io/stanford-r/tide:latest AS JAVA_EXECUTER
 
 FROM openkbs/jre-mvn-py3:latest AS PYTHON_EXECUTER
