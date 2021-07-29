@@ -48,41 +48,31 @@
 
     ```python
     import json
-  import os
-  import glob
-  from tqdm import tqdm
-  import dask.dataframe as dd
-  import pandas as pd
+    import os
+    import glob
+    from tqdm import tqdm
+    import dask.dataframe as dd
+    import pandas as pd
 
-  #def tide2jsonl(tide_output_dir: str, jsonl_output_dir: str):
-  #    """
-  #    Method to transform TiDE JSON output into JSONL format required by DOCCANO
-  #    """
-  #tide_output_dir = "/opt/deid/original"
-  #jsonl_output_dir = "opt/deid/transform"
+    base_tide_output_dir = "/opt/deid/final_output"
+    latestValue = ""
+    with open(base_tide_output_dir+"/latest.txt", "r") as infile:
+        latestValue = infile.readline()
+    tide_output_dir = base_tide_output_dir + "/" + latestValue
+    jsonl_output_dir = base_tide_output_dir + latestValue + "/transform/"
 
-  base_tide_output_dir = "/opt/deid/final_output"
-  latestValue = ""
-  with open(base_tide_output_dir+"/latest.txt", "r") as infile:
-      latestValue = infile.readline()
-  tide_output_dir = base_tide_output_dir + "/" + latestValue
-  jsonl_output_dir = base_tide_output_dir + latestValue + "/transform/"
+    
+    if not os.path.exists(jsonl_output_dir):
+        os.makedirs(jsonl_output_dir)
 
-  #tide_output_dir = "C:\\Official\\Dev\\SHC\\TiDE\\2021-07-09\\main\\tide\\local_deid\\original"
-  #jsonl_output_dir = "C:\\Official\\Dev\\SHC\\TiDE\\2021-07-09\\main\\tide\\local_deid\\transform"
-  if not os.path.exists(jsonl_output_dir):
-      os.makedirs(jsonl_output_dir)
+    file_list = glob.glob(f"{tide_output_dir}/DeidNote-*")
+    print(file_list)
+    for file in tqdm(file_list):
+        tide_output_df = dd.read_json(file,
+                                      orient='records',
+                                      typ='frame',
+                                      lines=True).compute()
 
-  file_list = glob.glob(f"{tide_output_dir}/DeidNote-*")
-  print(file_list)
-  for file in tqdm(file_list):
-      tide_output_df = dd.read_json(file,
-                                    orient='records',
-                                    typ='frame',
-                                    lines=True).compute()
-
-      # finding_set = set()
-      # This mapping is tied to deid_config_omop_genrep.yaml
       findings_mapping = {'general-accession': 'ACCESSION',
                           'accession_num': 'ACCESSION',
                           'patient_mrn': 'MRN',
