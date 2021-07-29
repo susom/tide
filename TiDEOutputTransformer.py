@@ -12,12 +12,12 @@ import pandas as pd
 #tide_output_dir = "/opt/deid/original"
 #jsonl_output_dir = "opt/deid/transform"
 
-base_tide_output_dir = ".\\local_deid\\"
+base_tide_output_dir = "/opt/deid/final_output"
 latestValue = ""
-with open(base_tide_output_dir+"\\latest.txt", "r") as infile:
+with open(base_tide_output_dir+"/latest.txt", "r") as infile:
     latestValue = infile.readline()
-tide_output_dir = base_tide_output_dir + latestValue + "\\"
-jsonl_output_dir = base_tide_output_dir + latestValue + "\\transform\\"
+tide_output_dir = base_tide_output_dir + "/" + latestValue
+jsonl_output_dir = base_tide_output_dir + latestValue + "/transform/"
 
 #tide_output_dir = "C:\\Official\\Dev\\SHC\\TiDE\\2021-07-09\\main\\tide\\local_deid\\original"
 #jsonl_output_dir = "C:\\Official\\Dev\\SHC\\TiDE\\2021-07-09\\main\\tide\\local_deid\\transform"
