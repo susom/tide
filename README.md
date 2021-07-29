@@ -196,7 +196,7 @@ RUN sudo python3 transformer.py
 
 ```
 
-OR simple clube the both of the docker files, it will look like 
+OR simple club the both of the docker files, it will look like 
 
 ```Dockerfile
 FROM maven:3.8.1-jdk-11-openj9
