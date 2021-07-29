@@ -1,0 +1,13 @@
+FROM maven:3.8.1-jdk-11-openj9
+
+RUN mkdir -p /opt/deid
+WORKDIR /opt/deid
+COPY ./ /opt/deid
+
+RUN mvn clean compile assembly:single
+
+RUN mv target/tide-0.1.0-SNAPSHOT-jar-with-dependencies.jar /opt/deid/tide.jar
+
+RUN chmod a+x /opt/deid/tide.jar
+RUN chmod a+x /opt/deid/javacmd.sh
+RUN sh /opt/deid/javacmd.sh
