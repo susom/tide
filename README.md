@@ -157,13 +157,45 @@ Build is Divided into 2 parts
 * JavaDockerfile 
 * DockerFile
 
-So, basically the sequence to get the out put is to have the out put from JavaDockerfile.
+So, basically the sequence to get the final phi processed output is to have output from JavaDockerfile first.
 
 Sequence would be 
 1. Build the Docker image from JavaDockerFile
 2. Tag the image
 3. Use the image tag created above in the Dockerfile to reference the Java Output.
-   
+
+Steps
+
+```
+docker build -f JavaDockerFile .
+
+docker image tag <Name of the image> gcr.io/stanford-r/tide:latest 
+
+```
+
+* I have pushed this to gcr so the tagged named accordingly)
+* Once image created from java process you can push the file to docker and then refer or you can use the iamge stored on the local.
+* Go to the Dockerfile and give the tag generated above.
+  
+The final Dockerfile from the steps above will look like
+
+```Dockerfile
+
+FROM gcr.io/stanford-r/tide:latest AS JAVA_EXECUTER
+
+FROM openkbs/jre-mvn-py3:latest AS PYTHON_EXECUTER
+
+RUN sudo mkdir -p /opt/deid
+WORKDIR /opt/deid
+COPY requirements.txt /opt/deid/requirements.txt
+COPY --from=JAVA_EXECUTER /opt/deid/Result_output /opt/deid/final_output
+COPY TiDEOutputTransformer.py /opt/deid/transformer.py
+RUN pip install -r requirements.txt
+
+RUN sudo python3 transformer.py
+
+```
+
 OR simple clube the both of the docker files, it will look like 
 
 ```Dockerfile
@@ -194,6 +226,7 @@ RUN sudo python3 transformer.py
 ```
 
 Now this single Dockerfile will be source of truth to produce the result.
+
 
 # TiDE Overview
 
