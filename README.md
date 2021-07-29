@@ -1,3 +1,210 @@
+# Way to Run TiDE
+
+#### Important Components
+
+  * ***javacmd.sh*** - This file is responsible for holding all the parameters that is needed by JAR
+  
+  ```shell
+  # !/bin/sh
+  java -jar /opt/deid/tide.jar --deidConfigFile=deid_config_omop_genrep.yaml --inputType="txt" --phiFileName=/opt/deid/sample_notes/phi_sample.json --inputResource=/opt/deid/sample_notes --outputResource=/opt/deid/final_output
+  ```
+
+  * ***JavaDockerFile*** - it Compiles the complete programs and create the Jar file once done then using the javacmd.sh it creates the analysed notes.
+
+  ```Dockerfile
+  FROM maven:3.8.1-jdk-11-openj9
+
+  RUN mkdir -p /opt/deid
+  WORKDIR /opt/deid
+  COPY ./ /opt/deid
+
+  RUN mvn clean compile assembly:single
+
+  RUN mv target/tide-0.1.0-SNAPSHOT-jar-with-dependencies.jar /opt/deid/tide.jar
+
+  RUN chmod a+x /opt/deid/tide.jar
+  RUN chmod a+x /opt/deid/javacmd.sh
+  RUN sh /opt/deid/javacmd.sh
+  ```
+
+  * ***Dockerfile*** - this file takes the output of the Image build by javaDockerFile in the above step and produces the output again using python.
+
+  ```Dockerfile
+  FROM gcr.io/stanford-r/tide:latest AS JAVA_EXECUTER
+
+  FROM openkbs/jre-mvn-py3:latest AS PYTHON_EXECUTER
+
+  RUN sudo mkdir -p /opt/deid
+  WORKDIR /opt/deid
+  COPY requirements.txt /opt/deid/requirements.txt
+  COPY --from=JAVA_EXECUTER /opt/deid/Result_output /opt/deid/final_output
+  COPY TiDEOutputTransformer.py /opt/deid/transformer.py
+  RUN pip install -r requirements.txt
+
+  RUN sudo python3 transformer.py
+  ```
+
+  * ***TiDEOutputTransformer.py*** - Python script responsible for producing the phi results
+
+    ```python
+    import json
+  import os
+  import glob
+  from tqdm import tqdm
+  import dask.dataframe as dd
+  import pandas as pd
+
+  #def tide2jsonl(tide_output_dir: str, jsonl_output_dir: str):
+  #    """
+  #    Method to transform TiDE JSON output into JSONL format required by DOCCANO
+  #    """
+  #tide_output_dir = "/opt/deid/original"
+  #jsonl_output_dir = "opt/deid/transform"
+
+  base_tide_output_dir = "/opt/deid/final_output"
+  latestValue = ""
+  with open(base_tide_output_dir+"/latest.txt", "r") as infile:
+      latestValue = infile.readline()
+  tide_output_dir = base_tide_output_dir + "/" + latestValue
+  jsonl_output_dir = base_tide_output_dir + latestValue + "/transform/"
+
+  #tide_output_dir = "C:\\Official\\Dev\\SHC\\TiDE\\2021-07-09\\main\\tide\\local_deid\\original"
+  #jsonl_output_dir = "C:\\Official\\Dev\\SHC\\TiDE\\2021-07-09\\main\\tide\\local_deid\\transform"
+  if not os.path.exists(jsonl_output_dir):
+      os.makedirs(jsonl_output_dir)
+
+  file_list = glob.glob(f"{tide_output_dir}/DeidNote-*")
+  print(file_list)
+  for file in tqdm(file_list):
+      tide_output_df = dd.read_json(file,
+                                    orient='records',
+                                    typ='frame',
+                                    lines=True).compute()
+
+      # finding_set = set()
+      # This mapping is tied to deid_config_omop_genrep.yaml
+      findings_mapping = {'general-accession': 'ACCESSION',
+                          'accession_num': 'ACCESSION',
+                          'patient_mrn': 'MRN',
+                          'mrn': 'MRN',
+                          'general_name': 'NAME',
+                          'patient_name': 'NAME',
+                          'other_name': 'NAME',
+                          'care_provider_name': 'NAME',
+                          'mergency_contact': 'NAME',
+                          'ner-PERSON': 'NAME',
+                          'ner-LOCATION': 'LOCATION',
+                          'location': 'LOCATION',
+                          'other_address': 'LOCATION',
+                          'patient_address': 'LOCATION',
+                          'mergency_contact_address': 'LOCATION',
+                          'patient_phone': 'PHONE',
+                          'mergency_contact_phone': 'PHONE',
+                          'general-phone': 'PHONE',
+                          'phi_date': 'DATE',
+                          'general-account': 'OTHER_INDIRECT',
+                          'other_id': 'OTHER_INDIRECT',
+                          'general': 'OTHER_INDIRECT',
+                          'general_number': 'OTHER_INDIRECT',
+                          'patient_ssn': 'SSN',
+                          'patient_email': 'EMAIL/URL',
+                          'other_email': 'EMAIL/URL',
+                          'public_id': 'OTHER_DIRECT',
+                          'family_id': 'OTHER_DIRECT',
+                          'general-email': 'EMAIL/URL',
+                          }
+      text = []
+      label = []
+      note_source_value = []
+      id = []
+      for i, note_df in tide_output_df.iterrows():
+          tide_findings = pd.DataFrame(
+              json.loads(note_df['FINDING_note']))
+
+          tide_findings.drop_duplicates(subset=['start', 'end'],
+                                        inplace=True,
+                                        ignore_index=True)
+
+          # finding_set.update(tide_findings['type'].unique().tolist())
+
+          findings_list = [[finding['start'],
+                            finding['end'],
+                            findings_mapping[finding['type']]] \
+                          for j, finding in tide_findings.iterrows()]
+
+          text.append(note_df['note'])
+          label.append(findings_list)
+          note_source_value.append(note_df['note'])
+          id.append(note_df['id'])
+
+      df = pd.DataFrame({'text': text,
+                        'label': label,
+                        'note_source_value': note_source_value,
+                        'id': id})
+
+      filename = os.path.basename(file)
+      df.to_json(path_or_buf=f'{jsonl_output_dir}/{filename}.json',
+                orient='records',
+                lines=True)
+  
+    ```
+
+  * ***requirements.txt*** - This is where all the python dependencies are mentioned.
+
+  ```text
+  dask[dataframe]
+  pandas
+  tqdm
+  ```
+
+  * ***Sample_notes*** - this is the sample input for the project.
+
+
+#### Execution 
+
+Build is Divided into 2 parts
+
+* JavaDockerfile 
+* DockerFile
+
+So, basically the sequence to get the out put is to have the out put from JavaDockerfile.
+
+Sequence would be 
+1. Build the Docker image from JavaDockerFile
+2. Tag the image
+3. Use the image tag created above in the Dockerfile to reference the Java Output.
+   
+OR simple clube the both of the docker files, it will look like 
+
+```Dockerfile
+FROM maven:3.8.1-jdk-11-openj9
+
+RUN mkdir -p /opt/deid
+WORKDIR /opt/deid
+COPY ./ /opt/deid
+
+RUN mvn clean compile assembly:single
+
+RUN mv target/tide-0.1.0-SNAPSHOT-jar-with-dependencies.jar /opt/deid/tide.jar
+
+RUN chmod a+x /opt/deid/tide.jar
+RUN chmod a+x /opt/deid/javacmd.sh
+RUN sh /opt/deid/javacmd.sh
+
+FROM openkbs/jre-mvn-py3:latest AS PYTHON_EXECUTER
+
+RUN sudo mkdir -p /opt/deid
+WORKDIR /opt/deid
+COPY requirements.txt /opt/deid/requirements.txt
+COPY --from=JAVA_EXECUTER /opt/deid/Result_output /opt/deid/final_output
+COPY TiDEOutputTransformer.py /opt/deid/transformer.py
+RUN pip install -r requirements.txt
+
+RUN sudo python3 transformer.py
+```
+
+Now this single Dockerfile will be source of truth to produce the result.
+
 # TiDE Overview
 
 TiDE is a free text deidentification tool that can identify and deid PHI in clinical note text and other free text in medical data. It uses pattern matching, known PHI matching and NER to search for PHI, and use geenral replacement or hide-in-plain-sight to replace PHI with safe text.
