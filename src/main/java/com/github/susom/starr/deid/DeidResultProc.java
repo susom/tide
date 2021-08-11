@@ -83,6 +83,10 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
 
     DeidResult dt = context.element();
     String dtString = mapper.writeValueAsString(dt);
+        JsonNode nodes1 = mapper.readTree(dtString);
+        String id = nodes1.get(TextTag.id.name()).asText();
+        System.out.println("=================================================dtString.toString()=" + id + ", " + dtString.substring(0, 30));
+
     context.output(DeidTransform.fullResultTag, dtString);
 
     if (!this.analytics) {

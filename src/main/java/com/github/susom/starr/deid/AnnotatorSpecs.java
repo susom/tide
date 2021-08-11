@@ -18,20 +18,32 @@
 
 package com.github.susom.starr.deid;
 
-enum ResourceType {
-  gcp_bq,
-  gcp_gcs,
-  db_sql,
-  local,
-  text
-}
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.Map;
 
-enum TextTag {
-  id,
-  note,
-  text,
-  label,
-  start,
-  end,
-  type
+/**
+ * handling job configuration.
+ * @author wenchengl
+ */
+
+public class AnnotatorSpecs implements Serializable {
+  AnnotatorSpec[] annotatorSpecs;
+  Map<String, String> specs;
+
+  public AnnotatorSpec[] getAnnotatorSpecs() {
+    return annotatorSpecs;
+  }
+
+  public void setAnnotatorSpecs(AnnotatorSpec[] annotatorSpecs) {
+    this.annotatorSpecs = annotatorSpecs;
+    specs = Arrays.asList(annotatorSpecs).stream().collect(
+      Collectors.toMap(e -> e.type, e -> e.annotatorLabel));
+  }
+  
+  public String getLabel(String type) {
+    return specs.get(type);
+  }
+
 }
