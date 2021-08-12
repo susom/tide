@@ -114,7 +114,7 @@ public class DeidAnnotatorTransform
         annotator = annotator.replace("\"label\":[\"[", "\"label\":[[").replace("\\\"", "\"").replace("\"]\"],", "\"]],");
 
         Path newFilePath = Files.createDirectories(Paths.get(outputResource));
-        Files.write(Paths.get(newFilePath + "/" + id + "-" + java.util.UUID.randomUUID() + ".json"), annotator.getBytes());
+        Files.write(Paths.get(newFilePath + "/" + id + ".json"), annotator.getBytes());
       }
       catch(Exception e) {
         e.printStackTrace();
