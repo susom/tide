@@ -28,8 +28,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -85,7 +87,7 @@ public class DeidAnnotatorTransform
       try {
         String note = nodes.get(TextTag.note.name()).asText();
         JsonNode findingNoteNode = nodes.get(DeidResultProc.STATS_DEID + TextTag.note.name());
-        Set<String> labelNodeTexts = new HashSet<String>(); 
+        Map<String, String> labelNodeMap = new HashMap<>();
         if (findingNoteNode != null) {
           String findingNote = findingNoteNode.asText();
           JsonNode nodeLabel = mapper.readTree(findingNote);
@@ -94,9 +96,12 @@ public class DeidAnnotatorTransform
             String end = node.get(TextTag.end.name()).asText();
             String type = node.get(TextTag.type.name()).asText();
             //String label = annotatorSpecs.getLabel(type);
-            labelNodeTexts.add(String.format("[%s,%s,\"%s\"]", start, end, type)); //label == null ? type : label));
+            labelNodeMap.put(String.format("%s,%s", start, end), String.format("[%s,%s,\"%s\"]", start, end, type));
+            //labelNodeTexts.add(String.format("[%s,%s,\"%s\"]", start, end, type)); //label == null ? type : label));
           }
         }
+        Set<String> labelNodeTexts = labelNodeMap.values().stream().collect(Collectors.toSet());
+
         JsonNode annotatorNode = JsonNodeFactory.instance.objectNode();
         ((ObjectNode) annotatorNode).put(TextTag.text.name(), note);
         JSONArray array4 = new JSONArray();
