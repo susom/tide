@@ -164,9 +164,9 @@ public class InputTransforms {
       Path path = Paths.get(inputFileOrDirectory.getAbsolutePath());
 
       /*PHI data*/
-      List<Map<String, String>> phiForPerson = readCsv(phiResource);
+      final List<Map<String, String>> phiForPerson = readCsv(phiResource);
 
-      List<Map<String, String>> personToNote = readCsv(personFileSource);
+      final List<Map<String, String>> personToNote = readCsv(personFileSource);
 
       /* form the json strings */
       if (inputFileOrDirectory.isFile()) {
@@ -204,10 +204,28 @@ public class InputTransforms {
     private static Map<String, String> getPhiDataCorresspondingToNote(List<Map<String, String>> noteToPerson, List<Map<String, String>> phiForPerson, String fileName){
       Map<String, String> person = noteToPerson.stream().filter(phiMap -> phiMap.get("note_id").equals(fileName)).findFirst().orElse(null);
       if (person != null) {
-        Map<String, String> data = phiForPerson.stream().filter(phiMap -> phiMap.get(TextTag.id.name()).equals(person.get("person_id"))).findFirst().orElse(null);
-//        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~data-pat_name" + data.get("pat_name") + ", filename=" + fileName + ", person-personid=" + person.get("person_id") + ", " + "person-noteid=" + person.get("note_id") + ", data-id=" + data.get("id"));
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~person.get-person_id=" + person.get("person_id")); 
+        //TextTag.id.name()
+        Map<String, String> data = phiForPerson.stream().filter(phiMap -> phiMap.get("person_id").equals(person.get("person_id"))).findFirst().orElse(null);
+        if (data != null) {
+          for ( String key : data.keySet() ) {
+            System.out.println( key );
+          }
+          System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~filename=" + fileName 
+          + ", person-personid=" + person.get("person_id") 
+          + ", person-noteid=" + person.get("note_id") 
+          //+ ", data-pat_name=" + data.get("pat_name")
+          //+ ", data-id=" + data.get("id")
+          //+ ", data-jitter=" + data.get("JITTER")
+          );
+        }
+        else {
+          System.out.println("data is null for " + fileName);
+        }
         return data;
       }
+      else
+        System.out.println("person is null for " + fileName);
       return null;
     }
 
@@ -223,7 +241,7 @@ public class InputTransforms {
       return null;
     }
 
-    private static String createData(Path path, InputStreamReader is, Map<String, String> phi) throws IOException {
+    private static String createData(Path path, InputStreamReader is, Map<String, String> phi_input) throws IOException {
       ObjectMapper mapper = new ObjectMapper();
       JsonNode noteNode = JsonNodeFactory.instance.objectNode();
       ((ObjectNode) noteNode).put(TextTag.note.name(), new BufferedReader(is)
@@ -232,17 +250,25 @@ public class InputTransforms {
       String noteData = mapper.writeValueAsString(noteNode);
       //System.out.println("=================================================(before association) noteData.toString()=" + path.getFileName() + " " + noteData.substring(0,30));
 
-      if (phi != null) {
+      if (phi_input != null) {
         JSONObject json = new JSONObject();
         try {
           Map<String, String> map1 = mapper.readValue(noteData, Map.class);
+          Map<String, String> phi = new HashMap<>();
           phi.putAll(map1);
-          json = new JSONObject(phi);
-          System.out.println("=================================================(in association) noteData.toString()=" + path.getFileName() + " phi.id=" + phi.get("id") + " phi.pat_name=" + phi.get("pat_name") + " output=" + json.toString().substring(0, 35));
+          phi.putAll(phi_input);
+          
+          json = new JSONObject(phi);          
+          System.out.println("=================================================(in association) noteData.toString()=" + path.getFileName() 
+            + " phi.id=" + phi.get("id") 
+            + " phi.pat_name=" + phi.get("pat_name") 
+            + " phi.JITTER=" + phi.get("JITTER") 
+            + " output=" + json.toString().substring(0, 35));
         } catch (IOException e) {
           log.debug("populateList failed due to {} , with message {}", e.getCause(), e.getMessage());
           e.printStackTrace();
         }
+
         //System.out.println("================================================= (after association) json.toString()=" + path.getFileName() + " " + json.toString().substring(0, 30));
 
         //Path newFilePath = Files.createDirectories(Paths.get("./local_deid/"));
@@ -251,6 +277,9 @@ public class InputTransforms {
         
         return json.toString();
       }
+      else
+        System.out.println("=================================================(in association) phi is null" + path.getFileName()); 
+
       //System.out.println("================================================= (no association) $$$$$$$$$$$$$$$$ noteData=" + path.getFileName() + " " + noteData.substring(0, 30));
 
       return noteData;
