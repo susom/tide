@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Distribution;
 import org.apache.beam.sdk.metrics.Metrics;
@@ -83,10 +82,6 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
 
     DeidResult dt = context.element();
     String dtString = mapper.writeValueAsString(dt);
-        JsonNode nodes1 = mapper.readTree(dtString);
-        String id = nodes1.get(TextTag.id.name()).asText();
-        System.out.println("=================================================dtString.toString()=" + id + ", " + dtString.substring(0, 30));
-
     context.output(DeidTransform.fullResultTag, dtString);
 
     if (!this.analytics) {
