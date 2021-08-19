@@ -78,7 +78,7 @@ public class DeidOutputTransform
 
         Path newFilePath = Files.createDirectories(Paths.get(outputResource));
 
-        Files.write(Paths.get(newFilePath + "/" + id + ".txt"), textDeidNote.getBytes());
+        Files.write(Paths.get(newFilePath + "/" + id), textDeidNote.getBytes());
       }
       catch(Exception e) {
         e.printStackTrace();
