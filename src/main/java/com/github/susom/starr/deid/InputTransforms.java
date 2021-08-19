@@ -164,9 +164,9 @@ public class InputTransforms {
       Path path = Paths.get(inputFileOrDirectory.getAbsolutePath());
 
       /*PHI data*/
-      final List<Map<String, String>> phiForPerson = readCsv(phiResource);
+      List<Map<String, String>> phiForPerson = readCsv(phiResource);
 
-      final List<Map<String, String>> personToNote = readCsv(personFileSource);
+      List<Map<String, String>> personToNote = readCsv(personFileSource);
 
       /* form the json strings */
       if (inputFileOrDirectory.isFile()) {
