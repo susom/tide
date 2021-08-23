@@ -232,13 +232,6 @@ Options to deid PHI discovered by TiDE:
 * Surrogate name and location
 * General Replacement with common patterns of each type of PHIs
 
-# Build the project
-
-Run Maven commands at repo root directory.
-```
-mvn clean install -DskipTests=true
-```
-
 # Run TiDE Pipeline
 
 ##  Configure Deid job spec
