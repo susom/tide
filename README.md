@@ -202,6 +202,15 @@ On execution of previous command, application will process the sample data and g
             5. Under Advance setting select Encryption type > google-managed encryption key.
             6. Click Create.
 
+You need to configure Google Cloud credential if run TiDE on Dataflow.
+https://cloud.google.com/docs/authentication/getting-started
+
+
+```
+export GOOGLE_APPLICATION_CREDENTIALS=<gcp service account credential json file>
+
+```
+
 # Data Preparation for TiDE
 <TODO-Add description, further cleanup>
 
@@ -246,6 +255,8 @@ Sample configuration to switch on/off features
     analytic: false
     googleDlpEnabled: false
     nerEnabled: true
+    annotatorOutputEnabled: true
+
 ```
 
 Multiple deid actions can be grouped into same PHI category by using same __itemName__. Grouping is useful for deid quality analytics if analytic is enabled. 
@@ -302,19 +313,6 @@ deidJobs:
         .....
 
 ```
-
-
-## Set up runtime environment
-
-You need to configure Google Cloud credential if run TiDE on Dataflow.
-https://cloud.google.com/docs/authentication/getting-started
-
-
-```
-export GOOGLE_APPLICATION_CREDENTIALS=<gcp service account credential json file>
-
-```
-
 
 ## Run Deid jobs
 
