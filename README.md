@@ -7,7 +7,7 @@ TiDE is a free open-source text deidentification tool that can identify and deid
 TiDE can identify the following HIPAA identifiers either by pattern matching or known PHI matching:
 
 ```
-  Name, Address, dates, phone, fax, Email, SSN, MRN, Health plan beneficiary number, Account number, Certificate or license number, vehicle number, URL, IP, Any other characteristic that could uniquely identify the individual
+  Name, Address, dates, phone, fax, Email, SSN, MRN, Health plan beneficiary number, Account number, Certificate or license number, vehicle number, URL, IP, any other characteristic that could uniquely identify the individual
 ```
 
 TiDE does not process non-text information such as these two identifiers
@@ -21,11 +21,11 @@ Finger/Voice print, photo
 
 1. Once prerequisites are met execute the commands below
 2. Open a command line and change the directory to the folder where TiDE source has been downloaded
-3. Map the folder where source is located on local machine, for example on my machine it is mapped to "/Users/mayurd/local/tide"
+3. Map the folder where source is located on local machine, for example on my machine it is mapped to "/mnt/c/Official/Dev/tide/2021-08-03/tide"
 
    ```
    docker build . -t tide-program:latest
-   docker run -it -v /Users/mayurd/local/tide:/workspaces tide-program:latest
+   docker run -it -v /mnt/c/Official/Dev/tide/2021-08-03/tide:/workspaces tide-program:latest
    ```
 
 4. Above command will switch to Shell of the TiDE image.
@@ -46,26 +46,21 @@ On execution of previous command, application will process the sample data and g
     java -jar -Xmx6g /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=deid_config_omop_genrep_incl_annotator_type.yaml --inputType=gcp_gcs --inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json --outputResource=gs://<OUTPUT_BUCKET_NAME> --gcpCredentialsKeyFile=<SERVICE_ACCOUNT_KEY_DOWNLOADED> --textIdFields="id" --textInputFields="note"
   ```  
 
-
 #### Prerequisites
 
 1. GitHub (Source Repository)
 
-   TiDE source code is maintained in GitHub. This requires a GitHub account (free). GitHub is a code repository and is used for storing and maintaining TiDE source code. GitHub preserves commit history of the pushed changes. Multiple people can work on the same repository, when shared and create their own branches from main branch, to make their own changes without impacting anyone else code.
-
-   1. Register for GitHub account: https://github.com/signup?source=login
+   TiDE source code is maintained in GitHub. GitHub is a code repository and is used for storing and maintaining TiDE source code.
   
   ***Access GitHub using GitHub Desktop tool***
 
    1. Download and install GitHub Desktop Client: https://desktop.github.com/
-   2. After installation, open the GitHub Desktop program and login to GitHub account from the GitHub desktop Window
-   3. Once logged-in into GitHub desktop you can see 2 sections in GitHub Desktop
-      1. Left section will have options like 
-         1. Create a tutorial repository
-         2. Clone a repository from the internet
-         3. Create a new repository on your hard drive
-         4. Add an existing repository from your hard disk.
-      2. Right Section will have list of repositories, if you have any.
+   2. After installation, open the GitHub Desktop program 
+   3. Open File > Clone repository
+   4. On Clone a repository dialog box, URL tab, in the "Repository URL", enter "https://github.com/susom/tide/" 
+   5. In "Local Path", enter a value for local path where you would like to keep the source. Click "Clone".
+   6. This will download the latest TiDE code on your local system in the location specificed in local path.
+   7. Open Local path folder in your choice of IDE like Visual Studio Code.
 
 2. Docker installation on local machine
    
@@ -73,45 +68,47 @@ On execution of previous command, application will process the sample data and g
 
    Docker installation is different for different platform, choose as per your OS
 
-   1. Mac : https://docs.docker.com/docker-for-mac/install/
+   1. Mac: https://docs.docker.com/docker-for-mac/install/
    2. Windows: https://docs.docker.com/docker-for-windows/install/
    3. Ubuntu: https://docs.docker.com/engine/install/ubuntu/
 
-3. Dockerfile in Base code folder
-   Dockerfile is a set of instructions that is needed to create a Docker images, which will run as a container and will hold all the components to execute your application.
-   You will find this file in the base directory of the application code.
+3. Google Cloud Platform (GCP)
+   Google Cloud Platform (GCP), offered by Google, is a suite of cloud computing services where you can leverage the power of computation for performing job which can outrun your local system's resources.
 
-4. Google Cloud Platform (GCP)
-   GCP is a cloud platform where you can leverage the power of computation for performing job which can outrun your local system's resources.
-
-   1. To create a GCP account (initially GCP give you $300 free Credits): https://cloud.google.com/free
-   2. Once done, Open the console Navigation menu (![navigation](/resources/navigation.PNG)) on the left, and then Hover on IAM & Admin > Service Accounts.
-   3. Click on Create Service account option on the top bar of the window.
-      1. Give the name to the service Account
-      2. Give description in the 3rd field.
+   1. Create a Google Cloud account: https://cloud.google.com/free. If you meet the criteria (https://cloud.google.com/free/docs/gcp-free-tier/#free-trial), you can get $300 free Cloud Billing credits to pay for resources.
+   2. After creating the account, Open Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on IAM & Admin > Service Accounts. "Detailed instructions for creating service account using Google Console is available at https://cloud.google.com/iam/docs/creating-managing-service-accounts"
+   3. Click on "+ CREATE SERVICE ACCOUNT" option on the top bar of the window.
+      1. Enter name for the Service Account ex. "TiDE service account"
+      2. Based on Service Account name, system will automatically generate service account id. You can either use the same name or change the name in the input box below service account name. 
+      2. Enter description for the Service Account.
       3. Click > Create and continue
-      4. Click on select roles and add 3 roles one by one (Cloud Dataflow Service Agent, Storage Admin, BigQuery Admin) 
-      5. Click continue
-      6. Then click done
-      7. Once that is done you will see the Service account created by you.
+      4. Add following Roles to the Service Account one by one - "Detailed instructions for adding roles to the service account using Google Console is available at https://cloud.google.com/iam/docs/granting-changing-revoking-access#grant-single-role"
+         a) "Cloud Dataflow Service Agent"
+         b) "Storage Admin"
+         c) "BigQuery Admin"
+      5. Click Continue
+      6. Click Done
+      7. The Service Account creation is complete with required roles.
       8. Click on the 3 dots under action column and click on the manage keys option.
       9. Click on ADD KEY > Create new KEY > Choose Key type - Json > Click create.
       10. A key will be generated and downloaded to your local.
       11. Under Permissions tab check if your or user is assigned to this service account, if not then click on Grant Access and add the user.
-   4.  To create a billing account(necessary)
-       1. Open the console Navigation menu (![navigation](/resources/navigation.PNG)) on the left, and select Billing
-       2. Click on Manage Billing Accounts > Add Billing Account.
-       3. Fill all the required details and attach the project to the billing.
-   5. Again click on console Navigation menu (![navigation](/resources/navigation.PNG)) on the left, and under storage > click Cloud storage > Browser.
-      1. We need 2 buckets one for input data and another for output data, steps for creation of both buckets are same.
-      2. Click on create bucket link 
+   4. Add Billing to GCP account (mandatory) - "Detailed instructions for adding Billing to GCP account is available at
+      https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account"
+      1. Open Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Billing
+      2. Click on Manage Billing Accounts > Add Billing Account.
+      3. Fill all the required details and attach the project to the billing.
+   5. Configure Storage for the GCP project
+      1. Open Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Cloud Storage. 
+      2. Click Cloud storage > Browser.
+      3. Two buckets are required. One for input data and another for output data, steps for creation of both buckets are same.
+      4. Click on create bucket link 
          1. Give name to your bucket. click continue
          2. Select Location type - REGIONAL > Select region from dropdown > Continue
          3. Select default storage class Standard > Continue
          4. Select control access as Uniform, make sure the checkbox for **Enforce public access prevention on this bucket** is checked > continue
          5. Under Advance setting select Encryption type > google-managed encryption key.
          6. Click Create.
-5. Download PowerShell: https://github.com/PowerShell/PowerShell
 
 # Data Preparation for TiDE
 
