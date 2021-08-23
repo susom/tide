@@ -30,16 +30,16 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    4. [Prerequisites Google Cloud Platform](#Prerequisites-GCP)
 
    # Using TiDE
-   2. [Local System - Standalone](#Using-Local-Standalone)
-   3. [Local System - Using Docker Container](#Using-Container)
-   4. [Google Cloud Platform](#Using-GCP-Executing-from-within-container-data-is-in-GCP-bucket)
-
-   1. Once prerequisites are met, open a command line and change the directory to the folder where TiDE source has been downloaded, eg. if on local system, source is downloaded at "C:\Dev\tide-source" navigate to the folder
+   Once prerequisites are met, open a command line and change the directory to the folder where TiDE source has been downloaded, eg. if on local system, source is downloaded at "C:\Dev\tide-source" navigate to the folder
    
    ```
    cmd
    cd C:\Dev\tide-source
    ```
+   1. [Local System - Standalone](#Using-Local-Standalone)
+   2. [Local System - Using Docker Container](#Using-Container)
+   3. [Google Cloud Platform](#Using-GCP-Executing-from-within-container-data-is-in-GCP-bucket)
+
 
 # Using-Local-Standalone
    1. In the command window, execute the following
