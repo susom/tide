@@ -2,7 +2,6 @@
 
 TiDE is a free open-source text deidentification tool that can identify and deid PHI in clinical note text and other free text in medical data. It uses pattern matching, known PHI matching and NER to search for PHI, and use general replacement or hide-in-plain-sight to replace PHI with safe text.
 
-
 ## Safe Harbor 18 identifiers
 TiDE can identify the following HIPAA identifiers either by pattern matching or known PHI matching:
 
@@ -39,7 +38,6 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    1. [Local System - Standalone](#Using-Local-Standalone)
    2. [Local System - Using Docker Container](#Using-Container)
    3. [Google Cloud Platform](#Using-GCP-Executing-from-within-container-data-is-in-GCP-bucket)
-
 
 # Using-Local-Standalone
    1. In the command window, execute the following
@@ -340,8 +338,6 @@ https://beam.apache.org/documentation/runners/dataflow/
 ### Pipeline runtime parameters for  Google Cloud Dataflow
 https://cloud.google.com/dataflow/docs/guides/setting-pipeline-options
 
-
-
 ## Run TiDE as regular Java application
 Deid jobs can be run either with Maven or Java jar.
 
@@ -362,20 +358,6 @@ mvn -Pdataflow-runner compile exec:java -Dexec.mainClass=com.github.susom.starr.
 --textInputFields="fullnote" \
 --inputResource=gs://<input data bucket>/input/HNO_NOTE_TEXT_PHI_MERGED/note-input-*.json \
 --outputResource=gs://<input data bucket>/NOTE_DEID_result"
-```
-
-
-
-An example of reading from local file and produce result at local
-
-```
-java -jar deid-3.0.21-SNAPSHOT.jar \
---deidConfigFile=deid_config_clarity.yaml \
---textIdFields="note_id" \
---textInputFields="note_text" \
---inputResource=/Users/wenchengli/dev/NOTE_FULL_PHI_PROV_test1_1000row.json
---outputResource=local_test2_result \
-
 ```
 
 ## Optionally use Google DLP API to identify the following DLP infoTypes: 
