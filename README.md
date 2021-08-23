@@ -73,32 +73,30 @@ On execution of previous command, application will process the sample data and g
    3. Ubuntu: https://docs.docker.com/engine/install/ubuntu/
 
 3. Google Cloud Platform (GCP)
-   Google Cloud Platform (GCP), offered by Google, is a suite of cloud computing services where you can leverage the power of computation for performing job which can outrun your local system's resources.
+   Google Cloud Platform (GCP), offered by Google, is a suite of cloud computing services where you can leverage the power of online computing for performing resource intensive job typically not available on on local system.
 
    1. Create a Google Cloud account: https://cloud.google.com/free. If you meet the criteria (https://cloud.google.com/free/docs/gcp-free-tier/#free-trial), you can get $300 free Cloud Billing credits to pay for resources.
-   2. After creating the account, Open Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on IAM & Admin > Service Accounts. "Detailed instructions for creating service account using Google Console is available at https://cloud.google.com/iam/docs/creating-managing-service-accounts"
+   2. After creating the account, On [Google Console](https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on IAM & Admin > Service Accounts. [Create Service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts) 
    3. Click on "+ CREATE SERVICE ACCOUNT" option on the top bar of the window.
-      1. Enter name for the Service Account ex. "TiDE service account"
+      1. Enter name for the Service Account eg. "TiDE service account"
       2. Based on Service Account name, system will automatically generate service account id. You can either use the same name or change the name in the input box below service account name. 
-      2. Enter description for the Service Account.
+      2. Enter description for the Service Account eg. "This service account will be used to verify TiDE functionality".
       3. Click > Create and continue
-      4. Add following Roles to the Service Account one by one - "Detailed instructions for adding roles to the service account using Google Console is available at https://cloud.google.com/iam/docs/granting-changing-revoking-access#grant-single-role"
-         a) "Cloud Dataflow Service Agent"
-         b) "Storage Admin"
-         c) "BigQuery Admin"
+      4. Add following Roles to the Service Account one by one - [Adding roles to the service account](https://cloud.google.com/iam/docs/granting-changing-revoking-access#grant-single-role)
+         1. Cloud Dataflow Service Agent
+         2. Storage Admin
+         3. BigQuery Admin
       5. Click Continue
       6. Click Done
       7. The Service Account creation is complete with required roles.
-      8. Click on the 3 dots under action column and click on the manage keys option.
-      9. Click on ADD KEY > Create new KEY > Choose Key type - Json > Click create.
-      10. A key will be generated and downloaded to your local.
-      11. Under Permissions tab check if your or user is assigned to this service account, if not then click on Grant Access and add the user.
-   4. Add Billing to GCP account (mandatory) - "Detailed instructions for adding Billing to GCP account is available at
-      https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account"
-      1. Open Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Billing
+      8. Under Permissions tab check if your or user is assigned to this service account, if not then click on Grant Access and add the user.
+   4. Once, Service Account is created, follow instructions to [Generate Key for Service account (Json)](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#iam-service-account-keys-create-console).
+      1.  A key will be generated. Download this ley to your local system.
+   5. Add Billing to GCP account (mandatory) - [Add Billing to account](https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account)
+      1. On Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Billing
       2. Click on Manage Billing Accounts > Add Billing Account.
       3. Fill all the required details and attach the project to the billing.
-   5. Configure Storage for the GCP project
+   6. Configure Storage for the GCP project [Create Storage Buckets](https://cloud.google.com/storage/docs/creating-buckets)
       1. Open Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Cloud Storage. 
       2. Click Cloud storage > Browser.
       3. Two buckets are required. One for input data and another for output data, steps for creation of both buckets are same.
@@ -109,6 +107,10 @@ On execution of previous command, application will process the sample data and g
          4. Select control access as Uniform, make sure the checkbox for **Enforce public access prevention on this bucket** is checked > continue
          5. Under Advance setting select Encryption type > google-managed encryption key.
          6. Click Create.
+   7. Tools Required
+      1. Windows user download and use : https://github.com/PowerShell/PowerShell
+      2. For Mac user, Terminal
+      3. For Ubuntu User, Shell or terminal
 
 # Data Preparation for TiDE
 
