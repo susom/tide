@@ -66,38 +66,6 @@ On execution of previous command, application will process the sample data and g
          3. Create a new repository on your hard drive
          4. Add an existing repository from your hard disk.
       2. Right Section will have list of repositories, if you have any.
-   4. Few working Tips
-      1. If you have code in local machine and want to push on your github account
-         1. Open shell/terminal and navigate to your code folder, type git init.
-         2. Now, open GitHub desktop, Click on the "Add an existing repository from your hard disk." option on the left section of your github desktop
-         3. Choose your local code folder.
-         4. Click add repository.
-         5. A new window will appear which will have sections
-            1. Left section 
-               1. Where all of your changes will appear(all files will appear in case of initial upload)
-               2. under that sumamry section, where you needto add your comments
-               3. Under that description and then the Commit to master button
-            2. Top bar section
-               1. first your name of repository will come
-               2. second will be your name of the remote branch
-               3. Publish/push to repository.
-         6. Now that you ready to push the inital commit, do it in the sequence below
-            1. Select the files you want to send to your repo
-            2. Add summary and description
-            3. Click commit to master. 
-            4. Click on the publish repository
-            5. A new window will appear
-               1. Select GitHub.com
-               2. Name: name of the repo
-               3. Description: Description of the repo
-               4. if you want to keep repo private on github you can check the "Keep this code private" option
-               5. Select org, if any
-               6. click publish repository
-               7. Once the process is completed you can check the repo on your github account with the name you have mentioned during the process above.
-      2. Push new changes to existing remote repo
-         1.  Click on the Current repository option on the left section
-         2.  Click on the Add button adjacent filter textbox.
-         3.  Again choose the code folder you are working on and select add repository.
 
   ***Access GitHub using CLI***
 
@@ -437,3 +405,37 @@ java -jar deid-3.0.21-SNAPSHOT.jar \
 --inspectFields=note_text
 
 ```
+
+### Developer Working Tips
+
+   1. If you have code in local machine and want to push on your github account
+      1. Open shell/terminal and navigate to your code folder, type git init.
+      2. Now, open GitHub desktop, Click on the "Add an existing repository from your hard disk." option on the left section of your github desktop
+      3. Choose your local code folder.
+      4. Click add repository.
+      5. A new window will appear which will have sections
+         1. Left section 
+            1. Where all of your changes will appear(all files will appear in case of initial upload)
+            2. under that sumamry section, where you needto add your comments
+            3. Under that description and then the Commit to master button
+         2. Top bar section
+            1. first your name of repository will come
+            2. second will be your name of the remote branch
+            3. Publish/push to repository.
+      6. Now that you ready to push the inital commit, do it in the sequence below
+         1. Select the files you want to send to your repo
+         2. Add summary and description
+         3. Click commit to master. 
+         4. Click on the publish repository
+         5. A new window will appear
+            1. Select GitHub.com
+            2. Name: name of the repo
+            3. Description: Description of the repo
+            4. if you want to keep repo private on github you can check the "Keep this code private" option
+            5. Select org, if any
+            6. click publish repository
+            7. Once the process is completed you can check the repo on your github account with the name you have mentioned during the process above.
+   2. Push new changes to existing remote repo
+      1.  Click on the Current repository option on the left section
+      2.  Click on the Add button adjacent filter textbox.
+      3.  Again choose the code folder you are working on and select add repository.
