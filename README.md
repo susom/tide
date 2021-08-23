@@ -15,104 +15,195 @@ TiDE does not process non-text information such as these two identifiers
 Finger/Voice print, photo
 ```
 
-#### How to execute?
+#### TiDE Uses / Execution
 
-***If you need to install the required Dependencies please refer to the "Prerequisites" Section***
+TiDE can be used in various environments. Below are the prerequisites and instructions for few of the environemnts TiDE is available 
 
-1. Once prerequisites are met execute the commands below
-2. Open a command line and change the directory to the folder where TiDE source has been downloaded
-3. Map the folder where source is located on local machine, for example on my machine it is mapped to "/mnt/c/Official/Dev/tide/2021-08-03/tide"
+   1. Local System - Standalone
+   2. Local System - using a  Docker container
+   3. Google Cloud Platform 
 
+   # Install Prerequisite
+   1. [Prerequisites All](#Prerequisites-Source)
+   2. [Prerequisites Local System - Standalone](#Prerequisites-Local-Standalone)
+   3. [Prerequisites Local System - Using Docker Container](#Prerequisites-Container)
+   4. [Prerequisites Google Cloud Platform](#Prerequisites-GCP)
+
+   # Using TiDE
+   2. [Local System - Standalone](#Using-Local-Standalone)
+   3. [Local System - Using Docker Container](#Using-Container)
+   4. [Google Cloud Platform](#Using-GCP-Executing-from-within-container-data-is-in-GCP-bucket)
+
+   1. Once prerequisites are met, open a command line and change the directory to the folder where TiDE source has been downloaded, eg. if on local system, source is downloaded at "C:\Dev\tide-source" navigate to the folder
+   
+   ```
+   cmd
+   cd C:\Dev\tide-source
+   ```
+
+# Using-Local-Standalone
+   1. In the command window, execute the following
+   
+   ```
+   mvn clean install -DskipTests
+   java -jar ./target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=./src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml --inputType=text --phiFileName=./phi/phi_person_data_example.csv --personFile=./person_data/person.csv --inputResource=./sample_notes --outputResource=./output
+   ```
+   2. [Sample Input](#Sample-Input-Local)
+
+   3. [TiDE Output - Local or container](#Output-Local) 
+# Using-Container
+
+   1. In the command window, execute the following
    ```
    docker build . -t tide-program:latest
-   docker run -it -v /mnt/c/Official/Dev/tide/2021-08-03/tide:/workspaces tide-program:latest
    ```
 
-4. Above command will switch to Shell of the TiDE image.
-5. Execute the command below.
-
-##### 1. Executing jar when all necessary files are in your local (Laptop or Desktop)
+   2. Update the following command if the source location is different from (C:\Dev\tide-source). This command will map the local source and output folder with container. Execute the following
+   ```
+   docker run -it -v /mnt/c/Dev/tide-source:/workspaces tide-program:latest
+   ```
+   3. Above command will switch the command line prompt to Shell of the TiDE image. Execute the following in the Container Shell
 
    ```java
    
    java -jar /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=/workspaces/src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml --inputType=text --phiFileName=/workspaces/phi/phi_person_data_example.csv --personFile=/workspaces/person_data/person.csv --inputResource=/workspaces/sample_notes --outputResource=/workspaces/output
 
    ```
-On execution of previous command, application will process the sample data and generate the output in the mounted "workspaces" folder. TiDE output is generated in the "output" folder specified in the mounted location. Current execution output is in the subfolder with current timestamp in the "output" folder. Individual deid-note is in "individual" folder. Doccano output is generated in the "annotator" folder.
+   4. [Sample Input](#Sample-Input-Local)
+   5. [TiDE Output - Local or container](#Output-Local)
 
-##### 2. Executing from within container, data is in GCP bucket
+# Using-GCP-Executing-from-within-container-data-is-in-GCP-bucket
+   1. In the command window, execute the following
+   ```
+   docker build . -t tide-program:latest
+   ```
+
+   2. Update the following command if the source location is different from (C:\Dev\tide-source). This command will map the local source and output folder with container. Execute the following
+   ```
+   docker run -it -v /mnt/c/Dev/tide-source:/workspaces tide-program:latest
+   ```
+   3. Above command will switch the command line prompt to Shell of the TiDE image. Execute the following in the Container Shell
 
    ```java
+   
+   ```java
     java -jar -Xmx6g /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=deid_config_omop_genrep_incl_annotator_type.yaml --inputType=gcp_gcs --inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json --outputResource=gs://<OUTPUT_BUCKET_NAME> --gcpCredentialsKeyFile=<SERVICE_ACCOUNT_KEY_DOWNLOADED> --textIdFields="id" --textInputFields="note"
-  ```  
 
-#### Prerequisites
+   ```
+   4. [Sample Input](#Sample-Input-GCP)
+   5. [TiDE Output - GCP](#Output-GCP) 
 
-1. GitHub (Source Repository)
+# Sample-Input-Local
+<TODO>
+Input Arguments:
+   1. inputResource (mandatory) eg. inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json
+   This argument specifies the file with notes in jsonl format to be deid.  
+   
+# Sample-Input-GCP
+<TODO>
+Input Arguments:
+   1. inputResource (mandatory) eg. inputResource=/workspaces/sample_notes
+   This argument specifies location of the folder with notes to be deid in text format. All files in this folder will be processed. 
+
+# Output-Local
+
+On execution of previous command, application will process the sample data and generate the output in the "output" folder. TiDE output is generated in the "output" folder. For every execution, application will generate a subfolder in the "output" folder using current timestamp. For latest execution output, use the folder with latest timestamp. In the "current timestamp" folder, there are 3 sets of output:
+1. At the root of folder with "current timestamp", one or more files with in jsonl format. 
+2. A subfolder "individual". This subfolder contains, one file containing exactly one deid note corresponding to each input note.
+3. A subfolder "annotator". This subfolder contains, one file containing exactly one note corresponding to each input note with Doccano visual output decorator. 
+
+# Output-GCP
+<TODO>
+On execution of previous command, application will process the sample data and generate the output in the GCP bucket specified in the argument "outputResource". TiDE output is in jsonl format. 
+
+### Prerequisites-Source
+
+   1. GitHub (Source Repository)
 
    TiDE source code is maintained in GitHub. GitHub is a code repository and is used for storing and maintaining TiDE source code.
   
-  ***Access GitHub using GitHub Desktop tool***
+   ***Access GitHub using GitHub Desktop tool***
 
-   1. Download and install GitHub Desktop Client: https://desktop.github.com/
-   2. After installation, open the GitHub Desktop program 
-   3. Open File > Clone repository
-   4. On Clone a repository dialog box, URL tab, in the "Repository URL", enter "https://github.com/susom/tide/" 
-   5. In "Local Path", enter a value for local path where you would like to keep the source. Click "Clone".
-   6. This will download the latest TiDE code on your local system in the location specificed in local path.
-   7. Open Local path folder in your choice of IDE like Visual Studio Code.
+      1. Download and install GitHub Desktop Client: https://desktop.github.com/
+      2. After installation, open the GitHub Desktop program 
+      3. Open File > Clone repository
+      4. On Clone a repository dialog box, URL tab, in the "Repository URL", enter "https://github.com/susom/tide/" 
+      5. In "Local Path", enter a value for local path where you would like to keep the source. Like on my machine the source folder is "C:\Dev\tide-source" 
+      6. Click "Clone".
+      7. This will download the latest TiDE code on your local system in the location specificed in local path.
+      8. Open Local path folder in your choice of IDE like Visual Studio Code.
 
-2. Docker installation on local machine
+### Prerequisites-Local-Standalone
+
+   1. Java
+      1. Install Java on your system. Here are the links for various operating system: 
+         1. [Windows](https://devwithus.com/install-java-windows-10/)
+         2. [Linux](https://www.guru99.com/how-to-install-java-on-ubuntu.html)
+         3. [Mac](https://mkyong.com/java/how-to-install-java-on-mac-osx/)
+   2. Maven
+      1. Install Maven on your system. Here are the links for various operating system:
+         1. [Windows](https://mkyong.com/maven/how-to-install-maven-in-windows/)
+         2. [Linux](https://linuxize.com/post/how-to-install-apache-maven-on-ubuntu-20-04/)
+         3. [Mac](https://mkyong.com/maven/install-maven-on-mac-osx/)
+
+### Prerequisites-Container
+
+   1. Docker installation on local machine
    
    Docker is an open platform for developing, shipping, and running applications. Docker enables you to separate your applications from your infrastructure so you can deliver software quickly. With Docker, you can manage your infrastructure in the same ways you manage your applications.
 
-   Docker installation is different for different platform, choose as per your OS
+   Docker installation is different for different platforms. Here are the links for various operating system:
 
-   1. Mac: https://docs.docker.com/docker-for-mac/install/
-   2. Windows: https://docs.docker.com/docker-for-windows/install/
-   3. Ubuntu: https://docs.docker.com/engine/install/ubuntu/
+      1. Mac: https://docs.docker.com/docker-for-mac/install/
+      2. Windows: https://docs.docker.com/docker-for-windows/install/
+      3. Ubuntu: https://docs.docker.com/engine/install/ubuntu/
 
-3. Google Cloud Platform (GCP)
+   2. Tools Required
+      1. Windows: [PowerShell](https://github.com/PowerShell/PowerShell)
+      2. Mac: Terminal
+      3. Ubuntu: Shell or terminal
+
+### Prerequisites-GCP
+
+   1. Google Cloud Platform (GCP)
+   
    Google Cloud Platform (GCP), offered by Google, is a suite of cloud computing services where you can leverage the power of online computing for performing resource intensive job typically not available on on local system.
 
-   1. Create a Google Cloud account: https://cloud.google.com/free. If you meet the criteria (https://cloud.google.com/free/docs/gcp-free-tier/#free-trial), you can get $300 free Cloud Billing credits to pay for resources.
-   2. After creating the account, On [Google Console](https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on IAM & Admin > Service Accounts. [Create Service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts) 
-   3. Click on "+ CREATE SERVICE ACCOUNT" option on the top bar of the window.
-      1. Enter name for the Service Account eg. "TiDE service account"
-      2. Based on Service Account name, system will automatically generate service account id. You can either use the same name or change the name in the input box below service account name. 
-      2. Enter description for the Service Account eg. "This service account will be used to verify TiDE functionality".
-      3. Click > Create and continue
-      4. Add following Roles to the Service Account one by one - [Adding roles to the service account](https://cloud.google.com/iam/docs/granting-changing-revoking-access#grant-single-role)
-         1. Cloud Dataflow Service Agent
-         2. Storage Admin
-         3. BigQuery Admin
-      5. Click Continue
-      6. Click Done
-      7. The Service Account creation is complete with required roles.
-      8. Under Permissions tab check if your or user is assigned to this service account, if not then click on Grant Access and add the user.
-   4. Once, Service Account is created, follow instructions to [Generate Key for Service account (Json)](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#iam-service-account-keys-create-console).
-      1.  A key will be generated. Download this ley to your local system.
-   5. Add Billing to GCP account (mandatory) - [Add Billing to account](https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account)
-      1. On Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Billing
-      2. Click on Manage Billing Accounts > Add Billing Account.
-      3. Fill all the required details and attach the project to the billing.
-   6. Configure Storage for the GCP project [Create Storage Buckets](https://cloud.google.com/storage/docs/creating-buckets)
-      1. Open Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Cloud Storage. 
-      2. Click Cloud storage > Browser.
-      3. Two buckets are required. One for input data and another for output data, steps for creation of both buckets are same.
-      4. Click on create bucket link 
-         1. Give name to your bucket. click continue
-         2. Select Location type - REGIONAL > Select region from dropdown > Continue
-         3. Select default storage class Standard > Continue
-         4. Select control access as Uniform, make sure the checkbox for **Enforce public access prevention on this bucket** is checked > continue
-         5. Under Advance setting select Encryption type > google-managed encryption key.
-         6. Click Create.
-   7. Tools Required
-      1. Windows user download and use : https://github.com/PowerShell/PowerShell
-      2. For Mac user, Terminal
-      3. For Ubuntu User, Shell or terminal
+      1. [Create Google Cloud account](https://cloud.google.com/free). If you meet the [criteria](https://cloud.google.com/free/docs/gcp-free-tier/#free-trial), you can get $300 free Cloud Billing credits to pay for resources.
+      2. After creating the account, Using [Google Console](https://console.cloud.google.com/)
+         1. [Create Cloud Project](https://cloud.google.com/appengine/docs/standard/nodejs/building-app/creating-project#creating-a-gcp-project)
+         2. [Create Service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts) 
+            1. Enter name for the Service Account eg. "TiDE service account"
+            2. Based on Service Account name, system will automatically generate service account id. You can either use the same name or change the name in the input box below service account name. 
+            3. Enter description for the Service Account eg. "This service account will be used to verify TiDE functionality".
+            4. Click > Create and continue
+            5. [Adding roles to the service account](https://cloud.google.com/iam/docs/granting-changing-revoking-access#grant-single-role)
+               1. Cloud Dataflow Service Agent
+               2. Storage Admin
+               3. BigQuery Admin
+            6. Click Continue and Then Click Done
+            7. The Service Account creation is complete with required roles.
+            8. Under Permissions tab check if your or user is assigned to this service account, if not then click on Grant Access and add the user.
+      3. [Generate Key for Service account (Json)](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#iam-service-account-keys-create-console).
+         1.  A key will be generated. Download this ley to your local system.
+      4. [Add Billing to GCP account](https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account)
+         1. On Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Billing
+         2. Click on Manage Billing Accounts > Add Billing Account.
+         3. Fill all the required details and attach the project to the billing.
+      5. Configure Storage for the GCP project [Create Storage Buckets](https://cloud.google.com/storage/docs/creating-buckets)
+         1. Open [Google Console](https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Cloud Storage. 
+         2. Click Cloud storage > Browser.
+         3. Two buckets are required. One for input data and another for output data, steps for creation of both buckets are same.
+         4. Click on create bucket link 
+            1. Give name to your bucket. click continue
+            2. Select Location type - REGIONAL > Select region from dropdown > Continue
+            3. Select default storage class Standard > Continue
+            4. Select control access as Uniform, make sure the checkbox for **Enforce public access prevention on this bucket** is checked > continue
+            5. Under Advance setting select Encryption type > google-managed encryption key.
+            6. Click Create.
 
 # Data Preparation for TiDE
+<TODO-Add description, further cleanup>
 
 ## Directly use BigQuery table as input 
 
@@ -331,110 +422,3 @@ java -jar deid-3.0.21-SNAPSHOT.jar \
 --inspectFields=note_text
 
 ```
-
-### Developer Working Tips
-
-   1. If you have code in local machine and want to push on your GitHub account
-      1. Open shell/terminal and navigate to your code folder, type git init.
-      2. Now, open GitHub desktop, Click on the "Add an existing repository from your hard disk." option on the left section of your GitHub desktop
-      3. Choose your local code folder.
-      4. Click add repository.
-      5. A new window will appear which will have sections
-         1. Left section 
-            1. Where all of your changes will appear (all files will appear in case of initial upload)
-            2. under that summary section, where you need to add your comments
-            3. Under that description and then the Commit to master button
-         2. Top bar section
-            1. first your name of repository will come
-            2. second will be your name of the remote branch
-            3. Publish/push to repository.
-      6. Now that you ready to push the initial commit, do it in the sequence below
-         1. Select the files you want to send to your repo
-         2. Add summary and description
-         3. Click commit to master. 
-         4. Click on the publish repository
-         5. A new window will appear
-            1. Select GitHub.com
-            2. Name: name of the repo
-            3. Description: Description of the repo
-            4. if you want to keep repo private on GitHub you can check the "Keep this code private" option
-            5. Select org, if any
-            6. click publish repository
-            7. Once the process is completed you can check the repo on your GitHub account with the name you have mentioned during the process above.
-   2. Push new changes to existing remote repo
-      1.  Click on the Current repository option on the left section
-      2.  Click on the Add button adjacent filter textbox.
-      3.  Again choose the code folder you are working on and select add repository.
-
-  ***Access GitHub using CLI***
-
-   1. Install git on your local system: https://git-scm.com/downloads
-   2. Once downloaded open your shell (Git bash for Windows) run the commands below to set username and email for your git account.
-      1. $ git config --global user.name "<GitHub_User_Name>" 
-      2. $ git config --global user.email GitHub_Email_ID
-   3. Generate SSH from your local, this will be used by GitHub account to validate your local system whenever your push or pull code from your code repo from your account. in your shell/Terminal type the command below and hit enter till you see the gibberish image.
-      1. $ ssh-keygen -t ed25519 
-      2. once the Gibrish image appears navigate to your root folder and list .ssh folder items 
-         1.  location of ssh folder /home/<your_current_account_name>/.ssh/
-         2.  you will see id.ed25519 and id.ed25519_pub
-         3.  id.rsa needs to be kepty safe and id.ed25519_pub is provided to the host system.
-         4.  COPY the id.ed25519_pub content and open your GitHub
-             1. In the upper-right corner of any page, click your profile photo, then click Settings.
-             2. In the user settings sidebar, click SSH and GPG keys. 
-             3. Click New SSH key or Add SSH key. 
-             4. In the "Title" field, add a descriptive label for the new key. For example, if you're using a personal Mac, you might call this key "XYZ".
-             5. Paste your key into the "Key" field. 
-             6. Click Add SSH key. 
-             7. If prompted, confirm your GitHub password.
-   4. Few Tips with GitHub on local
-      1. Add the code to GitHub repo
-         1. Create a repo on GitHub
-            1. In the upper-right corner of any page, click your + button adjacent to profile photo, then click New Repository.
-            2. Fill all the necessary details, you will be asked on repo type
-               1. Private: Only you can see, if you are logged-in
-               2. Public: Anyone can see
-      2. If you have code in local machine and want to push on the new repo just created in step one.
-         1. Open Shell/Terminal and navigate to the working code folder.
-         2. Initialize the local directory as a Git repository.
-            1. $ git init -b main
-         3. Add the files in your new local repository. This stages them for the first commit. 
-            1. $ git add . # Adds the files in the local repository and stages them for commit. To un-stage a file, use 'git reset HEAD YOUR-FILE'.
-         4. Commit the files that you've staged in your local repository. 
-            1. $ git commit -m "First commit" //Commits the tracked changes and prepares them to be pushed to a remote repository. To remove this commit and modify the file, use 'git reset --soft HEAD~1' and commit and add the file again.
-         5. At the top of your GitHub repository's Quick Setup page, click to copy the remote repository URL. 
-         6. In Terminal, add the URL for the remote repository where your local repository will be pushed. 
-            1. $ git remote add origin <GITHUB_REMOTE_URL>  //Sets the new remote
-            2. git remote -v  //Verifies the new remote URL
-         7. Push the changes in your local repository to GitHub.
-            1. $ git push origin main  //Pushes the changes in your local repository up to the remote repository you specified as the origin
-      3. Pull project to local
-         1. Navigate to your repository on GitHub 
-         2. On right hand side you will the green color Code button > click > click on ssh > Copy the link.
-         3. Now Open your shell/Terminal and navigate to the folder where you want to copy the repo to work and hit the command below
-            1. Git clone <Repo_link_copied_from_GitHub>
-         4. Authentication will not be required as your ssh key is already there with GitHub, in case of HTTPS type link, authentication will be asked.
-      4. Push the code to repo
-         1. Once you have made the changes to the necessary file, hit the commands below
-            1. $ git add .
-            2. $ git commit -m 'initial project version'
-            3. $ git remote add origin URL  
-            4. $ git push -u origin master
-         2. You can verify your changes once you navigate to your GitHub repo
-      5. Few handy commands
-         1. $ git remote -v // Lists a Git project's remotes.
-         2. $ git pull // Get latest Data from the actual branch 
-         3. $ git branch -a // Show all available branches  
-         4. $ git branch branch-name // create a branch  
-         5. $ git checkout branch-name // Switch to a branch  
-         6. $ git rm // remove file  
-         7. $ git rm -f // to remove it when it’s already in the index  
-         8. $ git rm --cached // keep on hard drive but remove from being tracked  
-         9. $ git rm --cached -r // remove a folder keep on hard drive but remove from being tracked 
-         10. $ git branch -d branch-name // delete the branch  
-         11. If you want to put your changes temporarily aside and pull new stuff use stash:
-             1.  $ git stash
-             2.  $ git pull
-             3.  $ git stash pop
-         12. To remove a stash completely:
-             1.  $ git stash drop
-    
