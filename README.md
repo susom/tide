@@ -1,6 +1,6 @@
 # TiDE Overview
 
-TiDE is a free text deidentification tool that can identify and deid PHI in clinical note text and other free text in medical data. It uses pattern matching, known PHI matching and NER to search for PHI, and use geenral replacement or hide-in-plain-sight to replace PHI with safe text.
+TiDE is a free open-source text deidentification tool that can identify and deid PHI in clinical note text and other free text in medical data. It uses pattern matching, known PHI matching and NER to search for PHI, and use geenral replacement or hide-in-plain-sight to replace PHI with safe text.
 
 
 ## Safe Harbor 18 identifiers
@@ -15,34 +15,30 @@ TiDE does not process non-text information such as these two identifiers
 Finger/Voice print,photo
 ```
 
-## Optionally use Google DLP API to identify the following DLP infoTypes: 
-https://cloud.google.com/dlp/docs/infotypes-reference
-
-```
-  AGE,DATE,DATE_OF_BIRTH,CREDIT_CARD_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE,US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT,US_SOCIAL_SECURITY_NUMBER,US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER,EMAIL_ADDRESS,PERSON_NAME,PHONE_NUMBER,US_HEALTHCARE_NPI,US_DEA_NUMBER,LOCATION,IP_ADDRESS,MAC_ADDRESS,URL
-```
-
 #### How to execute?
 
 ***If you need to install the required Dependencies please refer to the "Prerequisites" Section***
 
-1. Once prerequisites are met execute the commands below from the code base folder 
+1. Once prerequisites are met execute the commands below
+2. Open a command line and change the directory to the folder where TiDE source has been downloaded
+3. Map the folder where source is located on local machine, for example on my machine it is mapped to "/Users/mayurd/local/tide"
 
    ```
-   1. docker build . -t tide-program:latest   
-   2. docker run -it tide-program:latest 
+   docker build . -t tide-program:latest
+   docker run -it -v /Users/mayurd/local/tide:/workspaces tide-program:latest
    ```
 
-2. After 2nd command is executed you will enter into Shell of the image created above.
-3. Now navigate to /opt/deid you will be inside the folder where jar is located, execute the command below.
+4. Above command will switch to Shell of the TiDE image.
+5. Execute the command below.
 
 ##### 1. Executing jar when all necessary files are in your local (Laptop or Desktop)
 
    ```java
    
-   java -jar /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=/opt/deid/src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml --inputType=text --phiFileName=/opt/deid/phi/phi_person_data_example.csv --personFile=/opt/deid/person_data/person.csv --inputResource=/opt/deid/sample_notes --outputResource=/opt/deid/final_output_javajar
+   java -jar /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=/workspaces/src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml --inputType=text --phiFileName=/workspaces/phi/phi_person_data_example.csv --personFile=/workspaces/person_data/person.csv --inputResource=/workspaces/sample_notes --outputResource=/workspaces/output
 
    ```
+On execution of previous command, application will process the sample data and generate the output in the mounted "workspaces" folder. The output for TiDE is generated in the "output" folder specified in the mounted location. Current execution output is in the subfolder with current timestamp in the "output" folder. Individual deid-note is in "individual" foler. Doccano output is generated in the "annotator" folder.
 
 ##### 2. Executing from within container, data is in GCP bucket
 
@@ -57,13 +53,13 @@ https://cloud.google.com/dlp/docs/infotypes-reference
 
    TiDE source code is maiantained in GitHub. This requires a GitHub account (free). GitHub is a code repository and is used for storing and maintaining TiDE source code. GitHub preserves commit history of the pushed changes. Multiple people can work on the same repository, when shared and create their own branches from main branch, in order to make their own changes without impacting anyone else code.
 
-   1. Register for Github account : https://github.com/signup?source=login
+   1. Register for GitHub account : https://github.com/signup?source=login
   
-  ***Access Github using Github Desktop tool***
+  ***Access GitHub using GitHub Desktop tool***
 
    1. Download and install github Desktop Client: https://desktop.github.com/
-   2. After installation, open the Github Desktop program and login to github account from the Github desktop Window
-   3. Once loggedin into github desktop you can see 2 sections in Github Desktop
+   2. After installation, open the GitHub Desktop program and login to github account from the GitHub desktop Window
+   3. Once loggedin into github desktop you can see 2 sections in GitHub Desktop
       1. Left section will have options like 
          1. Create a tutorial repository
          2. Clone a repository from the internet
@@ -73,7 +69,7 @@ https://cloud.google.com/dlp/docs/infotypes-reference
    4. Few working Tips
       1. If you have code in local machine and want to push on your github account
          1. Open shell/terminal and navigate to your code folder, type git init.
-         2. Now, open Github desktop, Click on the "Add an existing repository from your hard disk." option on the left section of your github desktop
+         2. Now, open GitHub desktop, Click on the "Add an existing repository from your hard disk." option on the left section of your github desktop
          3. Choose your local code folder.
          4. Click add repository.
          5. A new window will appear which will have sections
@@ -83,7 +79,7 @@ https://cloud.google.com/dlp/docs/infotypes-reference
                3. Under that description and then the Commit to master button
             2. Top bar section
                1. first your name of repository will come
-               2. second will be your name of the remote banch
+               2. second will be your name of the remote branch
                3. Publish/push to repository.
          6. Now that you ready to push the inital commit, do it in the sequence below
             1. Select the files you want to send to your repo
@@ -92,7 +88,7 @@ https://cloud.google.com/dlp/docs/infotypes-reference
             4. Click on the publish repository
             5. A new window will appear
                1. Select GitHub.com
-               2. Name : name of the repo
+               2. Name: name of the repo
                3. Description: Description of the repo
                4. if you want to keep repo private on github you can check the "Keep this code private" option
                5. Select org, if any
@@ -100,22 +96,22 @@ https://cloud.google.com/dlp/docs/infotypes-reference
                7. Once the process is completed you can check the repo on your github account with the name you have mentioned during the process above.
       2. Push new changes to existing remote repo
          1.  Click on the Current repository option on the left section
-         2.  Click on the Add buton adjacent filter textbox.
+         2.  Click on the Add button adjacent filter textbox.
          3.  Again choose the code folder you are working on and select add repository.
 
-  ***Access Github using CLI***
+  ***Access GitHub using CLI***
 
    1. Install git on your local machine : https://git-scm.com/downloads
    2. Once downloaded open your shell(Git bash for Windows) run the commands below to set username and email for your git account.
-      1. $ git config --global user.name "<Github_User_Name>" 
-      2. $ git config --global user.email Github_Email_ID
-   3. Generate SSH from your local, this will be used by Github account to validate your local system whenever your push or pull code from your code repo from your account. in your shell/Terminal type the command below and hit enter till you see the Gibrish image.
+      1. $ git config --global user.name "<GitHub_User_Name>" 
+      2. $ git config --global user.email GitHub_Email_ID
+   3. Generate SSH from your local, this will be used by GitHub account to validate your local system whenever your push or pull code from your code repo from your account. in your shell/Terminal type the command below and hit enter till you see the Gibrish image.
       1. $ ssh-keygen -t ed25519 
       2. once the Gibrish image appears navigate to your root folder and list .ssh folder items 
          1.  location of ssh folder /home/<your_current_account_name>/.ssh/
          2.  you will see id.ed25519 and id.ed25519_pub
          3.  id.rsa needs to be kepty safe and id.ed25519_pub is provided to the host system.
-         4.  COPY the id.ed25519_pub content and open your Github
+         4.  COPY the id.ed25519_pub content and open your GitHub
              1. In the upper-right corner of any page, click your profile photo, then click Settings.
              2. In the user settings sidebar, click SSH and GPG keys. 
              3. Click New SSH key or Add SSH key. 
@@ -123,9 +119,9 @@ https://cloud.google.com/dlp/docs/infotypes-reference
              5. Paste your key into the "Key" field. 
              6. Click Add SSH key. 
              7. If prompted, confirm your GitHub password.
-   4. Few Tips with Github on local
-      1. Add the code to Github repo
-         1. Create a repo on Github
+   4. Few Tips with GitHub on local
+      1. Add the code to GitHub repo
+         1. Create a repo on GitHub
             1. In the upper-right corner of any page, click your + button adjacent to profile photo, then click New Repository.
             2. Fill all the necessary details, you will be asked on repo type
                1. Private: Only you can see, if you are logged-in
@@ -145,11 +141,11 @@ https://cloud.google.com/dlp/docs/infotypes-reference
          7. Push the changes in your local repository to GitHub.
             1. $ git push origin main  //Pushes the changes in your local repository up to the remote repository you specified as the origin
       3. Pull project to local
-         1. Navigate to your repository on Github 
+         1. Navigate to your repository on GitHub 
          2. On right hand side you will the green color Code button > click > clickon ssh > Copy the link.
          3. Now Open your shell/Terminal and navigate to the folder where you want to copy the repo to work and hit the command below
-            1. Git clone <Repo_link_copied_from_Github>
-         4. Authentication will not be required as your ssh key is already their with Github, in case of HTTPS type link, authentication will be asked.
+            1. Git clone <Repo_link_copied_from_GitHub>
+         4. Authentication will not be required as your ssh key is already there with GitHub, in case of HTTPS type link, authentication will be asked.
       4. Push the code to repo
          1. Once you have made the changes to the necessary file, hit the commands below
             1. $ git add .
@@ -162,7 +158,7 @@ https://cloud.google.com/dlp/docs/infotypes-reference
          2. $ git pull // Get latest Data from the actual branch 
          3. $ git branch -a // Show all available branches  
          4. $ git branch branch-name // create a branch  
-         5. $ git checkout branchname // Switch to a branch  
+         5. $ git checkout branch-name // Switch to a branch  
          6. $ git rm // remove file  
          7. $ git rm -f // to remove it when it’s already in the index  
          8. $ git rm --cached // keep on hard drive but remove from being tracked  
@@ -183,17 +179,14 @@ https://cloud.google.com/dlp/docs/infotypes-reference
    Docker installation is diffrent for diffrent platform, choose as per yor OS
 
    1. Mac : https://docs.docker.com/docker-for-mac/install/
-   2. Desktop: https://docs.docker.com/docker-for-windows/install/
+   2. Windows: https://docs.docker.com/docker-for-windows/install/
    3. Ubuntu: https://docs.docker.com/engine/install/ubuntu/
-   4. CentOS: https://docs.docker.com/engine/install/centos/
-   5. Debian: https://docs.docker.com/engine/install/debian/
-
 
 3. Dockerfile in Base code folder
-   Dockerfile is a set of instructions that is needed to create a Docker images,which will run as a container and will hold all the components to execute your application.
+   Dockerfile is a set of instructions that is needed to create a Docker images, which will run as a container and will hold all the components to execute your application.
    You will find this file in the base directory of the application code.
 
-4. Google Cloud Platform(GCP)
+4. Google Cloud Platform (GCP)
    GCP is a cloud platform where you can leverage the power of computaion for performing job which can outrun your local system's resources.
 
    1. To create a GCP account (initially GCP give you $300 free Credits): https://cloud.google.com/free
@@ -208,7 +201,7 @@ https://cloud.google.com/dlp/docs/infotypes-reference
       7. Once that is done you will see the Service account created by you.
       8. Click on the 3 dots under action column and click on the manage keys option.
       9. Click on ADD KEY > Create new KEY > Choose Key type - Json > Click create.
-      10. A key will be generate and downloaded to your local.
+      10. A key will be generated and downloaded to your local.
       11. Under Permissions tab check if your or user is assigned to this service account, if not then click on Grant Access and add the user.
    4.  To create a billing account(necessary)
        1. Open the console Navigation menu (![navigation](/resources/navigation.PNG)) on the left,and selete Billing
@@ -223,7 +216,7 @@ https://cloud.google.com/dlp/docs/infotypes-reference
          4. Select control access as Uniform, Make sure the checkbox for **Enforce public access preventation on this bucket** is checked > continue
          5. Under Advance setting select Encryption type > google-managed encryption key.
          6. Click Create.
-5. Download Powershell: https://github.com/PowerShell/PowerShell
+5. Download PowerShell: https://github.com/PowerShell/PowerShell
 
 # Data Preparation for TiDE
 
@@ -407,6 +400,13 @@ java -jar deid-3.0.21-SNAPSHOT.jar \
 --inputResource=/Users/wenchengli/dev/NOTE_FULL_PHI_PROV_test1_1000row.json
 --outputResource=local_test2_result \
 
+```
+
+## Optionally use Google DLP API to identify the following DLP infoTypes: 
+https://cloud.google.com/dlp/docs/infotypes-reference
+
+```
+  AGE,DATE,DATE_OF_BIRTH,CREDIT_CARD_NUMBER,US_BANK_ROUTING_MICR,AMERICAN_BANKERS_CUSIP_ID,IBAN_CODE,US_ADOPTION_TAXPAYER_IDENTIFICATION_NUMBER,US_DRIVERS_LICENSE_NUMBER,US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER,US_PREPARER_TAXPAYER_IDENTIFICATION_NUMBER,US_PASSPORT,US_SOCIAL_SECURITY_NUMBER,US_EMPLOYER_IDENTIFICATION_NUMBER,US_VEHICLE_IDENTIFICATION_NUMBER,EMAIL_ADDRESS,PERSON_NAME,PHONE_NUMBER,US_HEALTHCARE_NPI,US_DEA_NUMBER,LOCATION,IP_ADDRESS,MAC_ADDRESS,URL
 ```
 
 ## Use Google DLP 
