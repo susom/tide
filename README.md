@@ -86,33 +86,57 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    
    ```java
     java -jar -Xmx6g /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=deid_config_omop_genrep_incl_annotator_type.yaml --inputType=gcp_gcs --inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json --outputResource=gs://<OUTPUT_BUCKET_NAME> --gcpCredentialsKeyFile=<SERVICE_ACCOUNT_KEY_DOWNLOADED> --textIdFields="id" --textInputFields="note"
-
    ```
    4. [Sample Input](#Sample-Input-GCP)
    5. [TiDE Output - GCP](#Output-GCP) 
 
 # Sample-Input-Local
-<TODO>
-Input Arguments:
-   1. inputResource (mandatory) eg. inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json
-   This argument specifies the file with notes in jsonl format to be deid.  
-   
-# Sample-Input-GCP
-<TODO>
+
 Input Arguments:
    1. inputResource (mandatory) eg. inputResource=/workspaces/sample_notes
-   This argument specifies location of the folder with notes to be deid in text format. All files in this folder will be processed. 
+   When used with 
+      1. "inputType=text", this argument specifies location of the folder with notes to be deid in text format. All files in this folder will be processed. 
+      2. "inputType="local", this argument specifies the file with notes to be deid in jsonl format.
+   
+# Sample-Input-GCP
+
+Input Arguments:
+   1. inputResource (mandatory) eg. inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json
+   This argument specifies the file with notes to be deid in jsonl format.
 
 # Output-Local
 
-On execution of previous command, application will process the sample data and generate the output in the "output" folder. TiDE output is generated in the "output" folder. For every execution, application will generate a subfolder in the "output" folder using current timestamp. For latest execution output, use the folder with latest timestamp. In the "current timestamp" folder, there are 3 sets of output:
-1. At the root of folder with "current timestamp", one or more files with in jsonl format. 
-2. A subfolder "individual". This subfolder contains, one file containing exactly one deid note corresponding to each input note.
-3. A subfolder "annotator". This subfolder contains, one file containing exactly one note corresponding to each input note with Doccano visual output decorator. 
+   On execution of previous command, application will start processing the input notes and display messages like below
+   ```
+      21:24:43,972 INFO  [main]     com.github.susom.starr.deid.Main.run(Main.java:67) Current Settings:
+      appName: Main
+      deidConfigFile: /workspaces/src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml
+      gcpCredentialsKeyFile:
+      inputResource: /workspaces/sample_notes
+      inputType: text
+      optionsId: 0
+      outputResource: /workspaces/output
+      personFile: /workspaces/person_data/person.csv
+      phiFileName: /workspaces/phi/phi_person_data_example.csv
+      runner: class org.apache.beam.runners.direct.DirectRunner
+      stableUniqueNames: WARNING
+      ®
+      21:24:43,980 INFO  [main]     com.github.susom.starr.deid.Main.run(Main.java:76) reading configuration from file /workspaces/src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml®
+      21:24:44,069 INFO  [main]     com.github.susom.starr.deid.Main.run(Main.java:83) received configuration for note_deid_20190812®
+      21:24:46,329 INFO  [direct-runner-worker]     edu.stanford.nlp.util.logging.SLF4JHandler.print(SLF4JHandler.java:88) Adding annotator tokenize®
+      ..............
+      ..............
+      ..............
+      21:24:58,919 INFO  [direct-runner-worker]     org.apache.beam.sdk.io.FileBasedSink$WriteOperation.removeTemporaryFiles(FileBasedSink.java:805) Will remove known temporary file /workspaces/output/1629926684106/.temp-beam-fb9dbd2c-f17c-4d4a-a99c-8034e4d2fef9/f1ccd490-eb10-4cee-a5a2-96c82f221c74®
+   ```
+   On completion of execution of previous command, TiDE output will be available in the "output" folder. For every execution, application will create a subfolder in the "output" folder using "current timestamp in long format". For latest execution output, use the folder with latest timestamp. This folder will have 3 sets of output:
+   1. At the root of "current timestamp in long format" folder, one or more files in jsonl format containing original note, deid note, and findings. 
+   2. A subfolder "individual" containing deid notes. This folder will have one file corresponding to each input note.
+   3. A subfolder "annotator" containing output in Doccano format. This folder will have one file corresponding to each input note.
 
 # Output-GCP
-<TODO>
-On execution of previous command, application will process the sample data and generate the output in the GCP bucket specified in the argument "outputResource". TiDE output is in jsonl format. 
+
+   On completion of execution of previous command, TiDE output will be available in the GCP bucket specified in the "outputResource" argument. TiDE output is in jsonl format. 
 
 ### Prerequisites-Source
 
