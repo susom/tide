@@ -230,11 +230,17 @@ https://cloud.google.com/docs/authentication/getting-started
 
 ```
 export GOOGLE_APPLICATION_CREDENTIALS=<gcp service account credential json file>
-
 ```
 
 # Data Preparation for TiDE
-<TODO-Add description, further cleanup>
+TiDE can process data in various formats such as 
+1. "text" note (one per file) along with known phi file (csv format) and note-phi relationship file (csv format)
+2. "jsonl" file with phi information along with the note
+3. "BigQuery" table
+
+## Use text files on local disk
+
+TiDE supports text files for input notes to be deid'ed. Each file should have exactly one note. The file name is used as note id. The known PHI information for the persons can be supplied in a phi file in csv format. The phi file should have a person id. A file with relationship between person id and note should be supplied in csv file. TiDE supports multiple notes for same person.  
 
 ## Directly use BigQuery table as input 
 
@@ -242,8 +248,7 @@ You can directly use BigQuery table that contains the free text column as input 
 
 ## Use JSON files on Google Cloud Storage or local disk
 
-If you prefer to work with files, you can export table to Google Cloud Storage bucket as newline delimited JSON files. Then use these GCS files as input.
-
+TiDE supports jsonl files. Export table to Google Cloud Storage bucket as newline delimited JSON files. Then use these GCS files as input.
 
 # Options to Replace PHI 
 
