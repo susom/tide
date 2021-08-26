@@ -198,13 +198,13 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    Docker installation is different for different platforms. Here are the links for various operating system:
 
-      1. Mac: https://docs.docker.com/docker-for-mac/install/
-      2. Windows: https://docs.docker.com/docker-for-windows/install/
-      3. Ubuntu: https://docs.docker.com/engine/install/ubuntu/
+      1. [Mac](https://docs.docker.com/docker-for-mac/install/)
+      2. [Windows](https://docs.docker.com/docker-for-windows/install/)
+      3. [Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
 
    2. Tools Required
-      1. Windows: [PowerShell](https://github.com/PowerShell/PowerShell)
       2. Mac: Terminal
+      1. Windows: [PowerShell](https://github.com/PowerShell/PowerShell)
       3. Ubuntu: Shell or terminal
 
 ## Prerequisites-GCP
@@ -382,6 +382,20 @@ Three types of parameters are needed for running TiDE:
 |googleDlpEnabled | Turn on/off Google DLP | true or false|
 |phiFileName | Known PHI file | /workspaces/phi/phi_person_data_example.csv|
 |personFile | Relationship between known PHI and notes | /workspaces/person_data/person.csv|
+
+#### Known PHI File Format
+
+There should be max of one record per person (person_id) in this file
+```
+person_id,MRN,JITTER,STUDY_ID,ANON_ID,pat_id,pat_name,add_line_1,city,zip,home_phone,email_address,birth_date,sex_c,ssn,epic_pat_id,PAT_MRN_ID,PAT_LAST_NAME,PAT_FIRST_NAME,EMPLOYER_ID,cur_pcp_prov_id,PROV_NAME,father_name,father_addr_ln_1,father_city,father_zip,father_cell_phone,mother_name,mother_cell_phone,emerg_pat_rel_c,accession_num
+```
+
+#### Person File Format
+
+There should be max of one record per note (note_id) in this file
+```
+note_id,person_id
+```
 
 ### Pipeline runtime parameters
 
