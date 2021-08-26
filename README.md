@@ -14,7 +14,7 @@ TiDE does not process non-text information such as these two identifiers
 Finger/Voice print, photo
 ```
 
-#### TiDE Uses / Execution
+## TiDE Uses / Execution
 
 TiDE can be used in various environments. Below are the prerequisites and instructions for few of the environemnts TiDE is available 
 
@@ -22,13 +22,13 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    2. Local System - using a  Docker container
    3. Google Cloud Platform 
 
-   # Install Prerequisite
+   ### Install Prerequisite
    1. [Prerequisites All](#Prerequisites-Source)
    2. [Prerequisites Local System - Standalone](#Prerequisites-Local-Standalone)
    3. [Prerequisites Local System - Using Docker Container](#Prerequisites-Container)
    4. [Prerequisites Google Cloud Platform](#Prerequisites-GCP)
 
-   # Using TiDE
+   ### Using TiDE
    Once prerequisites are met, open a command line and change the directory to the folder where TiDE source has been downloaded, eg. if on local system, source is downloaded at "C:\Dev\tide-source" navigate to the folder
    
    ```
@@ -39,7 +39,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    2. [Local System - Using Docker Container](#Using-Container)
    3. [Google Cloud Platform](#Using-GCP-Executing-from-within-container-data-is-in-GCP-bucket)
 
-# Using-Local-Standalone
+   ### Using-Local-Standalone
    1. In the command window, execute the following
    
    ```
@@ -49,7 +49,8 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    2. [Sample Input](#Sample-Input-Local)
 
    3. [TiDE Output - Local or container](#Output-Local) 
-# Using-Container
+   
+   ### Using-Container
 
    1. In the command window, execute the following
    ```
@@ -70,7 +71,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    4. [Sample Input](#Sample-Input-Local)
    5. [TiDE Output - Local or container](#Output-Local)
 
-# Using-GCP-Executing-from-within-container-data-is-in-GCP-bucket
+   ### Using-GCP-Executing-from-within-container-data-is-in-GCP-bucket
    1. In the command window, execute the following
    ```
    docker build . -t tide-program:latest
@@ -90,21 +91,21 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    4. [Sample Input](#Sample-Input-GCP)
    5. [TiDE Output - GCP](#Output-GCP) 
 
-# Sample-Input-Local
+   ### Sample-Input-Local
 
-Input Arguments:
+   Input Arguments:
    1. inputResource (mandatory) eg. inputResource=/workspaces/sample_notes
    When used with 
       1. "inputType=text", this argument specifies location of the folder with notes to be deid in text format. All files in this folder will be processed. 
-      2. "inputType="local", this argument specifies the file with notes to be deid in jsonl format.
+      2. "inputType="local", this argument specifies the file with notes to be deid in newline delimited JSON files (jsonl) format.
    
-# Sample-Input-GCP
+   ### Sample-Input-GCP
 
-Input Arguments:
+   Input Arguments:
    1. inputResource (mandatory) eg. inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json
-   This argument specifies the file with notes to be deid in jsonl format.
+   This argument specifies the file with notes to be deid in newline delimited JSON files (jsonl) format.
 
-# Output-Local
+   ### Output-Local
 
    On execution of previous command, application will start processing the input notes and display messages like below
    ```
@@ -130,15 +131,15 @@ Input Arguments:
       21:24:58,919 INFO  [direct-runner-worker]     org.apache.beam.sdk.io.FileBasedSink$WriteOperation.removeTemporaryFiles(FileBasedSink.java:805) Will remove known temporary file /workspaces/output/1629926684106/.temp-beam-fb9dbd2c-f17c-4d4a-a99c-8034e4d2fef9/f1ccd490-eb10-4cee-a5a2-96c82f221c74®
    ```
    On completion of execution of previous command, TiDE output will be available in the "output" folder. For every execution, application will create a subfolder in the "output" folder using "current timestamp in long format". For latest execution output, use the folder with latest timestamp. This folder will have 3 sets of output:
-   1. At the root of "current timestamp in long format" folder, one or more files in jsonl format containing original note, deid note, and findings. 
+   1. At the root of "current timestamp in long format" folder, one or more files in newline delimited JSON files (jsonl) format containing original note, deid note, and findings. 
    2. A subfolder "individual" containing deid notes. This folder will have one file corresponding to each input note.
    3. A subfolder "annotator" containing output in Doccano format. This folder will have one file corresponding to each input note.
 
-# Output-GCP
+   ### Output-GCP
 
-   On completion of execution of previous command, TiDE output will be available in the GCP bucket specified in the "outputResource" argument. TiDE output is in jsonl format. 
+   On completion of execution of previous command, TiDE output will be available in the GCP bucket specified in the "outputResource" argument. TiDE output is in newline delimited JSON files (jsonl) format. 
 
-### Prerequisites-Source
+## Prerequisites-Source
 
    1. GitHub (Source Repository)
 
@@ -155,7 +156,7 @@ Input Arguments:
       7. This will download the latest TiDE code on your local system in the location specificed in local path.
       8. Open Local path folder in your choice of IDE like Visual Studio Code.
 
-### Prerequisites-Local-Standalone
+## Prerequisites-Local-Standalone
 
    1. Java
       1. Install Java on your system. Here are the links for various operating system: 
@@ -168,7 +169,7 @@ Input Arguments:
          2. [Linux](https://linuxize.com/post/how-to-install-apache-maven-on-ubuntu-20-04/)
          3. [Mac](https://mkyong.com/maven/install-maven-on-mac-osx/)
 
-### Prerequisites-Container
+## Prerequisites-Container
 
    1. Docker installation on local machine
    
@@ -185,7 +186,7 @@ Input Arguments:
       2. Mac: Terminal
       3. Ubuntu: Shell or terminal
 
-### Prerequisites-GCP
+## Prerequisites-GCP
 
    1. Google Cloud Platform (GCP)
    
@@ -235,7 +236,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=<gcp service account credential json file>
 # Data Preparation for TiDE
 TiDE can process data in various formats such as 
 1. "text" note (one per file) along with known phi file (csv format) and note-phi relationship file (csv format)
-2. "jsonl" file with phi information along with the note
+2. newline delimited JSON files (jsonl) file with phi information along with the note
 3. "BigQuery" table
 
 ## Use text files on local disk
@@ -248,7 +249,7 @@ You can directly use BigQuery table that contains the free text column as input 
 
 ## Use JSON files on Google Cloud Storage or local disk
 
-TiDE supports jsonl files. Export table to Google Cloud Storage bucket as newline delimited JSON files. Then use these GCS files as input.
+TiDE supports newline delimited JSON files (jsonl) files. Export table to Google Cloud Storage bucket as newline delimited JSON files. Then use these GCS files as input.
 
 # Options to Replace PHI 
 
@@ -296,9 +297,7 @@ Configure General Regex pattern matching or find known PHI of the patient associ
 - replace_with: find word longer than 2 characters, and not in common vocabulary
 - replace_strictly_with: applied strictly regardless word length, and if in common vocabulary
 
-
 Configuration Example:
-
 
 ```yaml
 
@@ -353,23 +352,20 @@ Three types of parameters are needed for running TiDE:
 |textInputFields |field name in input that contains free text | note_text| 
 |textIdFields |field name in input that contains row id(s) | note_id,note_csn_id| 
 | runner | type of the Apache Beam runner | DirectRunner, DataflowRunner |
-|inputType    | type of the input souce. Currently supports Google Cloud Storage, Google BigQuery and local files  | gcp_gcs , gcp_bq , local |
+|inputType    | type of the input souce. Currently supports Google Cloud Storage, Google BigQuery and local files  | gcp_gcs, gcp_bq, local, text |
 |inputResource | Path of the file to read from | gs://mybucket/path/to/json/files/*.json|
 |outputResource | Path of the output files | |
 |DeidConfigFile | Name of the Deid configuration. Can use the provided configurations or external config file | deid_config_clarity.yaml |
 |dlpProject   | GCP project id, if use GCP DLP service | | 
 |googleDlpEnabled | Turn on/off Google DLP | true or false|
+|phiFileName | Known PHI file | /workspaces/phi/phi_person_data_example.csv|
+|personFile | Relationship between known PHI and notes | /workspaces/person_data/person.csv|
 
-
-### Pipeline runtime parameters for Apache Beam runners
-https://beam.apache.org/documentation/runners/dataflow/
-
-### Pipeline runtime parameters for  Google Cloud Dataflow
-https://cloud.google.com/dataflow/docs/guides/setting-pipeline-options
+### Pipeline runtime parameters
+1. [Apache Beam runners](https://beam.apache.org/documentation/runners/dataflow/)
+2. [Google Cloud Dataflow](https://cloud.google.com/dataflow/docs/guides/setting-pipeline-options)
 
 ## Run TiDE as regular Java application
-Deid jobs can be run either with Maven or Java jar.
-
 Here is an example for reading from Google Cloud Storage and storing result to Google Cloud Storage:
 
 ```
