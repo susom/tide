@@ -18,7 +18,7 @@ Finger/Voice print, photo
 
 ## TiDE Uses / Execution
 
-TiDE can be used in various environments. Below are the prerequisites and instructions for few of the environemnts TiDE is available
+TiDE can be used in various environments. Below are the prerequisites and instructions for several environments TiDE is available
 
    1. Local System - Standalone
    2. Local System - using a  Docker container
@@ -33,7 +33,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
 ### Using TiDE
 
-   Once prerequisites are met, open a command line and change the directory to the folder where TiDE source has been downloaded, eg. if on local system, source is downloaded at "C:\Dev\tide-source" navigate to the folder
+   Once prerequisites are met, open a command line and change the directory to the folder where TiDE source has been downloaded, e.g. if on local system, source is downloaded at "C:\Dev\tide-source" navigate to the folder
 
    ```
    cmd
@@ -111,7 +111,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    Input Arguments:
 
-   1. inputResource (mandatory) eg. inputResource=/workspaces/sample_notes
+   1. inputResource (mandatory) e.g. inputResource=/workspaces/sample_notes
    When used with
       1. "inputType=text", this argument specifies location of the folder with notes to be deid in text format. All files in this folder will be processed.
       2. "inputType="local", this argument specifies the file with notes to be deid in newline delimited JSON files (jsonl) format.
@@ -120,7 +120,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    Input Arguments:
 
-   1. inputResource (mandatory) eg. inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json
+   1. inputResource (mandatory) e.g. inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json
    This argument specifies the file with notes to be deid in newline delimited JSON files (jsonl) format.
 
 ### Output-Local
@@ -174,7 +174,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
       4. On Clone a repository dialog box, URL tab, in the "Repository URL", enter "https://github.com/susom/tide/" 
       5. In "Local Path", enter a value for local path where you would like to keep the source. Like on my machine the source folder is "C:\Dev\tide-source" 
       6. Click "Clone".
-      7. This will download the latest TiDE code on your local system in the location specificed in local path.
+      7. This will download the latest TiDE code on your local system in the location specified in local path.
       8. Open Local path folder in your choice of IDE like Visual Studio Code.
 
 ## Prerequisites-Local-Standalone
@@ -203,8 +203,8 @@ TiDE can be used in various environments. Below are the prerequisites and instru
       3. [Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
 
    2. Tools Required
-      2. Mac: Terminal
-      1. Windows: [PowerShell](https://github.com/PowerShell/PowerShell)
+      1. Mac: Terminal
+      2. Windows: [PowerShell](https://github.com/PowerShell/PowerShell)
       3. Ubuntu: Shell or terminal
 
 ## Prerequisites-GCP
@@ -217,9 +217,9 @@ TiDE can be used in various environments. Below are the prerequisites and instru
       2. After creating the account, Using [Google Console](https://console.cloud.google.com/)
          1. [Create Cloud Project](https://cloud.google.com/appengine/docs/standard/nodejs/building-app/creating-project#creating-a-gcp-project)
          2. [Create Service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts) 
-            1. Enter name for the Service Account eg. "TiDE service account"
+            1. Enter name for the Service Account e.g. "TiDE service account"
             2. Based on Service Account name, system will automatically generate service account id. You can either use the same name or change the name in the input box below service account name. 
-            3. Enter description for the Service Account eg. "This service account will be used to verify TiDE functionality".
+            3. Enter description for the Service Account e.g. "This service account will be used to verify TiDE functionality".
             4. Click > Create and continue
             5. [Adding roles to the service account](https://cloud.google.com/iam/docs/granting-changing-revoking-access#grant-single-role)
                1. Cloud Dataflow Service Agent
