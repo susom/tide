@@ -123,7 +123,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 ### Sample Input GCP
 
    Sample Notes:
-      Please refer to ([sample notes folder](sample_jsonl))
+      Please refer to ([sample notes folder](sample_notes_jsonl))
 
    Input Arguments:
 
