@@ -33,6 +33,8 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
 ### Using TiDE
 
+   The following examples are based on executing TiDE on windows system
+
    Once prerequisites are met, open a command line and change the directory to the folder where TiDE source has been downloaded, e.g. if on local system, source is downloaded at "C:\Dev\tide-source" navigate to the folder
 
    ```
@@ -44,7 +46,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    2. [Local System - Using Docker Container](#Using-Container)
    3. [Google Cloud Platform](#Using-GCP-Executing-from-within-container-data-is-in-GCP-bucket)
 
-### Using-Local-Standalone
+### Using Local Standalone
 
    1. In the command window, execute the following
 
@@ -57,7 +59,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    3. [TiDE Output - Local or container](#Output-Local)
 
-### Using-Container
+### Using Container
 
    1. In the command window, execute the following
 
@@ -74,7 +76,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    3. Above command will switch the command line prompt to Shell of the TiDE image. Execute the following in the Container Shell
 
    ```java
-   
+
    java -jar /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=/workspaces/src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml --inputType=text --phiFileName=/workspaces/phi/phi_person_data_example.csv --personFile=/workspaces/person_data/person.csv --inputResource=/workspaces/sample_notes --outputResource=/workspaces/output
 
    ```
@@ -82,7 +84,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    4. [Sample Input](#Sample-Input-Local)
    5. [TiDE Output - Local or container](#Output-Local)
 
-### Using-GCP-Executing-from-within-container-data-is-in-GCP-bucket
+### Using GCP Executing from within container data is in GCP bucket
 
    1. In the command window, execute the following
 
@@ -98,7 +100,6 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    3. Above command will switch the command line prompt to Shell of the TiDE image. Execute the following in the Container Shell
 
-   ```java
    
    ```java
     java -jar -Xmx6g /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=deid_config_omop_genrep_incl_annotator_type.yaml --inputType=gcp_gcs --inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json --outputResource=gs://<OUTPUT_BUCKET_NAME> --gcpCredentialsKeyFile=<SERVICE_ACCOUNT_KEY_DOWNLOADED> --textIdFields="id" --textInputFields="note"
@@ -107,7 +108,10 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    4. [Sample Input](#Sample-Input-GCP)
    5. [TiDE Output - GCP](#Output-GCP)
 
-### Sample-Input-Local
+### Sample Input Local
+
+   Sample Notes:
+      Please refer to ([sample notes folder](sample_notes))
 
    Input Arguments:
 
@@ -116,14 +120,17 @@ TiDE can be used in various environments. Below are the prerequisites and instru
       1. "inputType=text", this argument specifies location of the folder with notes to be deid in text format. All files in this folder will be processed.
       2. "inputType="local", this argument specifies the file with notes to be deid in newline delimited JSON files (jsonl) format.
 
-### Sample-Input-GCP
+### Sample Input GCP
+
+   Sample Notes:
+      Please refer to ([sample notes folder](sample_jsonl))
 
    Input Arguments:
 
    1. inputResource (mandatory) e.g. inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json
    This argument specifies the file with notes to be deid in newline delimited JSON files (jsonl) format.
 
-### Output-Local
+### Output Local
 
    On execution of previous command, application will start processing the input notes and display messages like below
 
@@ -156,11 +163,11 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    2. A subfolder "individual" containing deid notes. This folder will have one file corresponding to each input note.
    3. A subfolder "annotator" containing output in Doccano format. This folder will have one file corresponding to each input note.
 
-### Output-GCP
+### Output GCP
 
    On completion of execution of previous command, TiDE output will be available in the GCP bucket specified in the "outputResource" argument. TiDE output is in newline delimited JSON files (jsonl) format.
 
-## Prerequisites-Source
+## Prerequisites Source
 
    1. GitHub (Source Repository)
 
@@ -168,16 +175,16 @@ TiDE can be used in various environments. Below are the prerequisites and instru
   
    ***Access GitHub using GitHub Desktop tool***
 
-      1. Download and install GitHub Desktop Client: https://desktop.github.com/
-      2. After installation, open the GitHub Desktop program 
-      3. Open File > Clone repository
-      4. On Clone a repository dialog box, URL tab, in the "Repository URL", enter "https://github.com/susom/tide/" 
-      5. In "Local Path", enter a value for local path where you would like to keep the source. Like on my machine the source folder is "C:\Dev\tide-source" 
-      6. Click "Clone".
-      7. This will download the latest TiDE code on your local system in the location specified in local path.
-      8. Open Local path folder in your choice of IDE like Visual Studio Code.
+   1. Download and install [GitHub Desktop Client](https://desktop.github.com/)
+   2. After installation, open the GitHub Desktop program 
+   3. Open File > Clone repository
+   4. On Clone a repository dialog box, URL tab, in the "Repository URL", enter "https://github.com/susom/tide/"
+   5. In "Local Path", enter a value for local path where you would like to keep the source. Like on my machine the source folder is "C:\Dev\tide-source"
+   6. Click "Clone".
+   7. This will download the latest TiDE code on your local system in the location specified in local path.
+   8. Open Local path folder in your choice of IDE like Visual Studio Code.
 
-## Prerequisites-Local-Standalone
+## Prerequisites Local Standalone
 
    1. Java
       1. Install Java on your system. Here are the links for various operating system:
@@ -190,7 +197,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
          2. [Linux](https://linuxize.com/post/how-to-install-apache-maven-on-ubuntu-20-04/)
          3. [Mac](https://mkyong.com/maven/install-maven-on-mac-osx/)
 
-## Prerequisites-Container
+## Prerequisites Container
 
    1. Docker installation on local machine
 
@@ -198,53 +205,54 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    Docker installation is different for different platforms. Here are the links for various operating system:
 
-      1. [Mac](https://docs.docker.com/docker-for-mac/install/)
-      2. [Windows](https://docs.docker.com/docker-for-windows/install/)
-      3. [Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+   1. [Mac](https://docs.docker.com/docker-for-mac/install/)
+   2. [Windows](https://docs.docker.com/docker-for-windows/install/)
+   3. [Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
 
-   2. Tools Required
-      1. Mac: Terminal
-      2. Windows: [PowerShell](https://github.com/PowerShell/PowerShell)
-      3. Ubuntu: Shell or terminal
+   Tools Required
 
-## Prerequisites-GCP
+   1. Mac: Terminal
+   2. Windows: [PowerShell](https://github.com/PowerShell/PowerShell)
+   3. Ubuntu: Shell or terminal
+
+## Prerequisites GCP
 
    1. Google Cloud Platform (GCP)
 
    Google Cloud Platform (GCP), offered by Google, is a suite of cloud computing services where you can leverage the power of online computing for performing resource intensive job typically not available on on local system.
 
-      1. [Create Google Cloud account](https://cloud.google.com/free). If you meet the [criteria](https://cloud.google.com/free/docs/gcp-free-tier/#free-trial), you can get $300 free Cloud Billing credits to pay for resources.
-      2. After creating the account, Using [Google Console](https://console.cloud.google.com/)
-         1. [Create Cloud Project](https://cloud.google.com/appengine/docs/standard/nodejs/building-app/creating-project#creating-a-gcp-project)
-         2. [Create Service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts) 
-            1. Enter name for the Service Account e.g. "TiDE service account"
-            2. Based on Service Account name, system will automatically generate service account id. You can either use the same name or change the name in the input box below service account name. 
-            3. Enter description for the Service Account e.g. "This service account will be used to verify TiDE functionality".
-            4. Click > Create and continue
-            5. [Adding roles to the service account](https://cloud.google.com/iam/docs/granting-changing-revoking-access#grant-single-role)
-               1. Cloud Dataflow Service Agent
-               2. Storage Admin
-               3. BigQuery Admin
-            6. Click Continue and Then Click Done
-            7. The Service Account creation is complete with required roles.
-            8. Under Permissions tab check if your or user is assigned to this service account, if not then click on Grant Access and add the user.
-      3. [Generate Key for Service account (Json)](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#iam-service-account-keys-create-console).
-         1.  A key will be generated. Download this ley to your local system.
-      4. [Add Billing to GCP account](https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account)
-         1. On Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Billing
-         2. Click on Manage Billing Accounts > Add Billing Account.
-         3. Fill all the required details and attach the project to the billing.
-      5. Configure Storage for the GCP project [Create Storage Buckets](https://cloud.google.com/storage/docs/creating-buckets)
-         1. Open [Google Console](https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Cloud Storage. 
-         2. Click Cloud storage > Browser.
-         3. Two buckets are required. One for input data and another for output data, steps for creation of both buckets are same.
-         4. Click on create bucket link 
-            1. Give name to your bucket. click continue
-            2. Select Location type - REGIONAL > Select region from dropdown > Continue
-            3. Select default storage class Standard > Continue
-            4. Select control access as Uniform, make sure the checkbox for **Enforce public access prevention on this bucket** is checked > continue
-            5. Under Advance setting select Encryption type > google-managed encryption key.
-            6. Click Create.
+   1. [Create Google Cloud account](https://cloud.google.com/free). If you meet the [criteria](https://cloud.google.com/free/docs/gcp-free-tier/#free-trial), you can get $300 free Cloud Billing credits to pay for resources.
+   2. After creating the account, Using [Google Console](https://console.cloud.google.com/)
+      1. [Create Cloud Project](https://cloud.google.com/appengine/docs/standard/nodejs/building-app/creating-project#creating-a-gcp-project)
+      2. [Create Service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts) 
+         1. Enter name for the Service Account e.g. "TiDE service account"
+         2. Based on Service Account name, system will automatically generate service account id. You can either use the same name or change the name in the input box below service account name. 
+         3. Enter description for the Service Account e.g. "This service account will be used to verify TiDE functionality".
+         4. Click > Create and continue
+         5. [Adding roles to the service account](https://cloud.google.com/iam/docs/granting-changing-revoking-access#grant-single-role)
+            1. Cloud Dataflow Service Agent
+            2. Storage Admin
+            3. BigQuery Admin
+         6. Click Continue and Then Click Done
+         7. The Service Account creation is complete with required roles.
+         8. Under Permissions tab check if your or user is assigned to this service account, if not then click on Grant Access and add the user.
+   3. [Generate Key for Service account (Json)](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#iam-service-account-keys-create-console).
+      1. A key will be generated. Download this ley to your local system.
+   4. [Add Billing to GCP account](https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account)
+      1. On Google Console (https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Billing
+      2. Click on Manage Billing Accounts > Add Billing Account.
+      3. Fill all the required details and attach the project to the billing.
+   5. Configure Storage for the GCP project [Create Storage Buckets](https://cloud.google.com/storage/docs/creating-buckets)
+      1. Open [Google Console](https://console.cloud.google.com/). Click on the Navigation menu on the left, and then Hover on Cloud Storage.
+      2. Click Cloud storage > Browser.
+      3. Two buckets are required. One for input data and another for output data, steps for creation of both buckets are same.
+      4. Click on create bucket link 
+         1. Give name to your bucket. click continue
+         2. Select Location type - REGIONAL > Select region from dropdown > Continue
+         3. Select default storage class Standard > Continue
+         4. Select control access as Uniform, make sure the checkbox for **Enforce public access prevention on this bucket** is checked > continue
+         5. Under Advance setting select Encryption type > google-managed encryption key.
+         6. Click Create.
 
 You need to configure Google Cloud credential if run TiDE on Dataflow.
 <https://cloud.google.com/docs/authentication/getting-started>
@@ -253,7 +261,7 @@ You need to configure Google Cloud credential if run TiDE on Dataflow.
 export GOOGLE_APPLICATION_CREDENTIALS=<gcp service account credential json file>
 ```
 
-# Data Preparation for TiDE
+## Data Preparation for TiDE
 
 TiDE can process data in various formats such as
 
@@ -321,6 +329,9 @@ Configure General Regex pattern matching or find known PHI of the patient associ
 
 Configuration Example:
 
+   Sample configuration file:
+      Please refer to ([configuration file](src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml))
+
 ```yaml
 
 name: note_deid_20180831
@@ -385,14 +396,22 @@ Three types of parameters are needed for running TiDE:
 
 #### Known PHI File Format
 
+   Sample PHI file:
+      Please refer to ([PHI file](phi/phi_person_data_example.csv))
+
 There should be max of one record per person (person_id) in this file
+
 ```
 person_id,MRN,JITTER,STUDY_ID,ANON_ID,pat_id,pat_name,add_line_1,city,zip,home_phone,email_address,birth_date,sex_c,ssn,epic_pat_id,PAT_MRN_ID,PAT_LAST_NAME,PAT_FIRST_NAME,EMPLOYER_ID,cur_pcp_prov_id,PROV_NAME,father_name,father_addr_ln_1,father_city,father_zip,father_cell_phone,mother_name,mother_cell_phone,emerg_pat_rel_c,accession_num
 ```
 
 #### Person File Format
 
+   Sample person file:
+      Please refer to ([relationship file](person_data/person.csv))
+
 There should be max of one record per note (note_id) in this file
+
 ```
 note_id,person_id
 ```
