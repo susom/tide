@@ -1,4 +1,21 @@
-# TiDE Overview
+# TiDE
+
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white)
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=java&logoColor=white)
+![Apache Maven](https://img.shields.io/badge/Apache%20Maven-C71A36?style=for-the-badge&logo=Apache%20Maven&logoColor=white)
+![Google Drive](https://img.shields.io/badge/Google%20Drive-4285F4?style=for-the-badge&logo=googledrive&logoColor=white)
+![Alpine Linux](https://img.shields.io/badge/Alpine_Linux-%230D597F.svg?style=for-the-badge&logo=alpine-linux&logoColor=white)
+![Mac OS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+Apache
+Apache 2.0 License
+License
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
+
+## Overview
 
 TiDE is a free open-source text deidentification tool that can identify and deid PHI in clinical note text and other free text in medical data. It uses pattern matching, known PHI matching and NER to search for PHI, and use general replacement or hide-in-plain-sight to replace PHI with safe text.
 
@@ -159,9 +176,9 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    On completion of execution of previous command, TiDE output will be available in the "output" folder. For every execution, application will create a subfolder in the "output" folder using "current timestamp in long format". For latest execution output, use the folder with latest timestamp. This folder will have 3 sets of output:
 
-   1. At the root of "current timestamp in long format" folder, one or more files in newline delimited JSON files (jsonl) format containing original note, deid note, and findings.
-   2. A subfolder "individual" containing deid notes. This folder will have one file corresponding to each input note.
-   3. A subfolder "annotator" containing output in Doccano format. This folder will have one file corresponding to each input note.
+   1. At the root of "current timestamp in long format" folder, one or more files in newline delimited JSON files (jsonl) format containing original note, deid note, and findings [Sample jsonl Output](/output/1629926684106)
+   2. A subfolder "individual" containing deid notes. This folder will have one file corresponding to each input note [Sample Individual Output](/output/1629926684106/individual)
+   3. A subfolder "annotator" containing output in Doccano format. This folder will have one file corresponding to each input note [Sample Annotator Output](/output/1629926684106/annotator)
 
 ### Output GCP
 
