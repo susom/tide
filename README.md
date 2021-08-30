@@ -221,7 +221,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    Google Cloud Platform (GCP), offered by Google, is a suite of cloud computing services where you can leverage the power of online computing for performing resource intensive job typically not available on on local system.
 
-   1. [Create Google Cloud account](https://cloud.google.com/free). If you meet the [criteria](https://cloud.google.com/free/docs/gcp-free-tier/#free-trial), you can get $300 free Cloud Billing credits to pay for resources.
+   1. [Create Google Cloud account](https://cloud.google.com/free). If you meet the [criteria](https://cloud.google.com/free/docs/gcp-free-tier/#free-trial), you may get Cloud Billing credits to pay for resources from Google (Currently Google is offering 90-day, $300 Free Trial).
    2. After creating the account, Using [Google Console](https://console.cloud.google.com/)
       1. [Create Cloud Project](https://cloud.google.com/appengine/docs/standard/nodejs/building-app/creating-project#creating-a-gcp-project)
       2. [Create Service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts) 
