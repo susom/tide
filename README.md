@@ -13,14 +13,13 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-
 ## Overview
 
-TiDE is a free open-source text deidentification tool that can identify and deid PHI in clinical note text and other free text in medical data. It uses pattern matching, known PHI matching and NER to search for PHI, and use general replacement or hide-in-plain-sight to replace PHI with safe text.
+TiDE is a free open-source text deidentification tool that can identify and deid PHI in clinical note text and other free text in medical data. It uses pattern matching, known PHI matching and NER to search for PHI, and use general replacement or hide-in-plain-sight to replace PHI with safe text. For more information about the TiDE algorithm, please refer to the Section 6 of the manuscript ["A new paradigm for accelerating clinical data science at Stanford Medicine"](https://arxiv.org/abs/2003.10534)
 
 ## Safe Harbor 18 identifiers
 
-TiDE can identify the following HIPAA identifiers either by pattern matching or known PHI matching:
+TiDE can identify the following HIPAA identifiers either by a) name entity recognition or pattern matching or b) known PHI matching:
 
 ```
   Name, Address, dates, phone, fax, Email, SSN, MRN, Health plan beneficiary number, Account number, Certificate or license number, vehicle number, URL, IP, any other characteristic that could uniquely identify the individual
