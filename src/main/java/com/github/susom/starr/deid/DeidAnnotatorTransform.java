@@ -50,15 +50,13 @@ public class DeidAnnotatorTransform
     extends PTransform<PCollection<String>, PCollection<String>> {
 
   private static final Logger log = LoggerFactory.getLogger(DeidAnnotatorTransform.class);
-  //AnnotatorSpecs annotatorSpecs;
   String outputResource;
 
   /**
    * main deid transform.
-   * @param annotatorSpecs annotator specs
+   * @param outputResource Output Resource
    */
-  public DeidAnnotatorTransform(/*AnnotatorSpecs annotatorSpecs, */String outputResource) {    
-    //this.annotatorSpecs = annotatorSpecs;
+  public DeidAnnotatorTransform(String outputResource) {
     this.outputResource = outputResource;
   }
 
@@ -95,9 +93,7 @@ public class DeidAnnotatorTransform
             String start = node.get(TextTag.start.name()).asText();
             String end = node.get(TextTag.end.name()).asText();
             String type = node.get(TextTag.type.name()).asText();
-            //String label = annotatorSpecs.getLabel(type);
             labelNodeMap.put(String.format("%s,%s", start, end), String.format("[%s,%s,\"%s\"]", start, end, type));
-            //labelNodeTexts.add(String.format("[%s,%s,\"%s\"]", start, end, type)); //label == null ? type : label));
           }
         }
         Set<String> labelNodeTexts = labelNodeMap.values().stream().collect(Collectors.toSet());

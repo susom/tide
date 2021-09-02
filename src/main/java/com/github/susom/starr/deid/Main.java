@@ -67,7 +67,6 @@ public class Main implements Serializable {
     log.info(options.toString());
 
     DeidJobs jobs = null;
-    //AnnotatorSpecs annotatorSpecs = null;
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     try {
 
@@ -82,19 +81,6 @@ public class Main implements Serializable {
       }
       log.info("received configuration for " + jobs.name);
 
-      /*
-      File annotatorConfigFileHd = new File("deid_config_annotator.yaml");
-      if (annotatorConfigFileHd.exists()) {
-        log.info("reading annotator configuration from file : {}", annotatorConfigFileHd.getAbsolutePath());
-        annotatorSpecs = mapper.readValue(annotatorConfigFileHd, AnnotatorSpecs.class);
-      }
-      else {
-        log.info("reading configuration from " + options.getAnnotatorConfigFile());
-        annotatorSpecs = mapper.readValue(this.getClass().getClassLoader()
-          .getResourceAsStream(options.getAnnotatorConfigFile()), AnnotatorSpecs.class);
-      }
-      log.info("received configuration for annotatorSpecs");
-      */
     } catch (IOException e) {
       log.error("Could not open or parse deid configuration file in class path",e);
       System.exit(1);
@@ -190,7 +176,7 @@ public class Main implements Serializable {
 
     if (options.getInputType().equals(ResourceType.text.name()) && jobs.deidJobs[0].isAnnotatorOutputEnabled()) {
       result.get(DeidTransform.fullResultTag)
-        .apply("DeidAnnotatorOutput", new DeidAnnotatorTransform(/*annotatorSpecs, */options.getOutputResource().get() + "/annotator"));
+        .apply("DeidAnnotatorOutput", new DeidAnnotatorTransform(options.getOutputResource().get() + "/annotator"));
     }
 
     if (options.getInputType().equals(ResourceType.text.name())) {
