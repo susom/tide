@@ -26,7 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Locale;
 import org.apache.beam.sdk.Pipeline;
@@ -39,9 +39,11 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.options.Validation;
 import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.options.ValueProvider.NestedValueProvider;
+import org.apache.beam.sdk.options.ValueProvider.StaticValueProvider;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SerializableFunction;
+import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionTuple;
 import org.apache.beam.sdk.values.TupleTagList;
 import org.slf4j.Logger;
@@ -106,11 +108,29 @@ public class Main implements Serializable {
 
     //start the work
     Pipeline p = Pipeline.create(options);
-    PCollectionTuple result =
-        (options.getInputType().equals(ResourceType.gcp_bq.name())
-          ? InputTransforms.BigQueryRowToJson.withBigQueryLink(p,options.getInputResource())
-          : p.apply(TextIO.read().from(options.getInputResource())))
+    PCollection<String> collection = null;
 
+    if (options.getInputType().equals(ResourceType.gcp_bq.name())) {
+      collection = InputTransforms.BigQueryRowToJson.withBigQueryLink(p, options.getInputResource());
+    }
+    else if (options.getInputType().equals(ResourceType.text.name())) {
+      //collection = p.apply(Create.of(jsonStrings)).setCoder(StringUtf8Coder.of());
+
+      //for individual note(s), file name will be used as id and contents of the file will be used as note
+      options.setTextIdFields(StaticValueProvider.of(TextTag.id.name()));
+      options.setTextInputFields(StaticValueProvider.of(TextTag.note.name()));
+      /*output source*/
+      long TIME_STAMP_MILLIS = Instant.now().toEpochMilli();
+      String outputResource = options.getOutputResource() != null ? options.getOutputResource().get() + "/" + TIME_STAMP_MILLIS : null;
+      options.setOutputResource(StaticValueProvider.of(outputResource));
+
+      collection = InputTransforms.TextToJson.withPhiAssociation(p, options.getInputResource(), options.getPhiFileName(), options.getPersonFile());
+    }
+    else {
+      collection = p.apply(TextIO.read().from(options.getInputResource()));
+    }
+
+    PCollectionTuple result = collection
         .apply("Deid", new DeidTransform(jobs.deidJobs[0], options.getDlpProject()))
         .apply("processResult",
           ParDo.of(new DeidResultProc(jobs.deidJobs[0].analytic))
@@ -118,8 +138,6 @@ public class Main implements Serializable {
                 TupleTagList.of(DeidTransform.statsDlpPhiTypeTag)
                 .and(DeidTransform.statsPhiTypeTag)
                 .and(DeidTransform.statPhiFoundByTag)));
-
-
 
     if (jobs.deidJobs[0].analytic) {
 
@@ -150,13 +168,22 @@ public class Main implements Serializable {
         );
     }
 
-
     result.get(DeidTransform.fullResultTag)
         .apply(TextIO.write().to(
           NestedValueProvider.of(options.getOutputResource(),
               new AppendSuffixSerializableFunction("/DeidNote")))
       );
 
+    if (options.getInputType().equals(ResourceType.text.name()) && jobs.deidJobs[0].isAnnotatorOutputEnabled()) {
+      result.get(DeidTransform.fullResultTag)
+        .apply("DeidAnnotatorOutput", new DeidAnnotatorTransform(options.getOutputResource().get() + "/annotator"));
+    }
+
+    if (options.getInputType().equals(ResourceType.text.name())) {
+      result.get(DeidTransform.fullResultTag)
+        .apply("DeidIndividualOutput", new DeidOutputTransform(options.getOutputResource().get() + "/individual"));
+    }
+    
     PipelineResult pipelineResult = p.run();
 
     if (!isTemplateCreationRun(args)) {
@@ -228,7 +255,7 @@ public class Main implements Serializable {
 
     void setOutputResource(ValueProvider<String> value);
 
-    @Description("type of the input resouce. gcp_gcs | gcp_bq | local")
+    @Description("type of the input resouce. gcp_gcs | gcp_bq | local | text")
     @Default.String("gcp_gcs")
     String getInputType();
 
@@ -254,6 +281,29 @@ public class Main implements Serializable {
     ValueProvider<String> getTextIdFields();
 
     void setTextIdFields(ValueProvider<String> value);
+
+    @Description("Path of the PHI file to read from, optional.")
+    @Default.String("")
+    String getPhiFileName();
+
+    void setPhiFileName(String value);
+
+    @Description("Path of the person file to read from, optional.")
+    @Default.String("")
+    String getPersonFile();
+
+    void setPersonFile(String value);
+
+    //@Description("Turn on/off annotator output, default - true")
+    //String getAnnotatorOutputEnabled();
+
+    //void setAnnotatorOutputEnabled(String value);
+
+    //@Description("Namen of the Annotator configuration, Optional")
+    //@Default.String("deid_config_annotator.yaml")
+    //String getAnnotatorConfigFile();
+
+    //void setAnnotatorConfigFile(String value);
   }
 
 }

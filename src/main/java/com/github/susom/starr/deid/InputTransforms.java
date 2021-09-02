@@ -20,9 +20,20 @@ package com.github.susom.starr.deid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.api.services.bigquery.model.TableSchema;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Stream;
+
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
@@ -34,6 +45,19 @@ import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.PCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.stream.Collectors;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.nio.file.Files;
+import org.json.JSONObject;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import org.apache.beam.sdk.transforms.Create;
 
 /**
  * generalize input format for BigQuery input.
@@ -126,6 +150,105 @@ public class InputTransforms {
     }
   }
 
+  static class TextToJson {
+    public static PCollection<String> withPhiAssociation(Pipeline pipeline, ValueProvider<String> resourceLink, String phiResource, String personFileSource) throws IOException {
+      List<String> jsonStrings = new ArrayList<>();
+
+      /*Input source of notes, passed in the args*/
+      String inputResource = resourceLink != null ? resourceLink.get() : null;
+      if (null == inputResource) {
+        log.error("inputResource is required for inputType of text");
+        System.exit(1);
+      }
+      File inputFileOrDirectory = new File(inputResource);
+      Path path = Paths.get(inputFileOrDirectory.getAbsolutePath());
+
+      /*PHI data*/
+      List<Map<String, String>> phiForPerson = readCsv(phiResource);
+
+      List<Map<String, String>> personToNote = readCsv(personFileSource);
+
+      /* form the json strings */
+      if (inputFileOrDirectory.isFile()) {
+        jsonStrings.add(processFile(path, getPhiDataCorresspondingToNote(personToNote, phiForPerson, inputFileOrDirectory.getName())));
+      }
+      else if (inputFileOrDirectory.isDirectory()) {
+        List<Path> fileResult = new ArrayList<>();
+        try (Stream<Path> walk = Files.walk(path)) {
+          fileResult = walk.filter(Files::isRegularFile).collect(Collectors.toList());
+        }
+
+        fileResult.parallelStream().sequential().forEach(file -> {
+          jsonStrings.add(processFile(file, getPhiDataCorresspondingToNote(personToNote, phiForPerson, file.getFileName().toString())));
+        });
+      }
+      return pipeline.apply(Create.of(jsonStrings)).setCoder(StringUtf8Coder.of());
+    }
+
+    private static List<Map<String, String>> readCsv(String inputResource){
+      if (inputResource != null)
+      {
+        File input = new File(inputResource);
+        try {
+          CsvSchema csvSchema = CsvSchema.emptySchema().withHeader();
+          MappingIterator<Map<String, String>> mappingIterator = new CsvMapper().readerFor(HashMap.class).with(csvSchema).readValues(input);
+          List<Map<String, String>> data = mappingIterator.readAll();
+          return data;
+        } catch(IOException e){
+          log.debug("Could not read inputResource at path {}", inputResource);
+        }
+      }
+      return null;
+    }
+
+    private static Map<String, String> getPhiDataCorresspondingToNote(List<Map<String, String>> noteToPerson, List<Map<String, String>> phiForPerson, String fileName){
+      Map<String, String> person = noteToPerson.stream().filter(phiMap -> phiMap.get("note_id").equals(fileName)).findFirst().orElse(null);
+      if (person != null) {
+        return phiForPerson.stream().filter(phiMap -> phiMap.get("person_id").equals(person.get("person_id"))).findFirst().orElse(null);
+      }
+      return null;
+    }
+
+    private static String processFile(Path path, Map<String, String> phi) {
+      try {
+        try (FileInputStream fstream = new FileInputStream(path.toString())) {
+          InputStreamReader inputStreamReader = new InputStreamReader(fstream, StandardCharsets.UTF_8);
+          return createData(path, inputStreamReader, phi);
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      return null;
+    }
+
+    private static String createData(Path path, InputStreamReader is, Map<String, String> phi_input) throws IOException {
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode noteNode = JsonNodeFactory.instance.objectNode();
+      ((ObjectNode) noteNode).put(TextTag.note.name(), new BufferedReader(is)
+          .lines().collect(Collectors.joining(System.lineSeparator())));
+      ((ObjectNode) noteNode).put(TextTag.id.name(), path.getFileName().toString());
+      String noteData = mapper.writeValueAsString(noteNode);
+
+      if (phi_input != null) {
+        JSONObject json = new JSONObject();
+        try {
+          Map<String, String> map1 = mapper.readValue(noteData, Map.class);
+          Map<String, String> phi = new HashMap<>();
+          phi.putAll(map1);
+          phi.putAll(phi_input);
+          
+          json = new JSONObject(phi);          
+        } catch (IOException e) {
+          log.debug("populateList failed due to {} , with message {}", e.getCause(), e.getMessage());
+          e.printStackTrace();
+        }
+        return json.toString();
+      }
+
+      return noteData;
+    }
+
+  }
   //static class RowToJson extends DoFn<SchemaAndRecord, String> {
   // final ObjectMapper mapper;
   //

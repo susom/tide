@@ -300,6 +300,7 @@ public class DeidTransform
               case replace_ner_name:
                 HashSet<String> tokens = new HashSet<>();
                 for (AnonymizedItemWithReplacement foundItems : foundNerNameItems) {
+                  System.out.println(foundItems.getFoundBy());
                   tokens.add(foundItems.getWord().toLowerCase(Locale.ROOT));
                 }
 

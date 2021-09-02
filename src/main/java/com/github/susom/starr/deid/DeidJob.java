@@ -34,6 +34,7 @@ public class DeidJob implements Serializable {
   String dateJitterSeedField;
 
   boolean googleDlpEnabled;
+  boolean annotatorOutputEnabled;
   boolean nerEnabled;
 
   public String getJobName() {
@@ -54,6 +55,10 @@ public class DeidJob implements Serializable {
 
   public boolean isGoogleDlpEnabled() {
     return googleDlpEnabled;
+  }
+
+  public boolean isAnnotatorOutputEnabled() {
+    return annotatorOutputEnabled;
   }
 
   public void setGoogleDlpEnabled(boolean googleDlpEnabled) {

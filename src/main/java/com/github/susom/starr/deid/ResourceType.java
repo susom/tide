@@ -22,5 +22,16 @@ enum ResourceType {
   gcp_bq,
   gcp_gcs,
   db_sql,
-  local
+  local,
+  text
+}
+
+enum TextTag {
+  id,
+  note,
+  text,
+  label,
+  start,
+  end,
+  type
 }
