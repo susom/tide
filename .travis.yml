@@ -1,5 +1,4 @@
 language: generic
-#sudo options
 sudo: required
 
 services:
@@ -9,7 +8,5 @@ stages:
     if: branch == main AND type = push
 jobs:
   include:
-    - stage: deploy_i2b2
-      script: "cd I2B2_Deployment && bash docker_push.sh"
-    - stage: deploy_shrine
-      script: "cd SHRINE_Deployment && bash docker_push.sh"
+    - stage: deploy_Tide
+      script: "bash docker_push.sh"
