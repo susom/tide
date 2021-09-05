@@ -1,0 +1,15 @@
+language: generic
+#sudo options
+sudo: required
+
+services:
+    - docker
+stages:
+  - name: deploy
+    if: branch == main AND type = push
+jobs:
+  include:
+    - stage: deploy_i2b2
+      script: "cd I2B2_Deployment && bash docker_push.sh"
+    - stage: deploy_shrine
+      script: "cd SHRINE_Deployment && bash docker_push.sh"
