@@ -64,10 +64,6 @@ deidJobs:
         actionParam: 10/10/2100
         fields: 'JITTER'
 
-#      - itemName: age
-#        action: remove_age
-#        fields: ''
-
       - itemName: mrn
         action: remove_mrn
         actionParam: 99999999

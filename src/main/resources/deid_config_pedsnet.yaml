@@ -144,7 +144,7 @@ deidJobs:
         actionParam: "[NAME]"
         fields: EMP_NAME
 
-      - itemName: mergency_contact
+      - itemName: emergency_contact
         action: replace_with
         actionParam: "[NAME]"
         fields: father_name, mother_name
@@ -179,7 +179,7 @@ deidJobs:
         actionParam: "[PHONE_NUMBER]"
         fields:  home_phone, work_phone, tmp_home_phone, PROXY_PHONE,
 
-      - itemName: mergency_contact_phone
+      - itemName: emergency_contact_phone
         action: replace_minimumlengthword_with
         actionParam: "[PHONE_NUMBER]"
         fields: father_cell_phone, mother_cell_phone

@@ -69,7 +69,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    ```
    mvn clean install -DskipTests
-   java -jar ./target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=./src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml --inputType=text --phiFileName=./phi/phi_person_data_example.csv --personFile=./person_data/person.csv --inputResource=./sample_notes --outputResource=./output
+   java -jar ./target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=./src/main/resources/deid_config_omop_genrep.yaml --annotatorConfigFile=./src/main/resources/annotator_config.yaml --inputType=text --phiFileName=./phi/phi_person_data_example.csv --personFile=./person_data/person.csv --inputResource=./sample_notes --outputResource=./output
    ```
 
    2. [Sample Input](#Sample-Input-Local)
@@ -94,7 +94,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    ```java
 
-   java -jar /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=/workspaces/src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml --inputType=text --phiFileName=/workspaces/phi/phi_person_data_example.csv --personFile=/workspaces/person_data/person.csv --inputResource=/workspaces/sample_notes --outputResource=/workspaces/output
+   java -jar /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=/workspaces/src/main/resources/--deidConfigFile=./src/main/resources/deid_config_omop_genrep.yaml --annotatorConfigFile=./src/main/resources/annotator_config.yaml --inputType=text --phiFileName=/workspaces/phi/phi_person_data_example.csv --personFile=/workspaces/person_data/person.csv --inputResource=/workspaces/sample_notes --outputResource=/workspaces/output
 
    ```
 
@@ -119,7 +119,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
 
    
    ```java
-    java -jar -Xmx6g /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=deid_config_omop_genrep_incl_annotator_type.yaml --inputType=gcp_gcs --inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json --outputResource=gs://<OUTPUT_BUCKET_NAME> --gcpCredentialsKeyFile=<SERVICE_ACCOUNT_KEY_DOWNLOADED> --textIdFields="id" --textInputFields="note"
+    java -jar -Xmx6g /opt/deid/target/deid-3.0.21-SNAPSHOT-dataflow.jar --deidConfigFile=./src/main/resources/deid_config_omop_genrep.yaml --annotatorConfigFile=./src/main/resources/annotator_config.yaml --inputType=gcp_gcs --inputResource=gs://<INPUT_BUCKET_NAME>/sample_notes_jsonl/notes.json --outputResource=gs://<OUTPUT_BUCKET_NAME> --gcpCredentialsKeyFile=<SERVICE_ACCOUNT_KEY_DOWNLOADED> --textIdFields="id" --textInputFields="note"
    ```
 
    4. [Sample Input](#Sample-Input-GCP)
@@ -154,7 +154,8 @@ TiDE can be used in various environments. Below are the prerequisites and instru
    ```
       21:24:43,972 INFO  [main]     com.github.susom.starr.deid.Main.run(Main.java:67) Current Settings:
       appName: Main
-      deidConfigFile: /workspaces/src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml
+      deidConfigFile: /workspaces/src/main/resources/deid_config_omop_genrep.yaml
+      annotatorConfigFile: /workspaces/src/main/resources/annotator_config.yaml
       gcpCredentialsKeyFile:
       inputResource: /workspaces/sample_notes
       inputType: text
@@ -165,7 +166,7 @@ TiDE can be used in various environments. Below are the prerequisites and instru
       runner: class org.apache.beam.runners.direct.DirectRunner
       stableUniqueNames: WARNING
       ®
-      21:24:43,980 INFO  [main]     com.github.susom.starr.deid.Main.run(Main.java:76) reading configuration from file /workspaces/src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml®
+      21:24:43,980 INFO  [main]     com.github.susom.starr.deid.Main.run(Main.java:76) reading configuration from file /workspaces/src/main/resources/deid_config_omop_genrep.yaml®
       21:24:44,069 INFO  [main]     com.github.susom.starr.deid.Main.run(Main.java:83) received configuration for note_deid_20190812®
       21:24:46,329 INFO  [direct-runner-worker]     edu.stanford.nlp.util.logging.SLF4JHandler.print(SLF4JHandler.java:88) Adding annotator tokenize®
       ..............
@@ -346,39 +347,40 @@ Configure General Regex pattern matching or find known PHI of the patient associ
 
 Configuration Example:
 
-   Sample configuration file:
-      Please refer to ([configuration file](src/main/resources/deid_config_omop_genrep_incl_annotator_type.yaml))
+   Sample configuration file(s):
+      Please refer to ([deid configuration file](src/main/resources/deid_config_omop_genrep.yaml))
+      Please refer to ([annotator configuration file](src/main/resources/annotator_config.yaml))
 
 ```yaml
-
-name: note_deid_20180831
+name: note_deid_20190812
 deidJobs:
-  - jobName: stanford_deid_v1_strict
-    version: v1
+  - jobName: stanford_deid_v3
+    version: v3.0
+    textFields: note_text
+    textIdFields: note_id
+    analytic: false
+    ......
+    
     spec:
       - itemName: phi_date
-        action: jitter
-        actionParam: 10
-        fields: birth_date
+        action: jitter_date_from_field
+        actionParam: 10/10/2100
+        fields: 'JITTER'
 
-      - itemName: other_date
-        action: keep
-        fields: '*'
-
-      - itemName: patient_name
-        action: surrogate_name
-        actionParamMap: {"format":"L,F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-        fields:  pat_name, PROXY_NAME
-
-      - itemName: patient_name
-        action: surrogate_name
-        actionParamMap: {"format":"F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-        fields:  PAT_FIRST_NAME, preferred_name
+      - itemName: mrn
+        action: remove_mrn
+        actionParam: 99999999
+        fields: ''
 
       - itemName: patient_mrn
-        action: tag
-        actionParam: mrn
-        fields:  PAT_MRN_ID
+        action: replace_minimumlengthword_with
+        actionParam: 99999999 3
+        fields: PAT_MRN_ID
+
+      - itemName: other_id
+        action: replace_minimumlengthword_with
+        actionParam: 999999999 3
+        fields: pat_id, birth_wrist_band, epic_pat_id, PRIM_CVG_ID, PRIM_EPP_ID, EMPLOYER_ID
         .....
 
 ```
@@ -405,7 +407,8 @@ Three types of parameters are needed for running TiDE:
 |inputType    | type of the input souce. Currently supports Google Cloud Storage, Google BigQuery and local files  | gcp_gcs, gcp_bq, local, text |
 |inputResource | Path of the file to read from | gs://mybucket/path/to/json/files/*.json|
 |outputResource | Path of the output files | |
-|DeidConfigFile | Name of the Deid configuration. Can use the provided configurations or external config file | deid_config_clarity.yaml |
+|DeidConfigFile | Name of the Deid configuration. Can use the provided configurations or external config file | deid_config_omop_genrep.yaml |
+|AnnotatorConfigFile | Name of the Annotator configuration. Can use the provided configurations or external config file | annotator_config.yaml |
 |dlpProject   | GCP project id, if use GCP DLP service | |
 |googleDlpEnabled | Turn on/off Google DLP | true or false|
 |phiFileName | Known PHI file | /workspaces/phi/phi_person_data_example.csv|
@@ -452,7 +455,7 @@ mvn -Pdataflow-runner compile exec:java -Dexec.mainClass=com.github.susom.starr.
 --tempLocation=gs://<dataflow staging bucket>/temp \
 --region=us-west1 --workerMachineType=n1-standard-8 --maxNumWorkers=20 --diskSizeGb=100 \
 --runner=DataflowRunner \
---deidConfigFile=deid_config_clarity.yaml --inputType=gcp_gcs   \
+--deidConfigFile=deid_config_omop_genrep.yaml --annotatorConfigFile=annotator_config.yaml --inputType=gcp_gcs   \
 --textIdFields="note_id,note_csn_id" \
 --textInputFields="fullnote" \
 --inputResource=gs://<input data bucket>/input/HNO_NOTE_TEXT_PHI_MERGED/note-input-*.json \
@@ -488,6 +491,7 @@ java -jar deid-3.0.21-SNAPSHOT.jar \
 --gcpCredentialsKeyFile=<google_credential.json> \
 --projectId=<google_project_id> \
 --deidConfigFile=deid_config_omop_genrep.yaml \
+--annotatorConfigFile=annotator_config.yaml \
 --inputBqTableId=<bigquery_input_text_table_id> \
 --outputBqTableId=<bigquery_native_job_output_table_id> \
 --idFields=note_id

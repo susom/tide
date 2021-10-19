@@ -76,12 +76,12 @@ deidJobs:
       - itemName: MRN
         action: replace_minimumlengthword_with
         actionParam: 99999999 3
-        fields:  PAT_MRN_ID
+        fields: PAT_MRN_ID
 
       - itemName: OTHER_INDIRECT
         action: replace_minimumlengthword_with
         actionParam: 999999999 3
-        fields:  pat_id, birth_wrist_band, epic_pat_id, PRIM_CVG_ID, PRIM_EPP_ID, EMPLOYER_ID
+        fields: pat_id, birth_wrist_band, epic_pat_id, PRIM_CVG_ID, PRIM_EPP_ID, EMPLOYER_ID
 
       - itemName: PHONE
         action: general
@@ -122,12 +122,12 @@ deidJobs:
       - itemName: SSN
         action: replace_minimumlengthword_with
         actionParam: 999-99-9999 4
-        fields:  ssn
+        fields: ssn
 
       - itemName: EMAIL/URL
         action: replace_minimumlengthword_with
         actionParam: deidentified@example.com 3
-        fields:  email_address
+        fields: email_address
 
       - itemName: EMAIL/URL
         action: replace_minimumlengthword_with
@@ -137,27 +137,27 @@ deidJobs:
       - itemName: OTHER_DIRECT
         action: replace_minimumlengthword_with
         actionParam: 9999999999999 3
-        fields:  medicare_num, medicaid_num
+        fields: medicare_num, medicaid_num
 
       - itemName: OTHER_DIRECT
         action: replace_minimumlengthword_with
         actionParam: 000-000-000 3
-        fields:  mother_pat_id, father_pat_id
+        fields: mother_pat_id, father_pat_id
 
       - itemName: NAME
         action: surrogate_name
         actionParamMap: {"format":"L,F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-        fields:  pat_name, PROXY_NAME
+        fields: pat_name, PROXY_NAME
 
       - itemName: NAME
         action: surrogate_name
         actionParamMap: {"format":"F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-        fields:  PAT_FIRST_NAME, preferred_name
+        fields: PAT_FIRST_NAME, preferred_name
 
       - itemName: NAME
         action: surrogate_name
         actionParamMap: {"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
-        fields:  PAT_LAST_NAME, PAT_MIDDLE_NAME
+        fields: PAT_LAST_NAME, PAT_MIDDLE_NAME
 
       - itemName: NAME
         action: surrogate_name
@@ -176,7 +176,7 @@ deidJobs:
 
       - itemName: LOCATION
         action: surrogate_address
-        fields:  ''
+        fields: ''
 
       - itemName: LOCATION
         action: surrogate_address
@@ -201,7 +201,7 @@ deidJobs:
       - itemName: PHONE
         action: replace_minimumlengthword_with
         actionParam: 999-999-9999 7
-        fields:  home_phone, work_phone, tmp_home_phone, PROXY_PHONE,
+        fields: home_phone, work_phone, tmp_home_phone, PROXY_PHONE
 
       - itemName: PHONE
         action: replace_minimumlengthword_with
