@@ -1,0 +1,95 @@
+#name: note_deid_20190812
+annotatorSpecs:
+  - type: general-accession
+    annotatorLabel: ACCESSION
+
+  - type: accession_num
+    annotatorLabel: ACCESSION
+
+  - type: patient_mrn
+    annotatorLabel: MRN
+
+  - type: mrn
+    annotatorLabel: MRN
+
+  - type: general_name
+    annotatorLabel: NAME
+
+  - type: patient_name
+    annotatorLabel: NAME
+
+  - type: other_name
+    annotatorLabel: NAME
+
+  - type: care_provider_name
+    annotatorLabel: NAME
+
+  - type: emergency_contact
+    annotatorLabel: NAME
+
+  - type: ner-PERSON
+    annotatorLabel: NAME
+
+  - type: ner-LOCATION
+    annotatorLabel: LOCATION
+
+  - type: location
+    annotatorLabel: LOCATION
+
+  - type: other_address
+    annotatorLabel: LOCATION
+
+  - type: patient_address
+    annotatorLabel: LOCATION
+
+  - type: emergency_contact_address
+    annotatorLabel: LOCATION
+
+  - type: patient_phone
+    annotatorLabel: PHONE
+
+  - type: emergency_contact_phone
+    annotatorLabel: PHONE
+
+  - type: general-phone
+    annotatorLabel: PHONE
+
+  - type: phi_date
+    annotatorLabel: DATE
+
+  - type: general-account
+    annotatorLabel: OTHER_INDIRECT
+
+  - type: other_id
+    annotatorLabel: OTHER_INDIRECT
+
+  - type: general
+    annotatorLabel: OTHER_INDIRECT
+
+  - type: general_number
+    annotatorLabel: OTHER_INDIRECT
+
+  - type: patient_ssn
+    annotatorLabel: SSN
+
+  - type: patient_email
+    annotatorLabel: EMAIL/URL
+
+  - type: other_email
+    annotatorLabel: EMAIL/URL
+
+  - type: public_id
+    annotatorLabel: OTHER_DIRECT
+
+  - type: family_id
+    annotatorLabel: OTHER_DIRECT
+
+  - type: general-email
+    annotatorLabel: EMAIL/URL
+
+  - type: general-ssn
+    annotatorLabel: SSN
+
+  - type: general-ip
+    annotatorLabel: PRIYA
+

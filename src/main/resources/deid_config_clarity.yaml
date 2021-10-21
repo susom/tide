@@ -180,7 +180,7 @@ deidJobs:
 
       - itemName: emergency_contact_phone
         action: replace_minimumlengthword_with
-        actionParam: [mergency_contact_phone] 7
+        actionParam: [emergency_contact_phone] 7
         fields: father_cell_phone, mother_cell_phone
 
       - itemName: accession_num

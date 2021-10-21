@@ -42,8 +42,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Deid Output Transform.
- * @author wenchengl
+ * Deid Annotator  Transform.
+ * @author mayurd
  */
 
 public class DeidAnnotatorTransform
@@ -51,13 +51,15 @@ public class DeidAnnotatorTransform
 
   private static final Logger log = LoggerFactory.getLogger(DeidAnnotatorTransform.class);
   String outputResource;
+  AnnotatorSpecs annotatorSpecs;
 
   /**
    * main deid transform.
    * @param outputResource Output Resource
    */
-  public DeidAnnotatorTransform(String outputResource) {
+  public DeidAnnotatorTransform(String outputResource, AnnotatorSpecs annotatorSpecs) {
     this.outputResource = outputResource;
+    this.annotatorSpecs = annotatorSpecs;
   }
 
   @Override
@@ -92,7 +94,7 @@ public class DeidAnnotatorTransform
           for (JsonNode node : nodeLabel) {
             String start = node.get(TextTag.start.name()).asText();
             String end = node.get(TextTag.end.name()).asText();
-            String type = node.get(TextTag.type.name()).asText();
+            String type = annotatorSpecs.getAnnotatorLabel(node.get(TextTag.type.name()).asText());
             labelNodeMap.put(String.format("%s,%s", start, end), String.format("[%s,%s,\"%s\"]", start, end, type));
           }
         }
