@@ -31,6 +31,7 @@ import com.github.susom.starr.deid.anonymizers.GeneralNumberAnonymizer;
 import com.github.susom.starr.deid.anonymizers.LocationSurrogate;
 import com.github.susom.starr.deid.anonymizers.LocationSurrogate.Address;
 import com.github.susom.starr.deid.anonymizers.MrnAnonymizer;
+import com.github.susom.starr.deid.anonymizers.HarAnonymizer;
 import com.github.susom.starr.deid.anonymizers.NameSurrogate;
 import com.github.susom.starr.deid.anonymizers.NameSurrogate.NameType;
 import com.github.susom.starr.deid.anonymizers.TokenArrayAnonymizer;
@@ -511,6 +512,14 @@ public class DeidTransform
                     ? MrnAnonymizer.DEFAULT_REPLACEMENT
                     : spec.actionParam[0], spec.itemName);
                 break;
+
+			case replace_har:
+				anonymizer = new HarAnonymizer(
+						(spec.actionParam == null || spec.actionParam.length == 0)
+								? MrnAnonymizer.DEFAULT_REPLACEMENT
+								: spec.actionParam[0],
+						spec.itemName);
+				break;
 
               case remove_age:
                 anonymizer = new AgeAnonymizer(

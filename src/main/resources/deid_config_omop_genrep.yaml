@@ -189,3 +189,7 @@ deidJobs:
       - itemName: general_name
         action: surrogate_name
         fields: ''
+        
+      - itemName: har_num
+        action: replace_har
+        fields: ''
