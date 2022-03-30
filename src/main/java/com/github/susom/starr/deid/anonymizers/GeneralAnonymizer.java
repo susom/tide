@@ -35,10 +35,11 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
   private static final String phonePatternPart1 = "\\(?\\d{3}\\)?";
   private static final String phonePatternPart2 = "[\\s.-]?\\d{3}[\\s.-]\\d{4}";
   private static final String phonePatternPart3 = "(\\sext\\s\\d{1,5})?";
+
   private static final Pattern phoneNumberPattern =
       Pattern.compile(
         "(?=(\\D|\\S|^))\\b(\\+\\d{1,2}\\s)?"
-              + phonePatternPart1 + phonePatternPart2 + phonePatternPart3,
+							+ phonePatternPart1 + phonePatternPart2 + phonePatternPart3,
         Pattern.CASE_INSENSITIVE);
 
   static final String typeEmail = "general-email";
@@ -66,13 +67,17 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
       Pattern.compile("(?=(\\D|\\S|^))\\b\\d{3}[\\s.-]\\d{2}[\\s.-]\\d{4}\\b",
           Pattern.CASE_INSENSITIVE);
 
+	private static final String typeGeneric = "general-digit"; // match 5 digits or more
+	private static final Pattern genericDigit = Pattern.compile("(\\b\\d{5,}\\b)");
+
   private static final Pattern[] pats = new Pattern[]{
       phoneNumberPattern,
       emailPattern,
       ipAddressPattern,
       ipAddressV6Pattern,
       urlPattern,
-      ssn};
+			ssn,
+			genericDigit };
 
   private static final String[] types = new String[]{
       typePhone,
@@ -80,7 +85,8 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
       typeIp,
       typeIpv6,
       typeUrl,
-      typeSsn};
+			typeSsn,
+			typeGeneric };
 
   private final Map<String,String> replacementMap = new HashMap<>();
 
