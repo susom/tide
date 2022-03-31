@@ -502,8 +502,6 @@ public class DeidTransform
 
                   anonymizer = builder.build();
                 }
-
-
                 break;
 
               case remove_mrn:
@@ -513,13 +511,12 @@ public class DeidTransform
                     : spec.actionParam[0], spec.itemName);
                 break;
 
-			case replace_har:
-				anonymizer = new HarAnonymizer(
-						(spec.actionParam == null || spec.actionParam.length == 0)
-								? MrnAnonymizer.DEFAULT_REPLACEMENT
-								: spec.actionParam[0],
-						spec.itemName);
-				break;
+              case replace_har:
+                anonymizer = new HarAnonymizer(
+                    (spec.actionParam == null || spec.actionParam.length == 0)
+                    ? HarAnonymizer.DEFAULT_REPLACEMENT
+                    : spec.actionParam[0], spec.itemName);
+                break;
 
               case remove_age:
                 anonymizer = new AgeAnonymizer(
@@ -572,7 +569,6 @@ public class DeidTransform
           trackingTsStart = trackingTsEnd;
 
           //end of Stanford Deid
-
 
           //Google DLP
           if (dlpTransform != null) {

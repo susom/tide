@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 
 public class HarAnonymizer implements AnonymizerProcessor {
 
+  public static final String DEFAULT_REPLACEMENT = "[HAR]";
+
   private static final boolean TEST = false;
 
   // Preceded by a word boundary
