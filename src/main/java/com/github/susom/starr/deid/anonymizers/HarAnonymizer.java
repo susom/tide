@@ -16,7 +16,7 @@ public class HarAnonymizer implements AnonymizerProcessor {
   // Followed by a word boundary
   private static final String FOLLOWING = "(?:\\b)";
 
-	private static final String HAR = "(\\bHAR:[\\s]?\\b\\d+)";
+  private static final String HAR = "(\\bHAR:[ ]{1,}?\\b\\d+)";
   /*
    * HAR:(optional space) followed by any number of digits, followed by one or more spaces, case
    * insensitive
