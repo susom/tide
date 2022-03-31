@@ -66,7 +66,7 @@ public class GeneralAnonymizer implements AnonymizerProcessor {
       Pattern.compile("(?=(\\D|\\S|^))\\b\\d{3}[\\s.-]\\d{2}[\\s.-]\\d{4}\\b",
           Pattern.CASE_INSENSITIVE);
 
-  private static final String typeGeneric = "general-digit"; // match 6 digits or more
+	private static final String typeGeneric = "000000"; // match 6 digits or more
   private static final Pattern genericDigit = Pattern.compile("(\\b\\d{6,}\\b)");
 
   private static final Pattern[] pats = new Pattern[]{
