@@ -3,3 +3,5 @@ steps:
     entrypoint: mvn
     args: ['deploy','-Dmaven.test.skip=true']
 logsBucket: 'gs://cloud-build-dev.starr-data.us'
+options:
+  logging: GCS_ONLY
