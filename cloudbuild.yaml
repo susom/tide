@@ -3,4 +3,4 @@ steps:
     entrypoint: mvn
     args: ['deploy','-Dmaven.test.skip=true']
 options:
-  logging: CLOUD_LOGGING_ONLY
+  logging: GCS_ONLY
