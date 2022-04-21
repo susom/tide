@@ -6,7 +6,7 @@
   <name>Starr Core DeId Pipeline</name>
   <groupId>com.github.susom</groupId>
   <artifactId>deid</artifactId>
-  <version>3.0.21-SNAPSHOT</version>
+  <version>3.0.21</version>
   <packaging>jar</packaging>
 <!-- testing again  -->
   <properties>
@@ -349,7 +349,7 @@
       </plugin>
 
 
-
+<!--test-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
