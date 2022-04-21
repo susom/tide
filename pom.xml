@@ -25,7 +25,7 @@
 
   <distributionManagement>
     <snapshotRepository>
-      <id>artifact-registry</id>
+      <id>starr-snapshot</id>
       <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
     </snapshotRepository>
   </distributionManagement>
@@ -33,7 +33,7 @@
 
   <repositories>
     <repository>
-      <id>artifact-registry</id>
+      <id>starr-snapshot</id>
       <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
       <releases>
         <enabled>false</enabled>
@@ -42,6 +42,17 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>starr</id>
+      <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+
   </repositories>
 
 
