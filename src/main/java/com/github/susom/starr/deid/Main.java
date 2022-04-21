@@ -58,10 +58,10 @@ public class Main implements Serializable {
 
   public static void main(String[] args) throws IOException {
     new Main().run(args);
+
   }
 
   private void run(String[] args) throws IOException {
-
     DeidOptions options = getOptions(args);
 
     log.info(options.toString());

@@ -1,0 +1,5 @@
+steps:
+  - name: maven:3-jdk-8
+    entrypoint: mvn
+    args: ['deploy','-Dmaven.test.skip=true']
+logsBucket: 'gs://cloud-build-dev.starr-data.us'
