@@ -28,6 +28,11 @@
       <id>starr-snapshot</id>
       <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
     </snapshotRepository>
+
+    <repository>
+      <id>starr</id>
+      <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven</url>
+    </repository>
   </distributionManagement>
 
 
