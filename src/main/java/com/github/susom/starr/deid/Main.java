@@ -62,9 +62,6 @@ public class Main implements Serializable {
   }
 
   private void run(String[] args) throws IOException {
-    //test test
-    log.debug("dguan2-testing: starting run from maven repo");
-    System.out.println("dguan2-testing: starting run from maven repo");
     DeidOptions options = getOptions(args);
 
     log.info(options.toString());
