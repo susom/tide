@@ -24,38 +24,17 @@
   </properties>
 
   <distributionManagement>
+    <repository>
+      <id>io.cloudrepo.rit-private</id>
+      <name>io.cloudrepo.rit-private</name>
+      <url>https://susom.mycloudrepo.io/repositories/rit-private</url>
+    </repository>
     <snapshotRepository>
-      <id>starr-snapshot</id>
-      <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
+      <id>io.cloudrepo.rit-private-snapshot</id>
+      <name>io.cloudrepo.rit-private-snapshot</name>
+      <url>https://susom.mycloudrepo.io/repositories/rit-private-snapshot</url>
     </snapshotRepository>
   </distributionManagement>
-
-
-  <repositories>
-    <repository>
-      <id>starr-snapshot</id>
-      <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>starr</id>
-      <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-
-  </repositories>
-
-
 
   <dependencies>
 
