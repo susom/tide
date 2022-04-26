@@ -16,6 +16,8 @@ steps:
   - name: maven:3-jdk-8
     entrypoint: bash
     env:
+      - 'REPO_USERNAME=$_REPO_USER'
+      - 'REPO_API_TOKEN=$_REPO_TOKEN'
       - 'BUILD_ID=$BUILD_ID'
       - 'BRANCH_NAME=$BRANCH_NAME'
       - 'SHORT_SHA=$SHORT_SHA'
@@ -25,6 +27,7 @@ steps:
         git config --global user.name "cloudbuild" && \
         git config --global user.email "cloudbuild@example.com" && \
         mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+          -gs maven/settings.xml \
           release:prepare \
           -Dproject.build=${BUILD_ID} -Dproject.commit=${SHORT_SHA} \
           -Dproject.branch=${BRANCH_NAME} \
@@ -33,6 +36,7 @@ steps:
           -DtagNameFormat="v@{project.version}" \
           -DscmCommentPrefix="[maven-release-plugin][ci skip]" && \
         mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+          -gs maven/settings.xml \
           release:perform \
           -Dproject.build=${BUILD_ID} -Dproject.commit=${SHORT_SHA} \
           -Dproject.branch=${BRANCH_NAME} \
