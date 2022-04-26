@@ -6,7 +6,7 @@
   <name>Starr Core DeId Pipeline</name>
   <groupId>com.github.susom</groupId>
   <artifactId>deid</artifactId>
-  <version>3.0.23-SNAPSHOT</version>
+  <version>3.0.23</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -27,7 +27,7 @@
     <connection>scm:git:git://git@github.com/susom/tide.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/susom/tide.git</developerConnection>
     <url>https://github.com/susom/tide</url>
-    <tag>HEAD</tag>
+    <tag>v3.0.23</tag>
   </scm>
 
   <distributionManagement>
