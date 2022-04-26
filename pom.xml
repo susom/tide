@@ -41,11 +41,6 @@
       <name>io.cloudrepo.rit-private-snapshot</name>
       <url>https://susom.mycloudrepo.io/repositories/rit-private-snapshot</url>
     </snapshotRepository>
-
-    <repository>
-      <id>starr</id>
-      <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven</url>
-    </repository>
   </distributionManagement>
 
   <dependencies>
