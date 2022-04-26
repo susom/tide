@@ -27,7 +27,7 @@
     <connection>scm:git:git://git@github.com/susom/tide.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/susom/tide.git</developerConnection>
     <url>https://github.com/susom/tide</url>
-    <tag>dev</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <distributionManagement>
