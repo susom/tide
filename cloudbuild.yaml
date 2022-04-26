@@ -22,8 +22,8 @@ steps:
     args:
       - -c
       - |
-        git config --global user.name "cloudbuild" \
-        git config --global user.email "cloudbuild@example.com" \
+        git config --global user.name "cloudbuild" && \
+        git config --global user.email "cloudbuild@example.com" && \
         mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
           release:prepare \
           -Dproject.build=${BUILD_ID} -Dproject.commit=${SHORT_SHA} \
@@ -31,8 +31,8 @@ steps:
           -DskipTests \
           -Darguments=-DskipTests \
           -DtagNameFormat="v@{project.version}" \
-          -DscmCommentPrefix="[maven-release-plugin][ci skip]" \
-        && mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
+          -DscmCommentPrefix="[maven-release-plugin][ci skip]" && \
+        mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
           release:perform \
           -Dproject.build=${BUILD_ID} -Dproject.commit=${SHORT_SHA} \
           -Dproject.branch=${BRANCH_NAME} \
