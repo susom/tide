@@ -6,7 +6,7 @@
   <name>Starr Core DeId Pipeline</name>
   <groupId>com.github.susom</groupId>
   <artifactId>deid</artifactId>
-  <version>3.0.21</version>
+  <version>3.0.21-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -22,6 +22,13 @@
     <version.jopt.simple>5.0.4</version.jopt.simple>
     <version.gcp.bigquery>1.135.4</version.gcp.bigquery>
   </properties>
+
+  <scm>
+    <connection>scm:git:git://git@github.com/susom/tide.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/susom/tide.git</developerConnection>
+    <url>https://github.com/susom/tide</url>
+    <tag>dev</tag>
+  </scm>
 
   <distributionManagement>
     <repository>
@@ -280,7 +287,15 @@
         <version>2.1.0</version>
       </extension>
     </extensions>
+
     <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.5.3</version>
+      </plugin>
+
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
