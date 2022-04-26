@@ -29,6 +29,7 @@ steps:
           -Dproject.build=${BUILD_ID} -Dproject.commit=${SHORT_SHA} \
           -Dproject.branch=${BRANCH_NAME} \
           -DskipTests \
+          -Dmaven.javadoc.skip=true \
           -Darguments=-DskipTests \
           -DtagNameFormat="v@{project.version}" \
           -DscmCommentPrefix="[maven-release-plugin][ci skip]" && \
@@ -37,6 +38,7 @@ steps:
           -Dproject.build=${BUILD_ID} -Dproject.commit=${SHORT_SHA} \
           -Dproject.branch=${BRANCH_NAME} \
           -DskipTests \
+          -Dmaven.javadoc.skip=true \
           -Darguments=-DskipTests
     volumes:
       - name: 'ssh'
