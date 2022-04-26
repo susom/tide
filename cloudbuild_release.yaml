@@ -28,8 +28,11 @@ steps:
         git config --global user.email "cloudbuild@example.com" && \
         mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
           -gs maven/settings.xml \
+          build-helper:parse-version versions:set \
           release:prepare \
-          -Dproject.build=${BUILD_ID} -Dproject.commit=${SHORT_SHA} \
+          -DdevelopmentVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0-SNAPSHOT \
+          -Dproject.build=${BUILD_ID} \
+          -Dproject.commit=${SHORT_SHA} \
           -Dproject.branch=${BRANCH_NAME} \
           -DskipTests \
           -Darguments="-DskipTests -Dmaven.javadoc.skip=true" \
@@ -38,7 +41,8 @@ steps:
         mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
           -gs maven/settings.xml \
           release:perform \
-          -Dproject.build=${BUILD_ID} -Dproject.commit=${SHORT_SHA} \
+          -Dproject.build=${BUILD_ID} \
+          -Dproject.commit=${SHORT_SHA} \
           -Dproject.branch=${BRANCH_NAME} \
           -DskipTests \
           -Darguments="-DskipTests -Dmaven.javadoc.skip=true" \
