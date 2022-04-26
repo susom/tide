@@ -20,8 +20,10 @@ steps:
       - 'BRANCH_NAME=$BRANCH_NAME'
       - 'SHORT_SHA=$SHORT_SHA'
     args:
-      - '-c'
+      - -c
       - |
+        git config --global user.name "cloudbuild" \
+        git config --global user.email "cloudbuild@example.com" \
         mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
           release:prepare \
           -Dproject.build=${BUILD_ID} -Dproject.commit=${SHORT_SHA} \
