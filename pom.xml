@@ -8,7 +8,7 @@
   <artifactId>deid</artifactId>
   <version>3.0.21</version>
   <packaging>jar</packaging>
-<!-- testing again  -->
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -24,43 +24,17 @@
   </properties>
 
   <distributionManagement>
+    <repository>
+      <id>io.cloudrepo.rit-private</id>
+      <name>io.cloudrepo.rit-private</name>
+      <url>https://susom.mycloudrepo.io/repositories/rit-private</url>
+    </repository>
     <snapshotRepository>
-      <id>starr-snapshot</id>
-      <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
+      <id>io.cloudrepo.rit-private-snapshot</id>
+      <name>io.cloudrepo.rit-private-snapshot</name>
+      <url>https://susom.mycloudrepo.io/repositories/rit-private-snapshot</url>
     </snapshotRepository>
-
-    <repository>
-      <id>starr</id>
-      <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven</url>
-    </repository>
   </distributionManagement>
-
-
-  <repositories>
-    <repository>
-      <id>starr-snapshot</id>
-      <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>starr</id>
-      <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-
-  </repositories>
-
-
 
   <dependencies>
 
@@ -80,13 +54,13 @@
       <artifactId>guava</artifactId>
       <version>30.1.1-jre</version>
     </dependency>
-    
+
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-storage</artifactId>
       <version>2.0.1</version>
     </dependency>
-  
+
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-runners-direct-java</artifactId>
@@ -123,61 +97,61 @@
       <version>0.79.0-beta</version>
       <exclusions>
         <exclusion>
-        <groupId>com.google.cloud</groupId>
-        <artifactId>google-cloud-core</artifactId>
+          <groupId>com.google.cloud</groupId>
+          <artifactId>google-cloud-core</artifactId>
         </exclusion>
 
         <exclusion>
-        <groupId>com.google.cloud</groupId>
-        <artifactId>google-cloud-core-grpc</artifactId>
+          <groupId>com.google.cloud</groupId>
+          <artifactId>google-cloud-core-grpc</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-core</artifactId>
+          <groupId>io.grpc</groupId>
+          <artifactId>grpc-core</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-stub</artifactId>
+          <groupId>io.grpc</groupId>
+          <artifactId>grpc-stub</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-auth</artifactId>
+          <groupId>io.grpc</groupId>
+          <artifactId>grpc-auth</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>com.google.http-client</groupId>
-        <artifactId>google-http-client</artifactId>
+          <groupId>com.google.http-client</groupId>
+          <artifactId>google-http-client</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-netty-shaded</artifactId>
+          <groupId>io.grpc</groupId>
+          <artifactId>grpc-netty-shaded</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-netty</artifactId>
+          <groupId>io.grpc</groupId>
+          <artifactId>grpc-netty</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-okhttp</artifactId>
+          <groupId>io.grpc</groupId>
+          <artifactId>grpc-okhttp</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>com.google.protobuf</groupId>
-        <artifactId>protobuf-java</artifactId>
+          <groupId>com.google.protobuf</groupId>
+          <artifactId>protobuf-java</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>com.google.api.grpc</groupId>
-        <artifactId>proto-google-common-protos</artifactId>
+          <groupId>com.google.api.grpc</groupId>
+          <artifactId>proto-google-common-protos</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>com.google.api</groupId>
-        <artifactId>gax-grpc</artifactId>
+          <groupId>com.google.api</groupId>
+          <artifactId>gax-grpc</artifactId>
         </exclusion>
         <exclusion>
-        <groupId>com.google.api</groupId>
-        <artifactId>api-common</artifactId>
+          <groupId>com.google.api</groupId>
+          <artifactId>api-common</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -354,7 +328,6 @@
       </plugin>
 
 
-<!--test-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -389,17 +362,17 @@
         </executions>
       </plugin>
       <plugin>
-	      <artifactId>maven-assembly-plugin</artifactId>
-	      <configuration>
-		      <archive>
-			      <manifest>
-				      <mainClass>com.github.susom.starr.deid.Main</mainClass>
-			      </manifest>
-		      </archive>
-		      <descriptorRefs>
-			      <descriptorRef>jar-with-dependencies</descriptorRef>
-		      </descriptorRefs>
-	      </configuration>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.github.susom.starr.deid.Main</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
       </plugin>
     </plugins>
   </build>
