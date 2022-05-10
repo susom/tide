@@ -1,0 +1,8 @@
+steps:
+  - name: maven:3-jdk-8
+    entrypoint: mvn
+    args: ['-gs','maven/settings.xml','-Dmaven.test.skip=true','deploy']
+    env:
+      - 'REPO_USERNAME=$_REPO_USER'
+      - 'REPO_API_TOKEN=$_REPO_TOKEN'
+logsBucket: 'gs://cloud-build-dev.starr-data.us'
