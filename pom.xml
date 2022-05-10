@@ -6,7 +6,7 @@
   <name>Starr Core DeId Pipeline</name>
   <groupId>com.github.susom</groupId>
   <artifactId>deid</artifactId>
-  <version>3.0.25-SNAPSHOT</version>
+  <version>3.0.26-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -16,11 +16,11 @@
 
     <main.class>com.github.susom.starr.deid.Main</main.class>
 
-    <beam.version>2.37.0</beam.version>
-    <jackson.version>2.13.2</jackson.version>
-    <junit-jupiter.version>5.8.2</junit-jupiter.version>
-    <version.jopt.simple>6.0-alpha-3</version.jopt.simple>
-    <version.gcp.bigquery>2.10.4</version.gcp.bigquery>
+    <beam.version>2.29.0</beam.version>
+    <jackson.version>2.10.4</jackson.version>
+    <junit-jupiter.version>5.1.0</junit-jupiter.version>
+    <version.jopt.simple>5.0.4</version.jopt.simple>
+    <version.gcp.bigquery>1.135.4</version.gcp.bigquery>
   </properties>
 
   <scm>
@@ -59,13 +59,13 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>31.1-jre</version>
+      <version>30.1.1-jre</version>
     </dependency>
 
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-storage</artifactId>
-      <version>2.5.1</version>
+      <version>2.0.1</version>
     </dependency>
 
     <dependency>
@@ -89,7 +89,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-csv</artifactId>
-      <version>2.13.2</version>
+      <version>2.12.4</version>
     </dependency>
 
     <dependency>
@@ -166,7 +166,7 @@
     <dependency>
       <groupId>commons-cli</groupId>
       <artifactId>commons-cli</artifactId>
-      <version>1.5.0</version>
+      <version>1.2</version>
     </dependency>
 
     <dependency>
@@ -207,7 +207,7 @@
     <dependency>
       <groupId>edu.stanford.nlp</groupId>
       <artifactId>stanford-corenlp</artifactId>
-      <version>4.4.0</version>
+      <version>3.9.2</version>
       <exclusions>
         <exclusion>
           <groupId>com.google.protobuf</groupId>
@@ -218,7 +218,7 @@
     <dependency>
       <groupId>edu.stanford.nlp</groupId>
       <artifactId>stanford-corenlp</artifactId>
-      <version>4.4.0</version>
+      <version>3.9.2</version>
       <classifier>models</classifier>
       <exclusions>
         <exclusion>
@@ -231,7 +231,7 @@
     <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>2.6.1</version>
+      <version>2.4.1</version>
     </dependency>
 
     <dependency>
@@ -243,7 +243,7 @@
     <dependency>
       <groupId>org.xerial.snappy</groupId>
       <artifactId>snappy-java</artifactId>
-      <version>1.1.8.4</version>
+      <version>1.1.7</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
@@ -251,7 +251,7 @@
     <dependency>
       <groupId>com.github.susom</groupId>
       <artifactId>database</artifactId>
-      <version>4.0</version>
+      <version>3.1</version>
       <scope>compile</scope>
     </dependency>
 
@@ -298,7 +298,7 @@
 
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>3.1</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
@@ -334,7 +334,7 @@
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.2</version>
+        <version>2.22.0</version>
         <configuration>
           <environmentVariables>
             <GOOGLE_APPLICATION_CREDENTIALS>${user.home}/deid-gcp-credential.json</GOOGLE_APPLICATION_CREDENTIALS>
@@ -346,7 +346,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <phase>package</phase>
