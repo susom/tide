@@ -197,3 +197,7 @@ deidJobs:
       - itemName: replace_ner_name
         action: replace_ner_name
         actionParam: '[NAME]'
+
+      - itemName: har_num
+        action: replace_har
+        fields: ''
