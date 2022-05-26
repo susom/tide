@@ -6,7 +6,7 @@
   <name>Starr Core DeId Pipeline</name>
   <groupId>com.github.susom</groupId>
   <artifactId>deid</artifactId>
-  <version>3.0.26</version>
+  <version>3.0.26-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
