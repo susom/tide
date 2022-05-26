@@ -26,9 +26,12 @@ steps:
       - |
         git config --global user.name "cloudbuild" && \
         git config --global user.email "cloudbuild@example.com" && \
+        git config --global init.defaultBranch main && \
+        git branch -m ${BRANCH_NAME} && \
         mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
           -gs maven/settings.xml \
           release:prepare \
+          -DbranchName=${BRANCH_NAME} \
           -Dproject.build=${BUILD_ID} \
           -Dproject.commit=${SHORT_SHA} \
           -Dproject.branch=${BRANCH_NAME} \
@@ -39,6 +42,7 @@ steps:
         mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
           -gs maven/settings.xml \
           release:perform \
+          -DbranchName=${BRANCH_NAME} \
           -Dproject.build=${BUILD_ID} \
           -Dproject.commit=${SHORT_SHA} \
           -Dproject.branch=${BRANCH_NAME} \
