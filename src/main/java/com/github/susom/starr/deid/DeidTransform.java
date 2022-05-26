@@ -31,6 +31,7 @@ import com.github.susom.starr.deid.anonymizers.GeneralNumberAnonymizer;
 import com.github.susom.starr.deid.anonymizers.LocationSurrogate;
 import com.github.susom.starr.deid.anonymizers.LocationSurrogate.Address;
 import com.github.susom.starr.deid.anonymizers.MrnAnonymizer;
+import com.github.susom.starr.deid.anonymizers.HarAnonymizer;
 import com.github.susom.starr.deid.anonymizers.NameSurrogate;
 import com.github.susom.starr.deid.anonymizers.NameSurrogate.NameType;
 import com.github.susom.starr.deid.anonymizers.TokenArrayAnonymizer;
@@ -501,14 +502,19 @@ public class DeidTransform
 
                   anonymizer = builder.build();
                 }
-
-
                 break;
 
               case remove_mrn:
                 anonymizer = new MrnAnonymizer(
                     (spec.actionParam == null || spec.actionParam.length == 0)
                     ? MrnAnonymizer.DEFAULT_REPLACEMENT
+                    : spec.actionParam[0], spec.itemName);
+                break;
+
+              case replace_har:
+                anonymizer = new HarAnonymizer(
+                    (spec.actionParam == null || spec.actionParam.length == 0)
+                    ? HarAnonymizer.DEFAULT_REPLACEMENT
                     : spec.actionParam[0], spec.itemName);
                 break;
 
@@ -563,7 +569,6 @@ public class DeidTransform
           trackingTsStart = trackingTsEnd;
 
           //end of Stanford Deid
-
 
           //Google DLP
           if (dlpTransform != null) {
