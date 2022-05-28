@@ -17,7 +17,7 @@
     <main.class>com.github.susom.starr.deid.Main</main.class>
 
     <beam.version>2.29.0</beam.version>
-    <jackson.version>2.10.4</jackson.version>
+    <jackson.version>2.12.6</jackson.version>
     <junit-jupiter.version>5.1.0</junit-jupiter.version>
     <version.jopt.simple>5.0.4</version.jopt.simple>
     <version.gcp.bigquery>1.135.4</version.gcp.bigquery>
@@ -89,7 +89,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-csv</artifactId>
-      <version>2.12.4</version>
+      <version>2.12.6</version>
     </dependency>
 
     <dependency>
