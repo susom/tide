@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.javatuples.Pair;
 import org.javatuples.Quintet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -349,16 +350,55 @@ public class LocationSurrogate implements AnonymizerProcessor {
     return 0;
   }
 
+    
+  /**
+   * return tuple of two random chars that starts differently from provided avoidWord.
+   * Differs from getRandomChars in being able to generate numbers and other characters.
+   * @param avoidWord word to avoid, usually the surrogate target
+   * @return tuple of two random chars
+   */
+  private static Pair<Integer,Integer> getRandomChars2(String avoidWord) {
+    int random1 = random.nextInt(35) + 1;
+    if (random1 <= 26) {
+      random1 = random1 + 64;  // A-Z
+    } else {
+      random1 = random1 + 22;  // 1-9
+    }
+    if (avoidWord != null && avoidWord.length() > 0
+        && random1 == avoidWord.toUpperCase(Locale.ROOT).charAt(0)) {
+      if (random1 > 64) {
+        random1 = (random1 - 65 + 1) % 26 + 65;
+      } else {
+	random1 = random1 + 17;
+      }
+    }
+    int random2 = random.nextInt(42) + 1;
+    if (random2 <= 26) {
+      random2 = random2 + 64;  // A-Z
+    } else if (random2 <= 36) {
+      random2 = random2 + 21;  // 0-9
+    } else if (random2 == 37) {
+      random2 = 32;  // space
+    // 38=& , 39='
+    } else if (random2 > 39) {
+      random2 = random2 + 5;  // -./
+    }
+    return org.javatuples.Pair.with(random1,random2);
+  }
+
+
   private String getExactLocationSurrogate(String format,
                                            String originStreetName, String originalStateCode)  {
 
-    org.javatuples.Pair<Integer,Integer> chars = Utility.getRandomChars(originStreetName);
+    //org.javatuples.Pair<Integer,Integer> chars = Utility.getRandomChars(originStreetName);
+    org.javatuples.Pair<Integer,Integer> chars = getRandomChars2(originStreetName);
     int range;
 
     try {
       range = getLocationRange(chars.getValue0(),chars.getValue1());
       while (range == 0) {
-        chars = Utility.getRandomChars(originStreetName);
+	//chars = Utility.getRandomChars(originStreetName);
+        chars = getRandomChars2(originStreetName);
         range = getLocationRange(chars.getValue0(),chars.getValue1());
       }
 
@@ -368,7 +408,7 @@ public class LocationSurrogate implements AnonymizerProcessor {
         db.get().toSelect(findAddressByI12Query)
         .argInteger(charParam.getValue0())
         .argInteger(charParam.getValue1())
-        .argInteger(random.nextInt(Math.min(rangeParam, 10)) + 1)
+        .argInteger(random.nextInt(Math.min(rangeParam, 40000)) + 1)
         .queryFirstOrNull(r -> {
           String streetName = r.getStringOrEmpty("street_name");
           String streetType = r.getStringOrEmpty("street_type");
