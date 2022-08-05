@@ -63,140 +63,135 @@ deidJobs:
         actionParam:
         fields: '*'
 
-#      - itemName: age
-#        action: remove_age
-#        fields: ''
-
       - itemName: mrn
-        action: remove_mrn
-        actionParam: "[MRN]"
-        fields: ''
+          action: remove_mrn
+          actionParam: 99999999
+          fields: ''
 
       - itemName: patient_mrn
-        action: replace_with
-        actionParam: "[MRN]"
+        action: replace_minimumlengthword_with
+        actionParam: 99999999 3
         fields:  PAT_MRN_ID
 
       - itemName: other_id
-        action: replace_with
-        actionParam: "[OTHER_ID]"
+        action: replace_minimumlengthword_with
+        actionParam: 999999999 3
         fields:  pat_id, birth_wrist_band, epic_pat_id, PRIM_CVG_ID, PRIM_EPP_ID, EMPLOYER_ID
 
       - itemName: general
         action: general
         actionParam:
-        actionParamMap: {"general-phone":"[PHONE_NUMBER]","general-email":"[EMAIL]","general-ip":"[IP_ADDRESS]","general-url":"[URL]","general-ssn":"[SSN]"}
+        actionParamMap: {"general-phone":"999-999-9999","general-email":"deidentified@example.com","general-ip":"000.000.000.000","general-url":"www.example.com","general-ssn":"999-99-9999"}
         fields:
 
       - itemName: general_number
         action: general_number
         actionParam:
-        actionParamMap: {"general-account":"[OTHER_ID]","general-order":"[OTHER_ID]","general-accession":"[OTHER_ID]"}
+        actionParamMap: {"general-account":"9999999","general-order":"99999","general-accession":"999-999999"}
         fields:
 
       - itemName: patient_ssn
-        action: replace_with
-        actionParam: "[SSN]"
+        action: replace_minimumlengthword_with
+        actionParam: 999-99-9999 4
         fields:  ssn
 
       - itemName: patient_email
-        action: replace_with
-        actionParam: "[EMAIL]"
+        action: replace_minimumlengthword_with
+        actionParam: deidentified@example.com 3
         fields:  email_address
 
       - itemName: other_email
-        action: replace_with
-        actionParam: "[EMAIL]"
+        action: replace_minimumlengthword_with
+        actionParam: deidentified@example.com 3
         fields:
 
       - itemName: public_id
-        action: replace_with
-        actionParam: "[OTHER_ID]"
+        action: replace_minimumlengthword_with
+        actionParam: 9999999999999 3
         fields:  medicare_num, medicaid_num
 
       - itemName: family_id
-        action: replace_with
-        actionParam: "[MRN]"
+        action: replace_minimumlengthword_with
+        actionParam: 000-000-000 3
         fields:  mother_pat_id, father_pat_id
 
       - itemName: patient_name
-        action: replace_with
-        actionParam: "[NAME]"
+        action: surrogate_name
+        actionParamMap: {"format":"L,F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
         fields:  pat_name, PROXY_NAME
 
       - itemName: patient_name
-        action: replace_with
-        actionParam: "[NAME]"
+        action: surrogate_name
+        actionParamMap: {"format":"F","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
         fields:  PAT_FIRST_NAME, preferred_name
 
       - itemName: patient_name
-        action: replace_with
-        actionParam: "[NAME]"
+        action: surrogate_name
+        actionParamMap: {"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
         fields:  PAT_LAST_NAME, PAT_MIDDLE_NAME
 
       - itemName: other_name
-        action: replace_with
-        actionParam: "[NAME]"
+        action: surrogate_name
+        actionParamMap: {"format":"L","f_zip":"zip","f_gender":"","f_dob":"birth_date"}
         fields: GUARDIAN_NAME
 
       - itemName: care_provider_name
-        action: replace_with
-        actionParam: "[NAME]"
+        action: surrogate_name
+        actionParamMap: {"format":"L","f_zip":null,"f_gender":"","f_dob":null}
         fields: EMP_NAME
 
       - itemName: emergency_contact
-        action: replace_with
-        actionParam: "[NAME]"
+        action: surrogate_name
+        actionParamMap: {"format":"L","f_zip":null,"f_gender":"","f_dob":null}
         fields: father_name, mother_name
 
       - itemName: other_address
-        action: replace_with
-        actionParam: "[ADDRESS]"
-        fields:
+        action: surrogate_address
+        fields:  ''
 
       - itemName: patient_address
-        action: replace_with
-        actionParam: "[ADDRESS]"
-        fields:
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"add_line_1","f_address_2":"add_line_2", "f_city":"city", "f_zip":"zip"}
+        fields: ''
 
       - itemName: patient_address
-        action: replace_with
-        actionParam: "[ADDRESS]"
-        fields:
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"tmp_addr_line_1","f_address_2":"tmp_addr_line_2", "f_city":"tmp_city", "f_zip":"tmp_zip"}
+        fields: ''
+
 
       - itemName: emergency_contact_address
-        action: replace_minimumlengthword_with
-        actionParam: "[ADDRESS]"
-        fields:
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"father_addr_ln_1","f_address_2":"father_addr_ln_2", "f_city":"father_city", "f_zip":"father_zip"}
+        fields: ''
 
       - itemName: emergency_contact_address
-        action: replace_minimumlengthword_with
-        actionParam: "[ADDRESS]"
-        fields:
+        action: surrogate_address
+        actionParamMap: {"f_address_1":"mother_addr_ln_1","f_address_2":"mother_addr_ln_2", "f_city":"mother_city", "f_zip":"mother_zip"}
+        fields: ''
 
       - itemName: patient_phone
         action: replace_minimumlengthword_with
-        actionParam: "[PHONE_NUMBER]"
+        actionParam: 999-999-9999 7
         fields:  home_phone, work_phone, tmp_home_phone, PROXY_PHONE,
 
       - itemName: emergency_contact_phone
         action: replace_minimumlengthword_with
-        actionParam: "[PHONE_NUMBER]"
+        actionParam: 999-999-9999 7
         fields: father_cell_phone, mother_cell_phone
 
       - itemName: accession_num
         action: replace_minimumlengthword_with
-        actionParam: "[OTHER_ID]"
+        actionParam: 9999-9999 5
         fields: accession_num
 
       - itemName: general_name
-        action: replace_with
-        actionParam: "[NAME]"
-        fields:
+        action: surrogate_name
+        fields: ''
 
       - itemName: replace_ner_name
-        action: replace_ner_name
-        actionParam: '[NAME]'
+        action: surrogate_name
+	fields: ''
 
       - itemName: har_num
         action: replace_har
