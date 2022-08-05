@@ -64,9 +64,9 @@ deidJobs:
         fields: '*'
 
       - itemName: mrn
-          action: remove_mrn
-          actionParam: 99999999
-          fields: ''
+        action: remove_mrn
+        actionParam: 99999999
+        fields: ''
 
       - itemName: patient_mrn
         action: replace_minimumlengthword_with
@@ -191,7 +191,7 @@ deidJobs:
 
       - itemName: replace_ner_name
         action: surrogate_name
-	fields: ''
+        fields: ''
 
       - itemName: har_num
         action: replace_har
