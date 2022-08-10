@@ -145,6 +145,41 @@ public class Utility {
   }
 
   /**
+   * return tuple of two random chars that starts differently from provided avoidWord.
+   * Differs from getRandomChars in being able to generate numbers and other characters.
+   * @param avoidWord word to avoid, usually the surrogate target
+   * @return tuple of two random chars
+   */
+  public static Pair<Integer,Integer> getRandomChars2(String avoidWord) {
+    int random1 = random.nextInt(35) + 1;
+    if (random1 <= 26) {
+      random1 = random1 + 64;  // A-Z
+    } else {
+      random1 = random1 + 22;  // 1-9
+    }
+    if (avoidWord != null && avoidWord.length() > 0
+        && random1 == avoidWord.toUpperCase(Locale.ROOT).charAt(0)) {
+      if (random1 > 64) {
+        random1 = (random1 - 65 + 1) % 26 + 65;
+      } else {
+	random1 = random1 + 17;
+      }
+    }
+    int random2 = random.nextInt(42) + 1;
+    if (random2 <= 26) {
+      random2 = random2 + 64;  // A-Z
+    } else if (random2 <= 36) {
+      random2 = random2 + 21;  // 0-9
+    } else if (random2 == 37) {
+      random2 = 32;  // space
+    // 38=& , 39='
+    } else if (random2 > 39) {
+      random2 = random2 + 5;  // -./
+    }
+    return org.javatuples.Pair.with(random1,random2);
+  }
+
+  /**
    * tool to load csv file into a hashset.
    * @param classPathResource filename of the file
    * @param hashSet target hashset
