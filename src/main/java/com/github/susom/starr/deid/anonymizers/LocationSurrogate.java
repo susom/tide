@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.javatuples.Pair;
 import org.javatuples.Quintet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -349,16 +350,19 @@ public class LocationSurrogate implements AnonymizerProcessor {
     return 0;
   }
 
+
   private String getExactLocationSurrogate(String format,
                                            String originStreetName, String originalStateCode)  {
 
-    org.javatuples.Pair<Integer,Integer> chars = Utility.getRandomChars(originStreetName);
+    //org.javatuples.Pair<Integer,Integer> chars = Utility.getRandomChars(originStreetName);
+    org.javatuples.Pair<Integer,Integer> chars = Utility.getRandomChars2(originStreetName);
     int range;
 
     try {
       range = getLocationRange(chars.getValue0(),chars.getValue1());
       while (range == 0) {
-        chars = Utility.getRandomChars(originStreetName);
+	//chars = Utility.getRandomChars(originStreetName);
+        chars = Utility.getRandomChars2(originStreetName);
         range = getLocationRange(chars.getValue0(),chars.getValue1());
       }
 
@@ -368,7 +372,7 @@ public class LocationSurrogate implements AnonymizerProcessor {
         db.get().toSelect(findAddressByI12Query)
         .argInteger(charParam.getValue0())
         .argInteger(charParam.getValue1())
-        .argInteger(random.nextInt(Math.min(rangeParam, 10)) + 1)
+        .argInteger(random.nextInt(Math.min(rangeParam, 40000)) + 1)
         .queryFirstOrNull(r -> {
           String streetName = r.getStringOrEmpty("street_name");
           String streetType = r.getStringOrEmpty("street_type");
