@@ -18,7 +18,6 @@
 
 package com.github.susom.starr.deid;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.susom.starr.deid.anonymizers.AnonymizedItemWithReplacement;
@@ -80,8 +79,6 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
   @ProcessElement
   public void processElement(ProcessContext context) throws IOException, IllegalAccessException {
     ObjectMapper mapper = new ObjectMapper();
-    // Fix fpr TIDE-9
-    mapper.setDefaultPropertyInclusion(JsonInclude.Include.ALWAYS);
     
     DeidResult dt = context.element();
     String dtString = mapper.writeValueAsString(dt);
