@@ -12,11 +12,11 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>1.8</java.version>
+    <java.version>17</java.version>
 
     <main.class>com.github.susom.starr.deid.Main</main.class>
 
-    <beam.version>2.29.0</beam.version>
+    <beam.version>2.45.0</beam.version>
     <jackson.version>2.10.4</jackson.version>
     <junit-jupiter.version>5.1.0</junit-jupiter.version>
     <version.jopt.simple>5.0.4</version.jopt.simple>
