@@ -13,7 +13,7 @@ steps:
       - name: 'ssh'
         path: /root/.ssh
 
-  - name: maven:3-jdk-8
+  - name: maven:3.9.0-eclipse-temurin-17-focal
     entrypoint: bash
     env:
       - 'REPO_USERNAME=$_REPO_USER'
