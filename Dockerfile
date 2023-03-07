@@ -1,26 +1,12 @@
-FROM alpine:3.14
+FROM maven:3.9.0-eclipse-temurin-17-focal
+# Do not replace Maven with a generic JRE or JDK since TiDE can be called by Maven
 
-RUN  apk update \
-  && apk upgrade \
-  && apk add ca-certificates \
-  && update-ca-certificates \
-  && apk add --update coreutils && rm -rf /var/cache/apk/*   \ 
-  && apk add --update openjdk11 tzdata curl unzip bash \
-  && apk add --no-cache nss \
-  && rm -rf /var/cache/apk/*
-
-RUN  apk add maven
-RUN export PATH=${PATH}:${JAVA_HOME}/bin
-
-RUN apk add libc6-compat
-RUN ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
-
+RUN apt update && apt -y install zip unzip curl
 RUN mkdir /opt/deid
 WORKDIR /opt/deid
 COPY ./ /opt/deid
 
 RUN mvn clean install -DskipTests
-#RUN mv target/deid-3.0.21-SNAPSHOT-jar-with-dependencies.jar /opt/deid/deid.jar
+RUN mv target/deid-*dataflow.jar /opt/deid/deid.jar
 
-#CMD [ "java","-jar","/opt/deid/deid.jar" ]
-ENTRYPOINT [ "/bin/sh" ]
+CMD [ "java","-jar","/opt/deid/deid.jar" ]
