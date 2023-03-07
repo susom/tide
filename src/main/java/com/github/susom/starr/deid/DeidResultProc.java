@@ -79,7 +79,7 @@ public class DeidResultProc extends DoFn<DeidResult,String> {
   @ProcessElement
   public void processElement(ProcessContext context) throws IOException, IllegalAccessException {
     ObjectMapper mapper = new ObjectMapper();
-
+    
     DeidResult dt = context.element();
     String dtString = mapper.writeValueAsString(dt);
     context.output(DeidTransform.fullResultTag, dtString);
