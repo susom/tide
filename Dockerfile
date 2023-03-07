@@ -7,7 +7,7 @@ WORKDIR /opt/deid
 COPY ./ /opt/deid
 
 RUN mvn clean install -DskipTests
-RUN mv target/deid-*-dataflow.jar /opt/deid/deid.jar
+#RUN mv target/deid-3.0.30-SNAPSHOT-jar-with-dependencies.jar /opt/deid/deid.jar
 
-# CMD [ "java","-jar","/opt/deid/deid.jar" ]
+#CMD [ "java","-jar","/opt/deid/deid.jar" ]
 ENTRYPOINT [ "/bin/sh" ]
