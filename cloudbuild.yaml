@@ -2,6 +2,8 @@ steps:
   - name: maven:3.9.0-eclipse-temurin-17-focal
     entrypoint: mvn
     args: ['-gs','maven/settings.xml','-Dmaven.test.skip=true','deploy']
+    env:
+      - 'REPO_API_TOKEN=$_REPO_TOKEN'
 
   # Docker Build
   - name: "gcr.io/cloud-builders/docker:20.10.14"
