@@ -8,69 +8,14 @@
       <id>cloud-build</id>
       <repositories>
         <repository>
-          <id>central</id>
-          <name>Central Repository</name>
-          <url>https://repo.maven.apache.org/maven2</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
+          <id>starr-maven</id>
+          <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven</url>
         </repository>
-
-        <repository>
-          <id>io.cloudrepo.rit-public</id>
-          <url>https://susom.mycloudrepo.io/public/repositories/rit-public</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </repository>
-
-        <repository>
-          <id>io.cloudrepo.rit-public-snapshot</id>
-          <url>https://susom.mycloudrepo.io/public/repositories/rit-public-snapshot</url>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </repository>
-
-        <repository>
-          <id>io.cloudrepo.rit-ext-private</id>
-          <url>https://susom.mycloudrepo.io/repositories/rit-ext-private</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </repository>
-
-        <repository>
-          <id>io.cloudrepo.rit-private</id>
-          <url>https://susom.mycloudrepo.io/repositories/rit-private</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </repository>
-
-        <repository>
-          <id>io.cloudrepo.rit-private-snapshot</id>
-          <url>https://susom.mycloudrepo.io/repositories/rit-private-snapshot</url>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </repository>
+        <snapshotRepository>
+          <id>starr-maven-snapshot</id>
+          <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
+        </snapshotRepository>
       </repositories>
-
-      <pluginRepositories>
-        <pluginRepository>
-          <releases>
-            <updatePolicy>never</updatePolicy>
-          </releases>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-          <id>central</id>
-          <name>Central Repository</name>
-          <url>https://repo.maven.apache.org/maven2</url>
-        </pluginRepository>
-      </pluginRepositories>
-
     </profile>
   </profiles>
 
@@ -80,19 +25,27 @@
 
   <servers>
     <server>
-      <id>io.cloudrepo.rit-ext-private</id>
-      <username>${env.REPO_USERNAME}</username>
-      <password>${env.REPO_API_TOKEN}</password>
-    </server>
-    <server>
-      <id>io.cloudrepo.rit-private</id>
-      <username>${env.REPO_USERNAME}</username>
-      <password>${env.REPO_API_TOKEN}</password>
-    </server>
-    <server>
-      <id>io.cloudrepo.rit-private-snapshot</id>
-      <username>${env.REPO_USERNAME}</username>
-      <password>${env.REPO_API_TOKEN}</password>
+      <id>artifact-registry</id>
+      <configuration>
+        <httpConfiguration>
+          <get>
+            <usePreemptive>true</usePreemptive>
+          </get>
+          <head>
+            <usePreemptive>true</usePreemptive>
+          </head>
+          <put>
+            <params>
+              <property>
+                <name>http.protocol.expect-continue</name>
+                <value>false</value>
+              </property>
+            </params>
+          </put>
+        </httpConfiguration>
+      </configuration>
+      <username>_json_key_base64</username>
+      <password>ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAic29tLXJpdC1waGktc3RhcnItZGV2IiwKICAicHJpdmF0ZV9rZXlfaWQiOiAiZjVmNzkwMWE1MDMyODEwMmQ5YjM2ZGM5Mjg0MGQwODkxODhmZjRkZCIsCiAgInByaXZhdGVfa2V5IjogIi0tLS0tQkVHSU4gUFJJVkFURSBLRVktLS0tLVxuTUlJRXZRSUJBREFOQmdrcWhraUc5dzBCQVFFRkFBU0NCS2N3Z2dTakFnRUFBb0lCQVFERys0c05BSlNvazdGc1xuUFNBbDVsd2tEd0IxNks1VnpvZ2ZZRFovZGRXTit3TjczQWtGN3hucjA2eUFKa1ZzaFh3K3BoUkJHWC9HQXFkblxuTDR3YmdkbkFHVmtWekNsTFZGMFltWDlWOCtqVmRndU82WDBFZk1OMVhGQW5IRTNobldaV2N5SEtrVnZSN2tHSlxudGlhYmJMU2k3QVRTODNianBwOFEvN1k2ZTI4M0hIUU16TTB3M3NtTzJxek1jQVM0ZmExNGxHQ3lKV1NJaG5QQlxuVzdRWFFoMHQrMmtSS2EwaUZLbmdrVnNRaEVxWHpiRmxhVTNKb2d0dUpaMXhOWHBiaHZ4S3QzWEI1cm02RVl1RVxuRXkybmg5RUc3aTZ1WXdIU1hSTmhBRWFaWDNoSnArOUpUOVhFQjNzb3djRXZPUUorUUpqNE5ESzRRN1h5OUxGMFxuTmRRQ2M4aFRBZ01CQUFFQ2dnRUFUSVBUdjRjMm92QlFMSEFBMmJJUVFtbG1ZdkM3Z1JGdk5LbDVxMSt6WStwZlxuTjVTdi81RW01WkU2NXZoUWY5K0FuRktldlQzQjdYRjl6K2J2dUhBaFBJWkN4R2dDaFE0RzBudk1CRkJMZXpIdVxuVmVFaENzV3pINEVFN1ZVcitaTGVGR1luVzA2MEFURGVFTWR6WnhiUkMwazR2YW1UVVF6MFk4UUEzZEl6UFB4TlxuTVU3cjM0Y2JEemJlWjd4dnRNQ00vbktYMUgzREVqZVNOYWIvNzJaL0tXS0FUdGNvRXZNSkozaTZ6eDBuaHNFSlxuMDZCSmtKekNZUVhSZDRIeUFabk8zdEdvdHVrVGlmdUJ6dEEzQzlOeGZxUE9tWnFvcm40TFhoNG5TalBpYXRKU1xuWGlCamRiSVpnaTNnZlRmbWVuV0ZVZ0J2SmVpQVJUNWRiUkZPb0dWU0FRS0JnUUR0aytOUXFZM2t6N0Qzb3JJblxuV1VBUERET3l2dWxXNDNQUzFWc1g2cW5rMUdidVhqdmRva2ZNZFQvTFJFclFaWE1sWWl3ZDc2VXdzMGtWWkJJQ1xuMkpUa2FERkdENGdHSjFiSnNtbFNDMzltc2ZNQnpBUi9CNjA1dG1CMXNJbXVtSE95ZFk4NnRzRnU0UU5TZG5ISVxuQlFKZG4wbG9qRU43OUdjdEdwNko5WU1SQVFLQmdRRFdhWUxJcmxXWFJCTkFZSFM5bUVtSmdlTVVRUGhpQ2xoQ1xuZFJPa0N2ZFdSSFJBQXNUSUxJcWZGU0x6MUJFdTBxVjRCa1BaVGJmZWlxQ3hwWGYzLzZhMEhSSkdQaEhCK2lGelxuSTdaTEJvN3JJNEhORzN5Z29BNGhrTVFiakoyMUpSZklQdUp5Zjd0aWZidEJuaXRzVG9SbHl5NDFndTNqa2VTVFxueEJMQnRXQkZVd0tCZ0V1c2ZveHo1WUdMY2pmK3Q3WjI1RU9teEZUY0lLRVBoQllVNVpZaHBnb0FhZVRsV1RaSVxuZVl3emtLVmpWRjA2NDBsMkVzMWFSd2pUSXFWUW9iZ01XcWpDVTJlWWpPQkE2WkVIWmlxL0JNNm1RZHhCcXZEM1xuZGdMYkI3Q1ZFZFh1TTNRVnBCQzBvN3A0cThFNWZ4YVNHZVhPVmVpYVBPaWZ1Ym1STUF5TGlqc0JBb0dCQUlUOFxuOHBLWWx4djRyRndzdDV2MVBmOWRJY1NwTzZaTHRreWFJM0dISDd4UlB5Mkl5aGRDa1VSMHJyWS9uZHpGNkw0V1xuWExVRzRIblcwQzcvYS9iVmljZURsSmNlM3BMTEd6NDRNMVE3b0IrMmFVY1h1bWhDZmlGUmttRm9DVldXeVRaNVxuMHFpa0UweldvWFBrc0JoQVp4eGdOcXdZSm9jVk1ZcDVmZ3pKL0FsakFvR0FTUkhXak92Nm1FWUVzcjQ1SU05d1xuSVEyYXNEU1Z4dVFFbk1CenNIV1NyckwwNGprVURmcFI1NXJ0YmREaVdMbVU0VjcrbU9GQ0duYk41L1VCTFNER1xuYWdJUE90M1RYTU94N0ZxbjZ1QVRvVW9sV3BhNitudHVONUJiSEJ2YXcwcG9BRUoyQ2ZFUndTUGV6a203ODdiU1xuZktVN3hUSnVQNElvdWg4NFZUdGZjSzg9XG4tLS0tLUVORCBQUklWQVRFIEtFWS0tLS0tXG4iLAogICJjbGllbnRfZW1haWwiOiAicGlwZWxpbmUtc3RhcnItbmF2LWRldkBzb20tcml0LXBoaS1zdGFyci1kZXYuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLAogICJjbGllbnRfaWQiOiAiMTExNDAxODk2ODM2MjQxOTg1OTQxIiwKICAiYXV0aF91cmkiOiAiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tL28vb2F1dGgyL2F1dGgiLAogICJ0b2tlbl91cmkiOiAiaHR0cHM6Ly9vYXV0aDIuZ29vZ2xlYXBpcy5jb20vdG9rZW4iLAogICJhdXRoX3Byb3ZpZGVyX3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vb2F1dGgyL3YxL2NlcnRzIiwKICAiY2xpZW50X3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vcm9ib3QvdjEvbWV0YWRhdGEveDUwOS9waXBlbGluZS1zdGFyci1uYXYtZGV2JTQwc29tLXJpdC1waGktc3RhcnItZGV2LmlhbS5nc2VydmljZWFjY291bnQuY29tIgp9Cg==</password>
     </server>
   </servers>
 
