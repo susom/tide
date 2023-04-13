@@ -398,7 +398,7 @@
       </releases>
     </repository>
     <repository>
-      <id>artifact-registry</id>
+      <id>artifact-registry-snapshot</id>
       <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
       <snapshots>
         <enabled>true</enabled>
