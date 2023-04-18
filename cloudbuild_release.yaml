@@ -16,7 +16,6 @@ steps:
   - name: maven:3.9.0-eclipse-temurin-17-focal
     entrypoint: bash
     env:
-      - 'REPO_USERNAME=$_REPO_USER'
       - 'REPO_API_TOKEN=$_REPO_TOKEN'
       - 'BUILD_ID=$BUILD_ID'
       - 'BRANCH_NAME=$BRANCH_NAME'
@@ -24,8 +23,6 @@ steps:
     args:
       - -c
       - |
-        git config --global user.name "cloudbuild" && \
-        git config --global user.email "cloudbuild@example.com" && \
         git config --global init.defaultBranch main && \
         git branch -m ${BRANCH_NAME} && \
         mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
@@ -54,7 +51,7 @@ steps:
 
     # Docker Build
   - name: "gcr.io/cloud-builders/docker:20.10.14"
-    args: ["build", "-t", "${_ARTIFACT_REGISTRY_REPO}/tide:3.0.30", "."]
+    args: ["build", "-t", "${_ARTIFACT_REGISTRY_REPO}/tide:3.0.31", "."]
 
   # Docker push to Google Artifact Registry
   - name: "gcr.io/cloud-builders/docker:20.10.14"
