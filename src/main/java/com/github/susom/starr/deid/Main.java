@@ -45,6 +45,7 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionTuple;
+import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.TupleTagList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,6 +190,13 @@ public class Main implements Serializable {
               new AppendSuffixSerializableFunction("/DeidNote")))
       );
 
+    TupleTag<String> note_id = new TupleTag<>(DeidTransform.fullResultTag.getOutName(0));
+    result.get(note_id)
+        .apply(TextIO.write().to(
+          NestedValueProvider.of(options.getGcpTempLocation(),
+              new AppendSuffixSerializableFunction("/Note_Id")))
+      );
+
     if (options.getInputType().equals(ResourceType.text.name()) && jobs.deidJobs[0].isAnnotatorOutputEnabled()) {
       result.get(DeidTransform.fullResultTag)
         .apply("DeidAnnotatorOutput", new DeidAnnotatorTransform(options.getOutputResource().get() + "/annotator", annotatorSpecs));
@@ -314,6 +322,12 @@ public class Main implements Serializable {
     String getAnnotatorConfigFile();
 
     void setAnnotatorConfigFile(String value);
+
+    @Description("Path of the file to save to temp location")
+    @Default.String("gs://rit-pipeline-starr-nav-dev.starr-data.us/reg_temp_dataflow_test/temp_deid_cdm_unstructured_data_20230725200121_tgqmx7/df/temp")
+    ValueProvider<String> getGcpTempLocation();
+
+    void setGcpTempLocation(ValueProvider<String> value);
   }
 
 }
