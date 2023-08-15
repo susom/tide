@@ -1,0 +1,1 @@
+* ({uri-jira}/TIDE-10[TIDE-10]) - print out note_id to gcs bucket.
