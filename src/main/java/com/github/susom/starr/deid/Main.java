@@ -18,10 +18,15 @@
 
 package com.github.susom.starr.deid;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.susom.starr.deid.DeidTransform.DeidFn;
+import com.google.api.services.bigquery.model.TableRow;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,6 +37,7 @@ import java.util.Locale;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.TextIO;
+import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
@@ -40,13 +46,14 @@ import org.apache.beam.sdk.options.Validation;
 import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.options.ValueProvider.NestedValueProvider;
 import org.apache.beam.sdk.options.ValueProvider.StaticValueProvider;
+import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionTuple;
-import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.TupleTagList;
+import org.apache.beam.sdk.values.TypeDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,16 +75,20 @@ public class Main implements Serializable {
     log.info(options.toString());
 
     DeidJobs jobs = null;
+    // DeidJobs jobs2 = null;
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     try {
       File deidConfigFileHd = new File(options.getDeidConfigFile());
       if (deidConfigFileHd.exists()) {
         log.info("reading configuration from file " + deidConfigFileHd.getAbsolutePath());
         jobs = mapper.readValue(deidConfigFileHd, DeidJobs.class);
+        // jobs2 = mapper.readValue(deidConfigFileHd, DeidJobs.class);
       } else {
         log.info("reading configuration from " + options.getDeidConfigFile());
         jobs = mapper.readValue(this.getClass().getClassLoader()
           .getResourceAsStream(options.getDeidConfigFile()), DeidJobs.class);
+        // jobs2 = mapper.readValue(this.getClass().getClassLoader()
+          // .getResourceAsStream(options.getDeidConfigFile()), DeidJobs.class);
       }
       log.info("received configuration for " + jobs.name);
     } catch (IOException e) {
@@ -107,14 +118,33 @@ public class Main implements Serializable {
       boolean enableDlp = options.getGoogleDlpEnabled().toLowerCase(Locale.ROOT).equals("true");
       for (int i = 0; i < jobs.deidJobs.length;i++) {
         jobs.deidJobs[i].googleDlpEnabled = enableDlp;
+        // jobs2.deidJobs[i].googleDlpEnabled = enableDlp;
       }
     }
 
     if (options.getTextIdFields() != null) {
       //override text field mapping
+      // ValueProvider<String> note_id = new ValueProvider<String>() {
+      //   @Override
+      //   public boolean isAccessible() {
+      //     return false;
+      //   }
+
+      //   @Override
+      //   public String get() {
+      //     return "note_id";
+      //   }
+
+      //   @Override
+      //   public String toString() {
+      //     return "toString";
+      //   }
+      // };
+
       for (int i = 0; i < jobs.deidJobs.length;i++) {
         if (options.getTextIdFields() != null) {
           jobs.deidJobs[i].textIdFields = options.getTextIdFields();
+          // jobs2.deidJobs[i].textIdFields = note_id;
         }
         if (options.getTextInputFields() != null) {
           jobs.deidJobs[i].textFields = options.getTextInputFields();
@@ -146,6 +176,7 @@ public class Main implements Serializable {
       collection = p.apply(TextIO.read().from(options.getInputResource()));
     }
 
+    // TupleTag<String> note_id = new TupleTag<>("note_id");
     PCollectionTuple result = collection
         .apply("Deid", new DeidTransform(jobs.deidJobs[0], options.getDlpProject()))
         .apply("processResult",
@@ -184,19 +215,93 @@ public class Main implements Serializable {
         );
     }
 
+    // .apply("TransformData", ParDo.of(new DoFn<String, KV<String, String>>() {
+    //             @ProcessElement
+    //             public void processElement(ProcessContext c) {
+    //                 Gson gson = new GsonBuilder().create();
+    //                 ObjectMapper oMapper = new ObjectMapper();
+    //                 JSONObject obj_key = new JSONObject();
+    //                 JSONObject obj_value = new JSONObject();
+    //                 List<String> listMainKeys = Arrays
+    //                         .asList(new String[] { "EBELN", "AEDAT", "BATXT", "EKOTX", "Land1", "WAERS" });
+
+    //                 HashMap<String, Object> parsedMap = gson.fromJson(c.element().toString(), HashMap.class);
+    //                 parsedMap.remove("schema");
+
+    //                 KV<String,String> objectKV = KV.of(obj_key.toString(), obj_value.toString());
+    //                 c.output(objectKV);
+    //             }
+    //         })).apply("Group By Key", GroupByKey.<String, String>create())
+    // PCollection<TableRow> getConfigTable = p.apply("read from Table",
+    //         BigQueryIO.readTableRows().from(result.get(DeidTransform.fullResultTag).getName()));
+    // getConfigTable.apply("TransformData",ParDo.of(new DoFn<TableRow,String>() {
+    //     @ProcessElement
+    //     public void processElement(ProcessContext c){
+    //       Gson gson = new GsonBuilder().create();
+          
+    //     }
+    // }));
+    // getConfigTable.apply(MapElements
+    // .into(TypeDescriptor.of(TableRow.class))
+    // // Use TableRow to access individual fields in the row.
+    // .via((TableRow row) -> {
+    //   String note = (String) row.get("note_id");
+    //   log.info(note);
+    //   return row;
+    // }));
+    // PCollection<String> getDestTableName = getConfigTable.apply("TransformData",ParDo.of(new DoFn<TableRow,String>(){
+    //     @ProcessElement
+    //     public void processElement(ProcessContext c){
+    //       Gson gson = new GsonBuilder().create();
+    //       InputStreamReader inputReader = new InputStreamReader(c.element().toString(),StandardCharsets.UTF_8);
+    //       JsonReader reader = new JsonReader(new InputStreamReader(c.element().toString(),StandardCharsets.UTF_8));
+    //       reader.beginArray();
+
+    //       HashMap<String,Object> parsedMap = gson.fromJson(c.element().toString(), new HashMap<String,String>());
+    //       gson.fromJson()
+    //         c.output(c.get("ColoumnName").toString());
+    //     }
+    // }));
+
     result.get(DeidTransform.fullResultTag)
         .apply(TextIO.write().to(
           NestedValueProvider.of(options.getOutputResource(),
               new AppendSuffixSerializableFunction("/DeidNote")))
       );
+    
+    result.get(DeidTransform.fullResultTag).apply("note_id", ParDo.of(new DoFn<String,DeidResult>(){
+        @ProcessElement
+        public void processElement(ProcessContext c){
+          ObjectMapper mapper = new ObjectMapper();
+          mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+          JsonNode node = mapper.readTree(c.element());
+          
+          String[] noteIdFields = jobs.deidJobs[0].getTextIdFields().get().split(",");
+          String[] noteIds = new String[noteIdFields.length];
 
-    TupleTag<String> note_id = new TupleTag<>(DeidTransform.fullResultTag.getOutName(0));
-    result.get(note_id)
-        .apply(TextIO.write().to(
-          NestedValueProvider.of(options.getGcpTempLocation(),
-              new AppendSuffixSerializableFunction("/Note_Id")))
-      );
+          for (int i = 0;i < noteIdFields.length;i++) {
+            if (node.has(noteIdFields[i])) {
+              noteIds[i] = node.get(noteIdFields[i]).asText();
+            } else {
+              noteIds[i] = null;
+            }
+          }
+          String[] textFields = jobs.deidJobs[0].getTextFields().get()
+          .replaceAll(" ","").split(",");
+          DeidResult deidResult = new DeidResult(noteIdFields,noteIds,textFields);
 
+          c.output(deidResult);
+        }
+    }));
+    // log.info(result.get(DeidTransform.fullResultTag).toString());
+    // TupleTag<String> note_id = new TupleTag<>("note_id");
+    // PCollectionTuple printResult = PCollectionTuple.of(DeidTransform.fullResultTag,result.get(DeidTransform.fullResultTag));
+    // result.get(DeidTransform.fullResultTag).setSchema(null, null, null, null)
+    //     .apply(TextIO.write().to(
+    //       NestedValueProvider.of(options.getOutputResource(),
+    //           new AppendSuffixSerializableFunction("/Note_Id")))
+    //   );
+    
     if (options.getInputType().equals(ResourceType.text.name()) && jobs.deidJobs[0].isAnnotatorOutputEnabled()) {
       result.get(DeidTransform.fullResultTag)
         .apply("DeidAnnotatorOutput", new DeidAnnotatorTransform(options.getOutputResource().get() + "/annotator", annotatorSpecs));
@@ -323,11 +428,11 @@ public class Main implements Serializable {
 
     void setAnnotatorConfigFile(String value);
 
-    @Description("Path of the file to save to temp location")
-    @Default.String("gs://rit-pipeline-starr-nav-dev.starr-data.us/reg_temp_dataflow_test/temp_deid_cdm_unstructured_data_20230725200121_tgqmx7/df/temp")
-    ValueProvider<String> getGcpTempLocation();
+    // @Description("Path of the file to save to temp location")
+    // @Default.String("gs://rit-pipeline-starr-nav-dev.starr-data.us/reg_temp_dataflow_test/temp_deid_cdm_unstructured_data_20230725200121_tgqmx7/df/temp")
+    // ValueProvider<String> getGcpTempLocation();
 
-    void setGcpTempLocation(ValueProvider<String> value);
+    // void setGcpTempLocation(ValueProvider<String> value);
   }
 
 }
