@@ -115,6 +115,7 @@ public class Main implements Serializable {
     }
 
     if (options.getTextIdFields() != null) {
+      //override text field mapping
       for (int i = 0; i < jobs.deidJobs.length;i++) {
         if (options.getTextIdFields() != null) {
           jobs.deidJobs[i].textIdFields = options.getTextIdFields();
@@ -332,12 +333,6 @@ public class Main implements Serializable {
     String getAnnotatorConfigFile();
 
     void setAnnotatorConfigFile(String value);
-
-    // @Description("Path of the file to save to temp location")
-    // @Default.String("gs://rit-pipeline-starr-nav-dev.starr-data.us/reg_temp_dataflow_test/temp_deid_cdm_unstructured_data_20230725200121_tgqmx7/df/temp")
-    // ValueProvider<String> getGcpTempLocation();
-
-    // void setGcpTempLocation(ValueProvider<String> value);
   }
 
 }
