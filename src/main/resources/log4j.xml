@@ -30,7 +30,7 @@
     </layout>
     <filter class="org.apache.log4j.varia.LevelRangeFilter">
         <param name="LevelMin" value="TRACE"/>
-        <param name="LevelMax" value="INFO"/>
+        <param name="LevelMax" value="WARN"/>
         <param name="AcceptOnMatch" value="true"/>
     </filter>
   </appender>
@@ -48,13 +48,13 @@
     <!--<priority value="TRACE"/>-->
   <!--</category>-->
   <category name="edu.stanford">
-    <priority value="INFO"/>
+    <priority value="WARN"/>
   </category>
   <category name="com.github.susom">
-    <priority value="INFO"/>
+    <priority value="WARN"/>
   </category>
   <root>
-    <priority value="INFO"/>
+    <priority value="WARN"/>
     <appender-ref ref="CONSOLE.OUT"/>
     <appender-ref ref="CONSOLE.ERR"/>
   </root>
