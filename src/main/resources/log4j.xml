@@ -29,7 +29,7 @@
       <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%t] %X{userId} %X{windowId} %X{requestId} %X{deviceRpid} %l %m%n"/>
     </layout>
     <filter class="org.apache.log4j.varia.LevelRangeFilter">
-        <param name="LevelMin" value="TRACE"/>
+        <param name="LevelMin" value="ERROR"/>
         <param name="LevelMax" value="WARN"/>
         <param name="AcceptOnMatch" value="true"/>
     </filter>
