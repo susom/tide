@@ -24,13 +24,13 @@
        messages as black or red depending on priority. -->
   <appender name="CONSOLE.OUT" class="org.apache.log4j.ConsoleAppender">
     <param name="Target" value="System.out"/>
-    <param name="Threshold" value="WARN"/>
+    <param name="Threshold" value="ALL"/>
     <layout class="org.apache.log4j.SecurePatternLayout">
       <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%t] %X{userId} %X{windowId} %X{requestId} %X{deviceRpid} %l %m%n"/>
     </layout>
     <filter class="org.apache.log4j.varia.LevelRangeFilter">
-        <param name="LevelMin" value="ERROR"/>
-        <param name="LevelMax" value="WARN"/>
+        <param name="LevelMin" value="TRACE"/>
+        <param name="LevelMax" value="INFO"/>
         <param name="AcceptOnMatch" value="true"/>
     </filter>
   </appender>
@@ -48,13 +48,13 @@
     <!--<priority value="TRACE"/>-->
   <!--</category>-->
   <category name="edu.stanford">
-    <priority value="WARN"/>
+    <priority value="INFO"/>
   </category>
   <category name="com.github.susom">
-    <priority value="WARN"/>
+    <priority value="INFO"/>
   </category>
   <root>
-    <priority value="WARN"/>
+    <priority value="INFO"/>
     <appender-ref ref="CONSOLE.OUT"/>
     <appender-ref ref="CONSOLE.ERR"/>
   </root>
