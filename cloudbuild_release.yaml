@@ -23,6 +23,10 @@ steps:
     args:
       - -c
       - |
+        apt -y update && apt -y install openssh-client && \
+        git config --global user.name "cloudbuild" && \
+        git config --global user.email "cloudbuild@example.com" && \
+
         git config --global init.defaultBranch main && \
         git branch -m ${BRANCH_NAME} && \
         mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn \
