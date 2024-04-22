@@ -1,1 +1,0 @@
-* ({uri-jira}/STAR-8256[STAR-8256]) - TiDE: Merge Cloudbuild yaml file for branches Main and Dev
