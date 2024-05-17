@@ -5,7 +5,7 @@ steps:
     env:
       - 'REPO_API_TOKEN=$_REPO_TOKEN'
 
-  # Docker Build
+  # Docker Build 
   - name: "gcr.io/cloud-builders/docker:20.10.14"
     args: ["build", "-t", "${_ARTIFACT_REGISTRY_REPO}/tide:3.0.35${_SUFFIX}", "."]
 
