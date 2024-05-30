@@ -101,18 +101,6 @@ public class MrnAnonymizer implements AnonymizerProcessor {
     },
 
     // 10-digit MRN
-    // nnn-nnn-nnn-d, nnn-nnn-nnn
-    { Pattern.compile(PRECEDING + "\\d{3}-\\d{3}-\\d{3}(?:-\\d)?" + FOLLOWING),
-      TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : REPLACE_WORD
-    },
-    // nnn-nnn-nnnn
-    { Pattern.compile(PRECEDING + "\\d{3}-\\d{3}-\\d{4}(?:-\\d)?" + FOLLOWING),
-      TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : REPLACE_WORD
-    },
-    // nnnnnnnnn-n
-    { Pattern.compile(PRECEDING + "\\d{9}-\\d" + FOLLOWING),
-      TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : REPLACE_WORD
-    },
     // nnnnnnnnnn
     { Pattern.compile(PRECEDING + "\\d{10}" + FOLLOWING),
       TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : REPLACE_WORD
