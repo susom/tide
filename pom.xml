@@ -6,7 +6,7 @@
   <name>Starr Core DeId Pipeline</name>
   <groupId>com.github.susom</groupId>
   <artifactId>deid</artifactId>
-  <version>3.0.35-SNAPSHOT</version>
+  <version>3.0.36-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -16,7 +16,7 @@
 
     <main.class>com.github.susom.starr.deid.Main</main.class>
 
-    <beam.version>2.55.1</beam.version>
+    <beam.version>2.56.0</beam.version>
     <jackson.version>2.10.4</jackson.version>
     <junit-jupiter.version>5.1.0</junit-jupiter.version>
     <version.jopt.simple>5.0.4</version.jopt.simple>
