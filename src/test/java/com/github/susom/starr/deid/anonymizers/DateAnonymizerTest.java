@@ -66,7 +66,9 @@ public class DateAnonymizerTest {
       "Mar 4, 2014 18:00h",
       "4/2/2010 5/2/2014 6-4-14 march 10th, 2010",
       "May 10",     // Was not originally handled
-      "DOB: 12/31/2000LOC: ABC" //when connects to surrounding
+      "DOB: 12/31/2000LOC: ABC", //when connects to surrounding
+      "2008-08-09T15:11:00",
+      "20080809151100"
   };
 
   static String[] negativeTests = new String[]{
