@@ -148,6 +148,18 @@ public class DateAnonymizer implements AnonymizerProcessor {
         Pattern.compile(PRECEDING + MONTH + "\\s+" + DAY + DAY_SUFFIX + "?\\b",
             Pattern.CASE_INSENSITIVE),
           TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : "${month}/${day}"
+      },
+      // 2008-08-09T15:11:00 
+      {
+        Pattern.compile(PRECEDING + YEAR + "(/|-)" + MON + "\\2" + DAY + "(T?:\\s*" + TIME + ")?",
+            Pattern.CASE_INSENSITIVE),
+        TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : "${month}/${day}/${year}"
+      },
+      // 20080809151100
+      {
+        Pattern.compile(PRECEDING + YEAR + MON + DAY + "(?:\\s*" + TIME + ")?",
+            Pattern.CASE_INSENSITIVE),
+        TEST ? "<span style=\"color:red\">&lt;$0&gt;</span>" : "${month}/${day}/${year}"
       }
   };
 
