@@ -12,7 +12,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>17</java.version>
+    <java.version>1.8</java.version>
 
     <main.class>com.github.susom.starr.deid.Main</main.class>
 
@@ -244,7 +244,7 @@
     <dependency>
       <groupId>org.xerial.snappy</groupId>
       <artifactId>snappy-java</artifactId>
-      <version>1.1.10.1</version>
+      <version>1.1.10.4</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
@@ -299,13 +299,12 @@
 
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>3.1</version>
         <configuration>
-            <source>${java.version}</source>
-            <target>${java.version}</target>
-            <release>17</release>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
         </configuration>
-    </plugin>
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
