@@ -18,7 +18,7 @@
 
     <beam.version>2.65.0</beam.version>
     <jackson.version>2.15.3</jackson.version>
-    <junit-jupiter.version>5.1.0</junit-jupiter.version>
+    <junit-jupiter.version>5.8.2</junit-jupiter.version>
     <version.jopt.simple>5.0.4</version.jopt.simple>
     <version.gcp.bigquery>1.135.4</version.gcp.bigquery>
   </properties>
