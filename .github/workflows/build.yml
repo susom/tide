@@ -37,6 +37,7 @@ jobs:
         with:
           project_id: 'som-rit-infrastructure-prod'
           workload_identity_provider: 'projects/294515190965/locations/global/workloadIdentityPools/github/providers/susom-github'
+          service_account: ${{ secrets.GCP_SA_EMAIL }} 
           token_format: 'access_token'
 
       - name: Set up Cloud SDK
