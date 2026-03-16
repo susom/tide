@@ -11,7 +11,7 @@ jobs:
   build:
     env:
       REGISTRY: us-west1-docker.pkg.dev
-      IMAGE: som-rit-infrastructure-dev/starr/tide
+      IMAGE: ${{ secrets.ARTIFACT_REGISTRY_REPO }}/tide
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
     permissions:
@@ -29,6 +29,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: 'maven'
 
       - name: Get version from pom.xml
         id: version
@@ -37,12 +38,19 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
           echo "Detected version: ${VERSION}"
 
+      - name: Maven deploy
+        run: mvn -gs maven/settings.xml -Dmaven.test.skip=true deploy
+        env:
+          REPO_API_TOKEN: ${{ secrets.REPO_TOKEN }}
+
       - name: Authenticate with Google Cloud
+        id: auth
         uses: google-github-actions/auth@v2
         with:
           project_id: 'som-rit-infrastructure-prod'
           workload_identity_provider: 'projects/294515190965/locations/global/workloadIdentityPools/github/providers/susom-github'
-          service_account: ${{ secrets.GCP_SA_EMAIL }} 
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          token_format: 'access_token'
 
       - name: Set up Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v2'
@@ -56,11 +64,12 @@ jobs:
           ts=$(date +%Y%m%d%H%M%S)
           echo "BUILD_ID=build-${ts}" >> $GITHUB_OUTPUT
 
-          # Debug: show current auth identity
-          echo "Current identity:"
-          gcloud auth list
-          echo "Current account:"
-          gcloud config get-value account
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
 
       - name: Setup buildx so we can use GHA caching
         uses: docker/setup-buildx-action@v3
@@ -72,6 +81,7 @@ jobs:
             DOCKER_TAG=${{ steps.docker.outputs.BUILD_ID }}
             GITHUB_REF_NAME=${{ env.BRANCH_NAME }}
             GITHUB_REF_TYPE=${{ github.ref_type }}
+            ARTIFACT_REGISTRY_TOKEN=${{ steps.auth.outputs.access_token }}
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
