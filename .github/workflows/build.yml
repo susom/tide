@@ -11,7 +11,7 @@ jobs:
   build:
     env:
       REGISTRY: us-west1-docker.pkg.dev
-      IMAGE: som-rit-infrastructure-prod/starr/tide
+      IMAGE: som-rit-infrastructure-dev/starr/tide
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
     permissions:
