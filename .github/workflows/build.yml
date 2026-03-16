@@ -32,13 +32,12 @@ jobs:
           echo "Detected version: ${VERSION}"
 
       - name: Authenticate with Google Cloud
-        id: auth
+        id: auth                                          # ← fix 1: add id
         uses: google-github-actions/auth@v2
         with:
           project_id: 'som-rit-infrastructure-prod'
           workload_identity_provider: 'projects/294515190965/locations/global/workloadIdentityPools/github/providers/susom-github'
-          service_account: ${{ secrets.GCP_SA_EMAIL }} 
-          token_format: 'access_token'
+          token_format: 'access_token'                   # ← fix 1: required for access_token
 
       - name: Set up Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v2'
@@ -51,8 +50,11 @@ jobs:
           gcloud auth configure-docker ${{ env.REGISTRY }}
           ts=$(date +%Y%m%d%H%M%S)
           echo "BUILD_ID=build-${ts}" >> $GITHUB_OUTPUT
-          SAFE_BRANCH=$(echo "${{ env.BRANCH_NAME }}" | sed 's/\//-/g')
+          SAFE_BRANCH=$(echo "${{ env.BRANCH_NAME }}" | sed 's/\//-/g')  # ← fix 4: sanitize branch
           echo "SAFE_BRANCH=${SAFE_BRANCH}" >> $GITHUB_OUTPUT
+
+      - name: Setup buildx so we can use GHA caching     
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Artifact Registry
         uses: docker/login-action@v3
@@ -61,9 +63,6 @@ jobs:
           username: oauth2accesstoken
           password: ${{ steps.auth.outputs.access_token }}
 
-      - name: Setup buildx so we can use GHA caching
-        uses: docker/setup-buildx-action@v3
-
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
@@ -71,7 +70,6 @@ jobs:
             DOCKER_TAG=${{ steps.docker.outputs.BUILD_ID }}
             GITHUB_REF_NAME=${{ env.BRANCH_NAME }}
             GITHUB_REF_TYPE=${{ github.ref_type }}
-            ARTIFACT_REGISTRY_TOKEN=${{ steps.auth.outputs.access_token }}
           context: .
           cache-from: type=gha
           cache-to: type=gha,mode=max
