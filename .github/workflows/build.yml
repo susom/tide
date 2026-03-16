@@ -3,7 +3,8 @@ name: build
 on:
   push:
     branches:
-      - main*
+      - main
+      - dev
   workflow_dispatch:
 
 jobs:
@@ -22,6 +23,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Get version from pom.xml
+        id: version
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Detected version: ${VERSION}"
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
@@ -56,7 +70,18 @@ jobs:
           cache-to: type=gha,mode=max
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE }}:3.0.39-SNAPSHOT
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ steps.version.outputs.VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ steps.docker.outputs.BUILD_ID }}
             ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.BRANCH_NAME }}
             ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest
+
+      - name: Create Build Summary
+        run: |
+          echo "## Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Key | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | \`${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ steps.version.outputs.VERSION }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | \`${{ steps.version.outputs.VERSION }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build ID | \`${{ steps.docker.outputs.BUILD_ID }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`${{ env.BRANCH_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
