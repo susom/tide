@@ -54,7 +54,7 @@ jobs:
 
       - name: Build and push image
         run: |
-          FULL_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE }}
+          FULL_IMAGE=${{ env.IMAGE }}                      
 
           docker build \
             --build-arg DOCKER_TAG=${{ steps.docker.outputs.BUILD_ID }} \
