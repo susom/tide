@@ -7,7 +7,8 @@ RUN mkdir /opt/deid
 WORKDIR /opt/deid
 COPY ./ /opt/deid
 
-RUN mvn clean install -DskipTests
+RUN mvn clean install -DskipTests \
+    -s maven/settings-docker.xml
 #RUN mv target/deid-3.0.30-SNAPSHOT-jar-with-dependencies.jar /opt/deid/deid.jar
 
 #CMD [ "java","-jar","/opt/deid/deid.jar" ]
