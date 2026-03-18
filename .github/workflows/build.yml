@@ -46,32 +46,27 @@ jobs:
       - name: Authenticate to GAR, get timestamp
         id: docker
         run: |
-          gcloud auth configure-docker ${{ env.REGISTRY }}  # ← uses gcloud credential directly
+          gcloud auth configure-docker ${{ env.REGISTRY }}
           ts=$(date +%Y%m%d%H%M%S)
           echo "BUILD_ID=build-${ts}" >> $GITHUB_OUTPUT
           SAFE_BRANCH=$(echo "${{ env.BRANCH_NAME }}" | sed 's/\//-/g')
           echo "SAFE_BRANCH=${SAFE_BRANCH}" >> $GITHUB_OUTPUT
 
-      - name: Setup buildx so we can use GHA caching
-        uses: docker/setup-buildx-action@v3
-
-      # No docker/login-action needed - gcloud auth configure-docker handles it
       - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          build-args: |
-            DOCKER_TAG=${{ steps.docker.outputs.BUILD_ID }}
-            GITHUB_REF_NAME=${{ env.BRANCH_NAME }}
-            GITHUB_REF_TYPE=${{ github.ref_type }}
-          context: .
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ steps.version.outputs.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ steps.docker.outputs.BUILD_ID }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ steps.docker.outputs.SAFE_BRANCH }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest
+        run: |
+          FULL_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE }}
+
+          docker build \
+            --build-arg DOCKER_TAG=${{ steps.docker.outputs.BUILD_ID }} \
+            --build-arg GITHUB_REF_NAME=${{ env.BRANCH_NAME }} \
+            --build-arg GITHUB_REF_TYPE=${{ github.ref_type }} \
+            -t ${FULL_IMAGE}:${{ steps.version.outputs.VERSION }} \
+            -t ${FULL_IMAGE}:${{ steps.docker.outputs.BUILD_ID }} \
+            -t ${FULL_IMAGE}:${{ steps.docker.outputs.SAFE_BRANCH }} \
+            -t ${FULL_IMAGE}:latest \
+            .
+
+          docker push --all-tags ${FULL_IMAGE}
 
       - name: Create Build Summary
         run: |
