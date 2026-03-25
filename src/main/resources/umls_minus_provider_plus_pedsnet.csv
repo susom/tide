@@ -96315,8 +96315,15 @@ zuerich
 {1000135}
 {1000162}
 {1000176}
+### Start Stop WORDS for biopsy ###
 banff
 bouin
+bouin fixative
+bouin solution
+bouin's fixative
+bouin's solution
+bowman capsule
+bowman's capsule
 henoch
 schönlein
 schonlein
@@ -96331,6 +96338,7 @@ henoch-schönlein purpura
 alport
 pauci
 wegner
+### End Stop WORDS for biopsy ###
 #### Start Stop WORDS for USDHUB ####
 acmi
 aloka
