@@ -74,7 +74,7 @@ public class DeidTransform
   private static final String wordIgnoreFile = "wordIgnore.txt";
   private static final HashSet<String> ignoreWords = new HashSet<>();
 
-  private static final String nerWhitelistFile = "umls_minus_provider.csv";
+  private static final String nerWhitelistFile = "umls_minus_provider_plus_pedsnet.csv";
   private static final HashSet<String> nerWhitelist = new HashSet<>();
 
   static {

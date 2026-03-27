@@ -8,14 +8,69 @@
       <id>cloud-build</id>
       <repositories>
         <repository>
-          <id>starr-maven</id>
-          <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven</url>
+          <id>central</id>
+          <name>Central Repository</name>
+          <url>https://repo.maven.apache.org/maven2</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
         </repository>
-        <snapshotRepository>
-          <id>starr-maven-snapshot</id>
-          <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
-        </snapshotRepository>
+
+        <repository>
+          <id>io.cloudrepo.rit-public</id>
+          <url>https://susom.mycloudrepo.io/public/repositories/rit-public</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+
+        <repository>
+          <id>io.cloudrepo.rit-public-snapshot</id>
+          <url>https://susom.mycloudrepo.io/public/repositories/rit-public-snapshot</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+
+        <repository>
+          <id>io.cloudrepo.rit-ext-private</id>
+          <url>https://susom.mycloudrepo.io/repositories/rit-ext-private</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+
+        <repository>
+          <id>io.cloudrepo.rit-private</id>
+          <url>https://susom.mycloudrepo.io/repositories/rit-private</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+
+        <repository>
+          <id>io.cloudrepo.rit-private-snapshot</id>
+          <url>https://susom.mycloudrepo.io/repositories/rit-private-snapshot</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
       </repositories>
+
+      <pluginRepositories>
+        <pluginRepository>
+          <releases>
+            <updatePolicy>never</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <id>central</id>
+          <name>Central Repository</name>
+          <url>https://repo.maven.apache.org/maven2</url>
+        </pluginRepository>
+      </pluginRepositories>
+
     </profile>
   </profiles>
 
@@ -25,26 +80,18 @@
 
   <servers>
     <server>
-      <id>artifact-registry</id>
-      <configuration>
-        <httpConfiguration>
-          <get>
-            <usePreemptive>true</usePreemptive>
-          </get>
-          <head>
-            <usePreemptive>true</usePreemptive>
-          </head>
-          <put>
-            <params>
-              <property>
-                <name>http.protocol.expect-continue</name>
-                <value>false</value>
-              </property>
-            </params>
-          </put>
-        </httpConfiguration>
-      </configuration>
-      <username>_json_key_base64</username>
+      <id>io.cloudrepo.rit-ext-private</id>
+      <username>${env.REPO_USERNAME}</username>
+      <password>${env.REPO_API_TOKEN}</password>
+    </server>
+    <server>
+      <id>io.cloudrepo.rit-private</id>
+      <username>${env.REPO_USERNAME}</username>
+      <password>${env.REPO_API_TOKEN}</password>
+    </server>
+    <server>
+      <id>io.cloudrepo.rit-private-snapshot</id>
+      <username>${env.REPO_USERNAME}</username>
       <password>${env.REPO_API_TOKEN}</password>
     </server>
   </servers>

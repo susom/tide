@@ -3,11 +3,12 @@ steps:
     entrypoint: mvn
     args: ['-gs','maven/settings.xml','-Dmaven.test.skip=true','deploy']
     env:
+      - 'REPO_USERNAME=$_REPO_USER'
       - 'REPO_API_TOKEN=$_REPO_TOKEN'
 
-  # Docker Build 
+  # Docker Build
   - name: "gcr.io/cloud-builders/docker:20.10.14"
-    args: ["build", "-t", "${_ARTIFACT_REGISTRY_REPO}/tide:3.0.37${_SUFFIX}", "."]
+    args: ["build", "-t", "${_ARTIFACT_REGISTRY_REPO}/tide:3.0.30-SNAPSHOT", "."]
 
   # Docker push to Google Artifact Registry
   - name: "gcr.io/cloud-builders/docker:20.10.14"
