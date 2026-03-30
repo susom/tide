@@ -96315,3 +96315,272 @@ zuerich
 {1000135}
 {1000162}
 {1000176}
+### Start Stop WORDS for biopsy ###
+banff
+bouin
+bouin fixative
+bouin solution
+bouin's fixative
+bouin's solution
+bowman capsule
+bowman's capsule
+henoch
+schönlein
+schonlein
+henoch schonlein
+henoch-schonlein
+henoch schönlein
+henoch-schönlein
+henoch schonlein purpura
+henoch-schonlein purpura
+henoch schönlein purpura
+henoch-schönlein purpura
+alport
+pauci
+wegner
+### End Stop WORDS for biopsy ###
+#### Start Stop WORDS for USDHUB ####
+acmi
+aloka
+ambu
+amplatz
+amplatz access sheath
+amplatz sheath
+amplatz wire
+applied medical
+auriga
+b-k medical
+bd
+bk
+bk flex focus
+bk medical
+bk pro focus
+bk specto
+bkspecto
+bsc
+bsc navigator
+bard
+becton dickinson
+becton, dickinson
+boston scientific
+butterfly
+butterfly network
+butterfly iq
+butterfly 
+c arm
+c-arm
+c. r. bard
+cr bard
+cx50
+canon
+canon medical
+clear path
+clear petra
+clearpath
+clearpetra
+clearpetra system
+coloplast
+cook
+cook flexor
+cook medical
+cyber ho
+cyberho
+dj stent
+dakota
+dakota basket
+dormia
+dormia basket
+dormier
+dornier
+double j
+double-j
+double-j stent
+ems
+ems (electro medical systems)
+epiq
+electro medical systems
+electro medical systems (ems)
+escape
+escape basket
+fujifilm
+fujifilm sonosite
+fiber dust
+fiberdust
+flex focus
+flex x
+flex x2
+flex-x
+flex-x2
+flexor
+flexor uas
+flexor sheath
+fluoroscopy c-arm
+fujifilm
+ge
+ge healthcare
+ge healthcare
+ge oec
+gyrus acmi
+glide wire
+glidewire
+gyrus acmi
+hoyag
+halo
+halo basket
+hitachi
+hitachi aloka
+ho:yag
+holmium
+holmium:yag
+hoover
+huge med
+hugemed
+hugemed 
+ipg
+ipg photonics
+inlay
+inlay
+inlay stent
+jj stent
+karl storz
+karl storz
+logiq
+lith assist
+lithassist
+litho gold
+litho vue
+litho clast
+lithoclast
+lithogold
+lithotrilogy
+lithovue
+lithovue elite
+lithoclast
+lithovue
+logiq
+lumenis
+lumenis pulse
+mip
+medtronic
+micro perc
+microperc
+mini-pcnl
+moses
+moses 1.0
+moses 2.0
+moses technology
+n circle
+n compass
+n-circle
+n-compass
+n-gage
+ncircle
+ncompass
+ngage
+navigator
+nitinol basket
+oec
+oec c-arm
+oec fluoroscopy
+olympus
+opera
+percuflex
+percuflex
+philips
+philips cx50
+philips epiq
+philips healthcare
+piezolith
+piezolith 2300
+piezolith 2500
+piezolith 3000
+pigtail
+pigtail catheter
+polaris
+pollack
+pollack catheter
+pro focus
+pusen
+pusen medical
+quanta
+quanta pulse
+quanta system
+quanta systems
+re-trace
+retrace
+red panda
+redpanda
+richard wolf
+roadrunner
+roadrunner wire
+rocamed
+sensor
+sensor wire
+sheathless
+shock pulse
+shockpulse
+shockpulse-se trilogy
+shockpulse
+siemens
+siemens healthineers
+soltive
+sonosite
+specto
+specto or bkspecto
+stone cone
+stonecone
+storz
+super stiff
+super stiff wire
+swiss lithoclast
+swiss lithoclast (ems)
+swiss lithoclast
+swiss 
+tfl
+terumo
+terumo glidewire
+thu:yag
+thulium
+thulium:yag
+tm:yag
+toshiba (canon)
+trilogy
+ump
+urf-p6
+urf-p7
+urf-v
+urf-v/urf-p
+urf-v2
+ultra-mini pcnl
+ureteroscope (generic)
+versa pulse
+versapulse
+virtual basket
+virtual basket
+well lead
+welllead
+wolf
+zero tip
+zerotip
+canonical
+furs
+flexible ureteroscope
+fluoro
+mini pcnl
+mini-pcnl
+minimally invasive pcnl
+minipcnl
+nitinol basket
+no access sheath
+pig-tail
+pigtail catheter
+sheath-less
+single-use ureteroscope
+super stiff amplatz
+super stiff wire
+super-stiff
+thulium fiber laser
+ultra mini pcnl
+ultra-mini pcnl
+ureteroscope
+#### END Stop WORDS for USDHUB ####
