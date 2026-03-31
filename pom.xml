@@ -6,19 +6,19 @@
   <name>Starr Core DeId Pipeline</name>
   <groupId>com.github.susom</groupId>
   <artifactId>deid</artifactId>
-  <version>3.0.36-SNAPSHOT</version>
+  <version>3.0.40-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>1.8</java.version>
+    <java.version>17</java.version>
 
     <main.class>com.github.susom.starr.deid.Main</main.class>
 
-    <beam.version>2.56.0</beam.version>
-    <jackson.version>2.10.4</jackson.version>
-    <junit-jupiter.version>5.1.0</junit-jupiter.version>
+    <beam.version>2.71.0</beam.version>
+    <jackson.version>2.15.3</jackson.version>
+    <junit-jupiter.version>5.8.2</junit-jupiter.version>
     <version.jopt.simple>5.0.4</version.jopt.simple>
     <version.gcp.bigquery>1.135.4</version.gcp.bigquery>
   </properties>
@@ -92,13 +92,36 @@
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-csv</artifactId>
-      <version>2.12.4</version>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.javatuples</groupId>
       <artifactId>javatuples</artifactId>
       <version>1.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
@@ -130,10 +153,6 @@
         <exclusion>
           <groupId>com.google.http-client</groupId>
           <artifactId>google-http-client</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-core</artifactId>
         </exclusion>
         <exclusion>
           <groupId>io.grpc</groupId>
@@ -244,7 +263,7 @@
     <dependency>
       <groupId>org.xerial.snappy</groupId>
       <artifactId>snappy-java</artifactId>
-      <version>1.1.10.1</version>
+      <version>1.1.10.4</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
@@ -299,10 +318,11 @@
 
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.10.1</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
+          <release>17</release>
         </configuration>
       </plugin>
 

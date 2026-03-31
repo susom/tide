@@ -1,0 +1,80 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build:
+    env:
+      REGISTRY: us-west1-docker.pkg.dev
+      IMAGE: ${{ vars.ARTIFACT_REGISTRY_REPO }}/tide
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false && !contains(github.event.head_commit.message, '!ignore')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version from pom.xml
+        id: version
+        run: |
+          VERSION=$(grep -m1 '<version>' pom.xml | sed 's/[^>]*>\([^<]*\).*/\1/')
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Detected version: ${VERSION}"
+
+      - name: Authenticate with Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: 'som-rit-infrastructure-prod'
+          workload_identity_provider: 'projects/294515190965/locations/global/workloadIdentityPools/github/providers/susom-github'
+
+      - name: Set up Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          version: '>= 363.0.0'
+
+      - name: Authenticate to GAR, get timestamp
+        id: docker
+        run: |
+          gcloud auth configure-docker ${{ env.REGISTRY }}
+          ts=$(date +%Y%m%d%H%M%S)
+          echo "BUILD_ID=build-${ts}" >> $GITHUB_OUTPUT
+          SAFE_BRANCH=$(echo "${{ env.BRANCH_NAME }}" | sed 's/\//-/g')
+          echo "SAFE_BRANCH=${SAFE_BRANCH}" >> $GITHUB_OUTPUT
+
+      - name: Build and push image
+        run: |
+          FULL_IMAGE=${{ env.IMAGE }}                      
+
+          docker build \
+            --build-arg DOCKER_TAG=${{ steps.docker.outputs.BUILD_ID }} \
+            --build-arg GITHUB_REF_NAME=${{ env.BRANCH_NAME }} \
+            --build-arg GITHUB_REF_TYPE=${{ github.ref_type }} \
+            -t ${FULL_IMAGE}:${{ steps.version.outputs.VERSION }} \
+            -t ${FULL_IMAGE}:${{ steps.docker.outputs.BUILD_ID }} \
+            -t ${FULL_IMAGE}:${{ steps.docker.outputs.SAFE_BRANCH }} \
+            -t ${FULL_IMAGE}:latest \
+            .
+
+          docker push --all-tags ${FULL_IMAGE}
+
+      - name: Create Build Summary
+        run: |
+          echo "## Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Key | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | \`${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ steps.version.outputs.VERSION }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | \`${{ steps.version.outputs.VERSION }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build ID | \`${{ steps.docker.outputs.BUILD_ID }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`${{ steps.docker.outputs.SAFE_BRANCH }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY

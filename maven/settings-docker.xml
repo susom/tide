@@ -1,0 +1,24 @@
+<settings>
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <repositories>
+        <repository>
+          <id>artifact-registry</id>
+          <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven</url>
+          <releases><enabled>false</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+          <id>artifact-registry-snapshot</id>
+          <url>artifactregistry://us-west1-maven.pkg.dev/som-rit-infrastructure-prod/starr-maven-snapshot</url>
+          <releases><enabled>false</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>docker</activeProfile>
+  </activeProfiles>
+</settings>
