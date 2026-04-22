@@ -25,7 +25,7 @@ import com.github.susom.starr.Utility;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -207,8 +207,8 @@ public class NameSurrogate implements AnonymizerProcessor {
     }
   }
 
-  static final Map<String,Integer> lnCache = new HashMap<>();
-  static final Map<String,Integer> fnCache = new HashMap<>();
+  static final Map<String,Integer> lnCache = new ConcurrentHashMap<>();
+  static final Map<String,Integer> fnCache = new ConcurrentHashMap<>();
 
   int getFirstNameRange(String sex, int char1, int char2) throws SQLException {
     String key = "FN_" + sex + "_" + char1 + "_" + char2;
